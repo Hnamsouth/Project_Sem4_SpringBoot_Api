@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.repositories.PermissionRepository;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Integer status;
 
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -53,6 +55,8 @@ public class User implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
         // add permission
+        PermissionRepository pmsRepo = null;
+        pmsRepo.findAllByRoles(this.getRoles());
         authorities.add(new SimpleGrantedAuthority(username.equals("user1") ? "admin:read":"admin:create"));
         return authorities;
     }
