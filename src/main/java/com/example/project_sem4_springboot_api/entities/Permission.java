@@ -23,8 +23,13 @@ public class Permission {
     private Long id;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private EPermission name;
 
     @ManyToMany(mappedBy = "permission")
     private List<Role> roles;
+
+    public Permission(EPermission permission) {
+        this.name = permission;
+    }
 }

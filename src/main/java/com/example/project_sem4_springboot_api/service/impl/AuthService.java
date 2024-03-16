@@ -3,11 +3,13 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.config.JwtService;
 import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.User;
+import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
 import com.example.project_sem4_springboot_api.entities.response.MessageResponse;
 import com.example.project_sem4_springboot_api.repositories.RoleRepository;
+import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +20,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class AuthService {
     private final UserRepository userRepository;
+    private final UserDetailRepository userDetailRepository;
     private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -35,7 +39,6 @@ public class AuthService {
         }
         Set<Long> rolesReq = request.getRole();
         Set<Role> roles = roleRepo.findByIdIn(rolesReq);
-        System.out.println(roles.size());
 //        rolesReq.forEach(r ->{
 //            Optional<Role> findRole = roleRepo.findById(r.longValue());
 ////            ifPresent: nếu có 1 giá trị thì thực hiện còn không thì ko làm j cả
@@ -48,14 +51,27 @@ public class AuthService {
                 .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(roles)
+                .status(1)
+                .createdAt(new Date(System.currentTimeMillis()))
                 .build();
         var saveUser = userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-
         // save user detail info
-
-
-
+        var userDetail = UserDetail.builder()
+                .address(request.getAddress())
+                .phone(request.getPhone())
+                .birthday(request.getBirthday())
+                .avatar(request.getAvatar())
+                .gender(request.isGender())
+                .firstname(request.getFirst_name())
+                .lastname(request.getLast_name())
+                .email(request.getEmail())
+                .nation(request.getNation())
+                .citizen_id(request.getCitizen_id())
+                .user(saveUser)
+                .build();
+        userDetailRepository.save(userDetail);
+        // generate token
+        var jwtToken = jwtService.generateToken(user);
         var resp = new AuthResponse().builder().token(jwtToken).build();
         return ResponseEntity.ok(resp);
     }

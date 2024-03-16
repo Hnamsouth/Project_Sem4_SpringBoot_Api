@@ -28,6 +28,8 @@ public class UserDetail {
     @Column(nullable = false)
     private String phone;
     @Column(nullable = false)
+    private String email;
+    @Column(nullable = false)
     private boolean gender;
     @Column(nullable = false)
     private Date birthday;

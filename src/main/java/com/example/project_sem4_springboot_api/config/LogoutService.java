@@ -24,6 +24,5 @@ public class LogoutService implements LogoutHandler {
             return;
         }
         jwt = authHeader.substring(7);
-       // handle when user logout
     }
 }

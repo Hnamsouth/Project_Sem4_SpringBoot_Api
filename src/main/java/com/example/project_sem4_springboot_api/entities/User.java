@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class User implements UserDetails {
     private String password;
     private String token;
     @Column(name = "create_at")
-    private String createdAt;
+    private Date createdAt;
     @Column(nullable = false)
     private Integer status;
 
@@ -55,9 +56,11 @@ public class User implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
         // add permission
-        PermissionRepository pmsRepo = null;
-        pmsRepo.findAllByRoles(this.getRoles());
-        authorities.add(new SimpleGrantedAuthority(username.equals("user1") ? "admin:read":"admin:create"));
+        this.getRoles().forEach(role -> {
+            role.getPermission().forEach(permission -> {
+                authorities.add(new SimpleGrantedAuthority(permission.getName().getPermission()));
+            });
+        });
         return authorities;
     }
 

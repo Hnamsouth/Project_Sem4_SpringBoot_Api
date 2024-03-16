@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.security.service;
 
 import com.example.project_sem4_springboot_api.entities.Permission;
+import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.repositories.PermissionRepository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -9,25 +10,24 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class UserDetailsImpl implements UserDetails {
+    @Serial
     private static final long serialVersionUID = 1L;
+    private final Long id;
 
-    @Autowired
-    private static PermissionRepository permissionRepository;
-    private Long id;
-
-    private String username;
+    private final String username;
     @JsonIgnore
-    private String password;
+    private final String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-    public UserDetailsImpl(Long id, String username, String email,
+    public UserDetailsImpl(Long id, String username, String password,
                            Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
@@ -36,25 +36,17 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user) {
-//        var authorities1 = user.getRoles().stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-//                .collect(Collectors.toList());
-//        // add permission
-//        PermissionRepository pmsRepo = null;
-//        pmsRepo.findAllByRoles(user.getRoles());
-//        authorities1.add(new SimpleGrantedAuthority(user.getUsername().equals("user1") ? "admin:read":"admin:create"));
-//        return authorities;
-
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
 
-        List<Permission> permissions = permissionRepository.findAllByRoles(user.getRoles());
-        if(!permissions.isEmpty()){
-            authorities.addAll(permissions.stream()
-                    .map(p -> new SimpleGrantedAuthority(p.getName().getPermission()))
-                    .toList()
-            );
+        for(Role r:user.getRoles()){
+            authorities.add(new SimpleGrantedAuthority(r.getName().name()));
+            if(!r.getPermission().isEmpty()){
+                for(Permission p :r.getPermission()){
+                    authorities.add(new SimpleGrantedAuthority(p.getName().getPermission()));
+                }
+            }
         }
 
         return new UserDetailsImpl(

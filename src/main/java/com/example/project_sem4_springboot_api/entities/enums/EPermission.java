@@ -11,8 +11,8 @@ public enum EPermission {
     NV_TS("nv:tuyen_sinh"), // TUYEN SINH
     NV_TV("nv:thu_vien"), // THU VIEN
     NV_VT("nv:van_thu"), // VAN THU
-    BDH_HT("bdh:hieu_truong"), // HIEU TRUONG
-    BDH_HP("bdh:hieu_pho")
+    BGH_HT("bgh:hieu_truong"), // HIEU TRUONG
+    BGH_HP("bgh:hieu_pho")
     ;
     // ... HOI DONG NHA TRUONG
     @Getter
