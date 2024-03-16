@@ -26,7 +26,7 @@ public class AuthController {
     }
 
     @GetMapping("/test-authority")
-    @PreAuthorize("hasAuthority('gv:chu_nhiem')")
+    @PreAuthorize("hasAuthority('gv:chu_nhiem') or hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<?> testAuth (){
         return ResponseEntity.ok("----------- success --------------");
     }
