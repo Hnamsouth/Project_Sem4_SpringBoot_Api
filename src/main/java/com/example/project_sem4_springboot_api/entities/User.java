@@ -49,6 +49,9 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user")
     private UserDetail userDetaill;
 
+    @OneToOne(mappedBy = "user")
+    private Teacher teacher ;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // add role
