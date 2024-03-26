@@ -30,5 +30,9 @@ public class AuthController {
     public ResponseEntity<?> testAuth (){
         return ResponseEntity.ok("----------- success --------------");
     }
+     @GetMapping("/test-api")
+    public ResponseEntity<?> testApi (){
+        return ResponseEntity.ok("----------- success --------------");
+    }
 
 }
