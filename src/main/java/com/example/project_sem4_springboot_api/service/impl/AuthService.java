@@ -84,6 +84,7 @@ public class AuthService {
                         request.getPassword()
                 )
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);
