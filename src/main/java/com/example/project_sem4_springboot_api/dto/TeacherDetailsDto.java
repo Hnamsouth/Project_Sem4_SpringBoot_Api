@@ -1,20 +1,17 @@
 package com.example.project_sem4_springboot_api.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class TeacherDto {
+public class TeacherDetailsDto {
 
-    private Long id;
-    private String username;
-    private String password;
     private String officerNumber;
-    private Date joiningDate;
-    private boolean active;
     private Long positionId;
-
+    private Date joiningDate;
+    private Long id;
     private String firstname;
     private String lastname;
     private String address;

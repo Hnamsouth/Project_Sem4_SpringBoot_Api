@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.controller.student;
 
+import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.Teacher;
@@ -19,9 +20,9 @@ public class TeacherController {
     private final TeacherService teacherService;
 
     @PostMapping("/add-teacher")
-    public ResponseEntity<TeacherDto> createTeacher(@ModelAttribute TeacherDto teacherDto){
-        TeacherDto teacherDto1 = teacherService.createTeacherDto(teacherDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(teacherDto1);
+    public ResponseEntity<TeacherDto> createTeacher(@RequestBody TeacherDetailsDto teacherDto, @RequestParam Long userId) {
+        TeacherDto createdTeacherDto = teacherService.createTeacher(teacherDto, userId).getDto();
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeacherDto);
     }
 
     @GetMapping("/teachers")
@@ -31,7 +32,7 @@ public class TeacherController {
     }
 
     @PutMapping("/student/{studentId}")
-    public Teacher updateTeacher(@PathVariable Long teacherId, @RequestBody Teacher teacher)throws Exception {
+    public Teacher updateTeacher(@PathVariable Long teacherId, @RequestBody TeacherDetailsDto teacher)throws Exception {
         Teacher findId = teacherService.findTeacherById(teacherId);
         Teacher updatedTeacher = teacherService.updateTeacher(teacher, findId.getId());
         return updatedTeacher;
