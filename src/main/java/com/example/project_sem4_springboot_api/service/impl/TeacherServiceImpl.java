@@ -71,7 +71,6 @@ public class TeacherServiceImpl implements TeacherService {
         try {
             Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
 
-            // Cập nhật thông tin Teacher
             teacher.setOfficerNumber(teacherDetailsDto.getOfficerNumber());
             teacher.setPositionId(teacherDetailsDto.getPositionId());
             teacher.setJoiningDate(teacherDetailsDto.getJoiningDate());
@@ -81,22 +80,17 @@ public class TeacherServiceImpl implements TeacherService {
                 throw new ResourceNotFoundException("User details not found for teacher: " + teacherId);
             }
 
-            // Cập nhật thông tin UserDetails
             userDetails.setFirstname(teacherDetailsDto.getFirstname());
             userDetails.setLastname(teacherDetailsDto.getLastname());
             userDetails.setAddress(teacherDetailsDto.getAddress());
             userDetails.setPhone(teacherDetailsDto.getPhone());
             userDetails.setEmail(teacherDetailsDto.getEmail());
-            userDetails.setGender(teacherDetailsDto.isGender()); // Giới tính boolean
+            userDetails.setGender(teacherDetailsDto.isGender());
             userDetails.setBirthday(teacherDetailsDto.getBirthday());
-            // Set other user details fields based on teacherDetailsDto
-
-            // Lưu Teacher (cascade update)
             teacherRepository.save(teacher);
 
             return teacher;
         } catch (Exception e) {
-            // Xử lý lỗi chung khi lưu Teacher
             throw new RuntimeException("Error updating teacher: " + e.getMessage());
         }
     }
