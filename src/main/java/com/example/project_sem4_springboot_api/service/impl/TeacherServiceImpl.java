@@ -57,7 +57,6 @@ public class TeacherServiceImpl implements TeacherService {
 
             return teacher;
         } catch (Exception e) {
-            // Xử lý lỗi chung khi lưu Teacher
             throw new RuntimeException("Error creating teacher: " + e.getMessage());
         }
     }
