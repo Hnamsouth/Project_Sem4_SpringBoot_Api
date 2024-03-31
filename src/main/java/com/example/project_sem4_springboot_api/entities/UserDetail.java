@@ -33,4 +33,6 @@ public class UserDetail {
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+
 }

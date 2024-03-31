@@ -26,6 +26,8 @@ public class Teacher {
     private Date joiningDate;
     private boolean active;
 
+    private Long positionId;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "teacher_subject",
