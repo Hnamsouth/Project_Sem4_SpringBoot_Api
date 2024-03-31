@@ -28,12 +28,13 @@ import java.util.Set;
 public class AuthService {
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
-    private final RoleRepository roleRepo;
     private final PasswordEncoder passwordEncoder;
+
+    private final RoleRepository roleRepo;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public ResponseEntity<?> register (RegisterRequest request){
-
+        System.out.println(request);
         if(userRepository.existsByUsername(request.getUsername())){
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -73,7 +74,8 @@ public class AuthService {
         // generate token
         var jwtToken = jwtService.generateToken(user);
         var resp = new AuthResponse().builder().token(jwtToken).build();
-        return ResponseEntity.ok(resp);
+
+        return ResponseEntity.ok(saveUser);
     }
 
     public ResponseEntity<?> login (LoginRequest request){
@@ -84,6 +86,7 @@ public class AuthService {
                         request.getPassword()
                 )
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
         var jwtToken = jwtService.generateToken(user);

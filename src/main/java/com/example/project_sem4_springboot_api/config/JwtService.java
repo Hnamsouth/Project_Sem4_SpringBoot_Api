@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.config;
 
+import com.example.project_sem4_springboot_api.entities.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -52,20 +53,19 @@ public class JwtService {
     }
 
     // tạp token ko có claim
-    public String generateToken(UserDetails userDetails){
+    public String generateToken(User userDetails){
         return generateToken(new HashMap<>(),userDetails);
     }
     // tạo token có claims
-    public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
+    public  String generateToken(Map<String,Object> extraClaims, User userDetails){
         return builderToken(extraClaims,userDetails);
     }
     // build Token
-    public String builderToken( Map<String, Object> extraClaims,    UserDetails userDetails ){
-        String author = userDetails.getUsername().equals("user1") ? "admin:read":"admin:create";
+    public String builderToken( Map<String, Object> extraClaims,    User userDetails ){
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // set claim cho token
-                .claim("authority",author)
+//                .claim("authority",author)
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token
                 .setExpiration(new Date(System.currentTimeMillis()+jwtExpiration)) // set thời hạn token

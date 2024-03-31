@@ -13,7 +13,7 @@ public class StudentDto {
 
     private Long id;
 
-    private String gender;
+    private boolean gender;
     private String firstName;
     private String lastName;
     private Date birthday;

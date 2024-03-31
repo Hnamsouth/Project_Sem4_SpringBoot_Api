@@ -41,13 +41,13 @@ public class WebSecurityConfiguration {
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
     private  final AuthenticationProvider authenticationProvider;
     private final LogoutHandler logoutHandler;
-    private  final AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
+
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //
-//                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+//               .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(req->
                         req.requestMatchers(WHITE_LIST_URL).permitAll()
 //                      .requestMatchers(GET,"/api/v1/product/**").permitAll()

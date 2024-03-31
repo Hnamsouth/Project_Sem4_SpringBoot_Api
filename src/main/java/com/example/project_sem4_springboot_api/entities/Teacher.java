@@ -1,27 +1,32 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
-@Entity
 @Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "teacher")
 public class Teacher {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String officerNumber;
-
+    private String sortName;
     private Date joiningDate;
-
     private boolean active;
+
+    private Long positionId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -39,8 +44,8 @@ public class Teacher {
     )
     private List<Department> departments;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id",referencedColumnName = "id")
+    @OneToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
