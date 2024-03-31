@@ -2,8 +2,7 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
-import jakarta.mail.util.ByteArrayDataSource;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -11,13 +10,15 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Objects;
+
 @Service
+@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${spring.mail.username}")
+    @Value("${application.security.email.username}")
     private String formEmail;
 
-    @Autowired
     private JavaMailSender javaMailSender;
 
     @Override
@@ -32,10 +33,10 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(body);
 
-            for (int i = 0; i < file.length; i++){
+            for (MultipartFile multipartFile : file) {
                 mimeMessageHelper.addAttachment(
-                        file[i].getOriginalFilename(),
-                        new ByteArrayResource(file[i].getBytes())
+                        Objects.requireNonNull(multipartFile.getOriginalFilename()),
+                        new ByteArrayResource(multipartFile.getBytes())
                 );
             }
 
