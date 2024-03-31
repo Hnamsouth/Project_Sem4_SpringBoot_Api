@@ -1,12 +1,15 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "schools")
 public class School {
 

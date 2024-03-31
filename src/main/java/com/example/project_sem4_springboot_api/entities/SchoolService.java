@@ -1,10 +1,13 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "school_services")
 public class SchoolService {
 

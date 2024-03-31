@@ -20,7 +20,7 @@ public class StudentServiceImpl implements StudentService {
 
     public StudentDto createStudent(StudentDto studentDto) {
         Student student = new Student();
-        student.setGender(studentDto.getGender());
+        student.setGender(studentDto.isGender());
         student.setFirstName(studentDto.getFirstName());
         student.setLastName(studentDto.getLastName());
         student.setBirthday(studentDto.getBirthday());
@@ -54,8 +54,8 @@ public class StudentServiceImpl implements StudentService {
         if (student.getLastName()!=null){
             oldStudent.setLastName(student.getLastName());
         }
-        if (student.getGender()!=null){
-            oldStudent.setGender(student.getGender());
+        if (student.isGender()){
+            oldStudent.setGender(student.isGender());
         }
         if (student.getBirthday()!= null){
             oldStudent.setBirthday(student.getBirthday());
