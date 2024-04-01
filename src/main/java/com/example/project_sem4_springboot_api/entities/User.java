@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.repositories.PermissionRepository;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -39,7 +40,8 @@ public class User  implements UserDetails  {
     private Integer status;
 
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @JsonBackReference
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")

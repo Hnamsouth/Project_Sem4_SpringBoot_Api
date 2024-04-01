@@ -41,7 +41,7 @@ public class WebSecurityConfiguration {
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
     private  final AuthenticationProvider authenticationProvider;
-    private final LogoutHandler logoutHandler;
+    private final LogoutService logoutHandler;
 
     @Bean
 

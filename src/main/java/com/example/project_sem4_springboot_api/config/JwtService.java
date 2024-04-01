@@ -23,7 +23,7 @@ public class JwtService {
     private String secretKey;
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
-    @Value("${application.security.jwt.refresh-token.expiration}")
+    @Value("${application.security.jwt.refresh-token.expiration}") // thời gian sống của refresh token (ms) 1 tháng
     private long refreshExpiration;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);

@@ -60,23 +60,21 @@ public class DataInitializer {
         // Create Role
         if(roleRepository.findAll().isEmpty()){
             for (ERole role : ERole.values()) {
-                roleRepository.save(new Role(role));
+                roleRepository.save(Role.builder().name(role).build());
             }
             System.out.println("Created role");
         }
         // create role - permission
-        if(roleRepository.findAll().isEmpty()){
             roleRepository.findAll().forEach(role ->{
-                if(role.getPermission().size()==0){
+                if(role.getPermission().isEmpty()){
                     List<Permission> lp = permissionRepository.findAll().stream()
                             .filter(p -> p.getName().toString().substring(0,3).contains(role.getName().toString().substring(5)))
                             .toList();
                     role.setPermission(lp);
                     roleRepository.save(role);
+                    System.out.println("Created role & permission");
                 }
             });
-            System.out.println("Created role & permission");
-        }
     }
     private void createSchoolInfo(){
         /*

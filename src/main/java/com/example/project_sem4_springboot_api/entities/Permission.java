@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.entities.enums.EPermission;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class Permission {
     @Enumerated(EnumType.STRING)
     private EPermission name;
 
+    @JsonBackReference
     @ManyToMany(mappedBy = "permission")
     private List<Role> roles;
 
