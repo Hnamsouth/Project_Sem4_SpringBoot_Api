@@ -17,8 +17,13 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String formEmail;
 
+
+    private final JavaMailSender javaMailSender;
+
     @Autowired
-    private JavaMailSender javaMailSender;
+    public EmailServiceImpl(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
 
     @Override
     public String sendMail(MultipartFile[] file, String to, String[] cc, String subject, String body) {
@@ -32,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(body);
 
-            for (int i = 0; i < file.length; i++){
+            for (int i = 0; i < file.length; i++) {
                 mimeMessageHelper.addAttachment(
                         file[i].getOriginalFilename(),
                         new ByteArrayResource(file[i].getBytes())

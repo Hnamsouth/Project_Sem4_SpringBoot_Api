@@ -11,15 +11,15 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/mail")
 public class EmailSendController  {
 
-    private EmailService emailService;
+    private final EmailService emailService;
 
     public EmailSendController(EmailService emailService) {
         this.emailService = emailService;
     }
 
     @PostMapping("/send")
-    public String sendEmail(@RequestParam(value = "file", required = false)MultipartFile[] file, String to, String[] cc, String subject, String body){
-         return emailService.sendMail(file, to, cc, subject, body);
+    public String sendEmail(@RequestParam(value = "file", required = false) MultipartFile[] file, String to, String[] cc, String subject, String body){
+        return emailService.sendMail(file, to, cc, subject, body);
     }
 
 }
