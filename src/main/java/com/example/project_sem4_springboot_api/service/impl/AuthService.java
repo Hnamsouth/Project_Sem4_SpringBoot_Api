@@ -41,7 +41,6 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     public ResponseEntity<?> register (RegisterRequest request){
-        System.out.println(request);
         if(userRepository.existsByUsername(request.getUsername())){
             return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
         }
@@ -80,17 +79,15 @@ public class AuthService {
         userDetailRepository.save(userDetail);
         // generate token
         var jwtToken = jwtService.generateToken(user);
-        var refeshToken = jwtService.generateRefreshToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
         var resp = AuthResponse.builder()
                 .accessToken(jwtToken)
-                .refreshToken(refeshToken)
+                .refreshToken(refreshToken)
                 .build();
-
         return ResponseEntity.ok(resp);
     }
 
     public ResponseEntity<?> login (LoginRequest request){
-//
         System.out.println(request);
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -103,33 +100,28 @@ public class AuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
             var jwtToken = jwtService.generateToken(user);
-
-//            var resp = AuthResponse.builder().token(jwtToken).build();
-            /*
-            *   id: faker.string.uuid(),
-                  username: 'admin@gmail.com',
-                  email: faker.internet.email(),
-                  role: ADMIN_ROLE,
-                  permissions: ADMIN_ROLE.permission,
-            * */
+            var refreshToken = jwtService.generateRefreshToken(user);
+            var resp = AuthResponse.builder()
+                    .accessToken(jwtToken)
+                    .refreshToken(refreshToken)
+                    .build();
             return ResponseEntity.ok(
                     LoginResponse.builder()
                             .id(user.getId())
                             .username(user.getUsername())
-                            .token(jwtToken)
+                            .authResponse(resp)
                             .roles(user.getRoles())
                             .permissions(user.getRoles().stream().toList().get(0).getPermission())
                     .build());
         }catch (Exception e){
-            System.out.println(e.getMessage());
-            throw new RuntimeException(e);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     public void refreshToken(
             HttpServletRequest request,
             HttpServletResponse response
-    ) throws IOException, IOException {
+    ) throws  IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String username;
