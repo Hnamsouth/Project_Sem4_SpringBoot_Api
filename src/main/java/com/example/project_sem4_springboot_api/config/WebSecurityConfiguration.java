@@ -35,7 +35,8 @@ public class WebSecurityConfiguration {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/test/api"
+            "/test/api",
+            "/**"
     };
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
