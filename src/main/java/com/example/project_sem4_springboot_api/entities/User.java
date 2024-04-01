@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User {
+public class User  implements UserDetails  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -55,4 +55,38 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Parent parent;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // add role
+        var authorities = this.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+                .collect(Collectors.toList());
+        // add permission
+        this.getRoles().forEach(role -> {
+            role.getPermission().forEach(permission -> {
+                authorities.add(new SimpleGrantedAuthority(permission.getName().getPermission()));
+            });
+        });
+        return authorities;
+    }
+    @Override
+    public String getUsername() {
+        return username;
+    }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

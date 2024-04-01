@@ -8,18 +8,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class Scheduler {
 
-    @Scheduled(fixedRate = 30000)
-    public void scheduleTaskWithFixedRate() {
-        WebSocketController webSocketController = new WebSocketController();
-        webSocketController.sendMessage(
-                Notifications.builder()
-                        .content("FIRST MESSAGE")
-                        .sender("ADMIN")
-                        .type(Notifications.NTF_Type.DEFAULT)
-                        .build()
-        );
+//    @Scheduled(fixedRate = 5000)
+//    public void scheduleTaskWithFixedRate() {
+//        WebSocketController webSocketController = new WebSocketController();
+//        webSocketController.sendMessage(
+//                Notifications.builder()
+//                        .content("FIRST MESSAGE")
+//                        .sender("ADMIN")
+//                        .type(Notifications.NTF_Type.DEFAULT)
+//                        .build()
+//        );
 //        System.out.println("Fixed Rate Task :: Execution Time - " + System.currentTimeMillis() / 1000);
-    }
+//    }
     /*
     * (cron = "0 * * * * *") : chạy mỗi phút
     * (cron = "0 0 * * * *") : chạy mỗi giờ
@@ -27,7 +27,7 @@ public class Scheduler {
     * 0 0 0 * * * * : Seconds | Minutes | Hours | Day Of Month | Month | Day Of Week | Year
     * */
     // @Scheduled(cron = "0 * 9 * * ?") // chạy mỗi phút
-//    @Scheduled(cron = "0 30 13 * * *")
+//    @Scheduled(cron = "30 * * * * *")
 //    public void scheduleTaskWithCronExpression() {
 //        System.out.println("Cron Task :: Execution Time - " + System.currentTimeMillis() / 1000);
 //    }

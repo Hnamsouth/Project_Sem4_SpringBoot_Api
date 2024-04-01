@@ -2,7 +2,8 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.service.EmailService;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
+import jakarta.mail.util.ByteArrayDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,16 +14,21 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Objects;
 
 @Service
-@RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 
-    @Value("${application.security.email.username}")
+    @Value("${spring.mail.username}")
     private String formEmail;
 
-    private JavaMailSender javaMailSender;
+
+    private final JavaMailSender javaMailSender;
+
+    @Autowired
+    public EmailServiceImpl(JavaMailSender javaMailSender) {
+        this.javaMailSender = javaMailSender;
+    }
 
     @Override
-    public String sendMail(MultipartFile[] file, String to, String[] cc, String subject, String body) {
+    public String sendMail(MultipartFile[] files, String to, String[] cc, String subject, String body) {
         try{
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
@@ -33,11 +39,13 @@ public class EmailServiceImpl implements EmailService {
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(body);
 
-            for (MultipartFile multipartFile : file) {
-                mimeMessageHelper.addAttachment(
-                        Objects.requireNonNull(multipartFile.getOriginalFilename()),
-                        new ByteArrayResource(multipartFile.getBytes())
-                );
+            if(files !=null){
+                for(MultipartFile file :files ){
+                    mimeMessageHelper.addAttachment(
+                            Objects.requireNonNull(file.getOriginalFilename()),
+                            new ByteArrayResource(file.getBytes())
+                    );
+                }
             }
 
             javaMailSender.send(mimeMessage);
