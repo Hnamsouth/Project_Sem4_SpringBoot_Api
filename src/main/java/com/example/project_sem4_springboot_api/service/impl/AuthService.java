@@ -7,6 +7,7 @@ import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
+import com.example.project_sem4_springboot_api.entities.response.LoginResponse;
 import com.example.project_sem4_springboot_api.entities.response.MessageResponse;
 import com.example.project_sem4_springboot_api.repositories.RoleRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -93,8 +95,22 @@ public class AuthService {
             var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
             var jwtToken = jwtService.generateToken(user);
 
-            var resp = AuthResponse.builder().token(jwtToken).build();
-            return ResponseEntity.ok(resp);
+//            var resp = AuthResponse.builder().token(jwtToken).build();
+            /*
+            *   id: faker.string.uuid(),
+                  username: 'admin@gmail.com',
+                  email: faker.internet.email(),
+                  role: ADMIN_ROLE,
+                  permissions: ADMIN_ROLE.permission,
+            * */
+            return ResponseEntity.ok(
+                    LoginResponse.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .token(jwtToken)
+                            .roles(user.getRoles())
+                            .permissions(user.getRoles().stream().toList().get(0).getPermission())
+                    .build());
         }catch (Exception e){
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
