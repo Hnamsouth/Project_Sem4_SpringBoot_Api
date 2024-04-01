@@ -73,26 +73,32 @@ public class AuthService {
         userDetailRepository.save(userDetail);
         // generate token
         var jwtToken = jwtService.generateToken(user);
-        var resp = new AuthResponse().builder().token(jwtToken).build();
+        var resp = AuthResponse.builder().token(jwtToken).build();
 
-        return ResponseEntity.ok(saveUser);
+        return ResponseEntity.ok(resp);
     }
 
     public ResponseEntity<?> login (LoginRequest request){
 //
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getUsername(),
-                        request.getPassword()
-                )
-        );
+        System.out.println(request);
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getUsername(),
+                            request.getPassword()
+                    )
+            );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+            var jwtToken = jwtService.generateToken(user);
 
-        var resp = new AuthResponse().builder().token(jwtToken).build();
-        return ResponseEntity.ok(resp);
+            var resp = AuthResponse.builder().token(jwtToken).build();
+            return ResponseEntity.ok(resp);
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            throw new RuntimeException(e);
+        }
     }
 
 }

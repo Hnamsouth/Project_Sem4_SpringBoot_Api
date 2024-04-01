@@ -1,13 +1,23 @@
 package com.example.project_sem4_springboot_api.config;
 
+import com.example.project_sem4_springboot_api.controller.service.WebSocketController;
+import com.example.project_sem4_springboot_api.entities.request.Notifications;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 public class Scheduler {
 
-//    @Scheduled(fixedRate = 2000)
+//    @Scheduled(fixedRate = 5000)
 //    public void scheduleTaskWithFixedRate() {
+//        WebSocketController webSocketController = new WebSocketController();
+//        webSocketController.sendMessage(
+//                Notifications.builder()
+//                        .content("FIRST MESSAGE")
+//                        .sender("ADMIN")
+//                        .type(Notifications.NTF_Type.DEFAULT)
+//                        .build()
+//        );
 //        System.out.println("Fixed Rate Task :: Execution Time - " + System.currentTimeMillis() / 1000);
 //    }
     /*
@@ -17,7 +27,7 @@ public class Scheduler {
     * 0 0 0 * * * * : Seconds | Minutes | Hours | Day Of Month | Month | Day Of Week | Year
     * */
     // @Scheduled(cron = "0 * 9 * * ?") // chạy mỗi phút
-//    @Scheduled(cron = "0 30 13 * * *")
+//    @Scheduled(cron = "30 * * * * *")
 //    public void scheduleTaskWithCronExpression() {
 //        System.out.println("Cron Task :: Execution Time - " + System.currentTimeMillis() / 1000);
 //    }

@@ -59,6 +59,14 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
+//        var authorities = this.getRoles().stream()
+//                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+//                .collect(Collectors.toList());
+//        // add permission
+//        PermissionRepository pmsRepo = null;
+//        pmsRepo.findAllByRoles(this.getRoles());
+//        authorities.add(new SimpleGrantedAuthority(username.equals("user1") ? "admin:read":"admin:create"));
         return authorities;
     }
 

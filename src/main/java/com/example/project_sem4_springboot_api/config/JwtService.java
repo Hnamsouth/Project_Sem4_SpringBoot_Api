@@ -53,15 +53,15 @@ public class JwtService {
     }
 
     // tạp token ko có claim
-    public String generateToken(User userDetails){
+    public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(),userDetails);
     }
     // tạo token có claims
-    public  String generateToken(Map<String,Object> extraClaims, User userDetails){
+    public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
         return builderToken(extraClaims,userDetails);
     }
     // build Token
-    public String builderToken( Map<String, Object> extraClaims,    User userDetails ){
+    public String builderToken( Map<String, Object> extraClaims,    UserDetails userDetails ){
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // set claim cho token

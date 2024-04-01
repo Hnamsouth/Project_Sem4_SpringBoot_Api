@@ -8,8 +8,13 @@ import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.stomp.StompSession;
+import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.socket.TextMessage;
+import org.springframework.web.socket.WebSocketSession;
+import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 //import javax.mail.MessagingException;
 import java.io.IOException;
@@ -22,6 +27,8 @@ import java.util.List;
 public class AuthController {
     private final AuthService authService;
 //    private final EmailConfig emailConfig;
+
+    private final WebSocketController webSocketController;
 
     @PostMapping("/login")
     public ResponseEntity<?> login (@RequestBody LoginRequest request){
@@ -44,7 +51,7 @@ public class AuthController {
     }
 
     @GetMapping("/test-demo")
-    public ResponseEntity<?> testDemo ()  {
+    public ResponseEntity<?> testDemo () throws IOException {
 //        var subjects = List.of(1,2,3,4,5,6,7,8,9,10);
 //        var teachers = List.of(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20);
 //        int check = 1;
@@ -54,15 +61,12 @@ public class AuthController {
 //        }
 //        emailConfig.sendmail("hnamafm17397@gmail.com");
 
+        webSocketController.sendMessage(Notifications.builder()
+                        .content("Hello")
+                        .sender("teacher")
+                        .type(Notifications.NTF_Type.TKB)
+                .build());
 
-         WebSocketController webSocketController = new WebSocketController();
-        webSocketController.sendMessage(
-                Notifications.builder()
-                        .content("FIRST MESSAGE")
-                        .sender("ADMIN")
-                        .type(Notifications.NTF_Type.DEFAULT)
-                        .build()
-        );
         return ResponseEntity.ok("teacher"+1+"@gmail.com");
     }
 

@@ -283,7 +283,6 @@ public class DataInitializer {
         * -->
         * */
 
-
         var classes = schoolYearClassRepository.findAll();
         var teachers = teacherRepository.findAll();
         // assign teacher to class
