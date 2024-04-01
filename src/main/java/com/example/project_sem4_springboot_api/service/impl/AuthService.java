@@ -12,7 +12,11 @@ import com.example.project_sem4_springboot_api.entities.response.MessageResponse
 import com.example.project_sem4_springboot_api.repositories.RoleRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -75,7 +80,11 @@ public class AuthService {
         userDetailRepository.save(userDetail);
         // generate token
         var jwtToken = jwtService.generateToken(user);
-        var resp = AuthResponse.builder().token(jwtToken).build();
+        var refeshToken = jwtService.generateRefreshToken(user);
+        var resp = AuthResponse.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refeshToken)
+                .build();
 
         return ResponseEntity.ok(resp);
     }
@@ -114,6 +123,34 @@ public class AuthService {
         }catch (Exception e){
             System.out.println(e.getMessage());
             throw new RuntimeException(e);
+        }
+    }
+
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException, IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String username;
+        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+            return;
+        }
+        refreshToken = authHeader.substring(7);
+        username = jwtService.extractUsername(refreshToken);
+        if (username != null) {
+            var user = userRepository.findByUsername(username)
+                    .orElseThrow();
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                var accessToken = jwtService.generateToken(user);
+                // save user token
+                var refeshToken = jwtService.generateRefreshToken(user);
+                var resp = AuthResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(refeshToken)
+                        .build();
+                new ObjectMapper().writeValue(response.getOutputStream(), resp);
+            }
         }
     }
 

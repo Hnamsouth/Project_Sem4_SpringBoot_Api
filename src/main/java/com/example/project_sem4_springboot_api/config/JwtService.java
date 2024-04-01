@@ -58,17 +58,22 @@ public class JwtService {
     }
     // tạo token có claims
     public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
-        return builderToken(extraClaims,userDetails);
+        return builderToken(extraClaims,userDetails,jwtExpiration);
+    }
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return builderToken(new HashMap<>(), userDetails, refreshExpiration);
     }
     // build Token
-    public String builderToken( Map<String, Object> extraClaims,    UserDetails userDetails ){
+    public String builderToken( Map<String, Object> extraClaims,  UserDetails userDetails ,long expiration){
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // set claim cho token
 //                .claim("authority",author)
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token
-                .setExpiration(new Date(System.currentTimeMillis()+jwtExpiration)) // set thời hạn token
+                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // set thời hạn token
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // token đc ký với key
                 .compact();
     }

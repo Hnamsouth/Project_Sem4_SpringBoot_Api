@@ -6,6 +6,8 @@ import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.Notifications;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.stomp.StompSession;
@@ -68,6 +70,14 @@ public class AuthController {
                 .build());
 
         return ResponseEntity.ok("teacher"+1+"@gmail.com");
+    }
+
+    @PostMapping("/refresh-token")
+    public void refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        authService.refreshToken(request, response);
     }
 
 
