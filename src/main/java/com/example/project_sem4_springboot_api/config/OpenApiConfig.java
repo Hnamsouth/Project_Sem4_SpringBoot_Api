@@ -29,11 +29,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
         servers = {
                 @Server(
                         description = "Local ENV",
-                        url = "http://localhost:4869"
+                        url = "http://14.231.219.20:4869"
                 ),
                 @Server(
                         description = "PROD ENV",
-                        url = "http://localhost:4869"
+                        url = "http://14.231.219.20:4869"
                 )
         },
         security = {

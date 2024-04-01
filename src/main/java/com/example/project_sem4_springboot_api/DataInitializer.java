@@ -218,9 +218,10 @@ public class DataInitializer {
         * 1 lop 30 hs 15 nam 15 nu
         * moi phu huynh co 2 con
         */
+        int initStudent =20;
         List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
         if(userRepository.findAllByUsernameContains("parent").isEmpty()){
-            createUser("parent",classes.size()*15);
+            createUser("parent",classes.size()*(initStudent/2));
         }
         if(studentRepository.findAll().isEmpty()){
             List<User> userParents = userRepository.findAllByUsernameContains("parent");
@@ -229,7 +230,7 @@ public class DataInitializer {
             for(int i=1 ; i <=classes.size();i++){
                 Name student = faker.name();
                 Parent parentS = new Parent();
-                for(int J=1;J<=30;J++){
+                for(int J=1;J<=initStudent;J++){
                     Parent parent = Parent.builder()
                             .fullName(faker.name().fullName())
                             .phone(faker.phoneNumber().toString())
@@ -241,7 +242,7 @@ public class DataInitializer {
                     parentS = J%2!=0 ? parentRepository.save(parent):parentS;
                     check = J%2==0 ? check + 1 : check;
                     Student std =  Student.builder()
-                            .gender(J>15)
+                            .gender(J>(initStudent/2))
                             .firstName(student.firstName())
                             .lastName(student.lastName())
                             .birthday(faker.date().birthday())
