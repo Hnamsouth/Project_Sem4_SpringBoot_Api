@@ -1,12 +1,15 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.List;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "schoolyear_class")
 public class SchoolYearClass {
 
@@ -14,10 +17,12 @@ public class SchoolYearClass {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String className;
-
+    @Column(nullable = false)
     private String classCode;
 
+    private int grade;
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
@@ -30,7 +35,7 @@ public class SchoolYearClass {
     private SchoolYear schoolYear;
 
     @ManyToOne
-    @JoinColumn(name = "teacher_id")
+    @JoinColumn(name = "teacher_id",nullable = true)
     private Teacher teacher;
 
     @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)

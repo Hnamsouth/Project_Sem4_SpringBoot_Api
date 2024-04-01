@@ -5,8 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public enum EPermission {
-    GV_CN("gv:chu_nhiem"), // CHU NHIEM
-    GV_BM("gv:bo_mon"), // BO MOM
     NV_TC("nv:tai_chinh"), // TAI CHINH
     NV_TS("nv:tuyen_sinh"), // TUYEN SINH
     NV_TV("nv:thu_vien"), // THU VIEN

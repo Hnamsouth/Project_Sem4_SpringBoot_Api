@@ -2,13 +2,16 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
 
 @Entity
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "students")
 public class Student {
 
@@ -16,7 +19,7 @@ public class Student {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String gender;
+    private boolean gender;
     private String firstName;
     private String lastName;
     private Date birthday;
