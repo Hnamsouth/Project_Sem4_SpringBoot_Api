@@ -49,7 +49,7 @@ public class AuthController {
     }
      @GetMapping("/test-api")
     public ResponseEntity<?> testApi (){
-        return ResponseEntity.ok("----------- success --------------");
+        return ResponseEntity.ok("-----------  success  --------------");
     }
 
     @GetMapping("/test-demo")
