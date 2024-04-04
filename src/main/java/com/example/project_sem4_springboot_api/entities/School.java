@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "schools")
 public class School {
-
+    //atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,8 +28,10 @@ public class School {
     private String representativeName;
 
     private String representativeGender;
-
+    // foreign key
     @OneToMany(mappedBy = "schoolId", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<SchoolService> schoolServices;
 
 }

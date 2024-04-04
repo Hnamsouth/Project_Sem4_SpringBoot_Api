@@ -35,4 +35,7 @@ public class Role {
     )
     private List<Permission> permission;
 
+    public Role(ERole eRole) {
+        this.name=eRole;
+    }
 }

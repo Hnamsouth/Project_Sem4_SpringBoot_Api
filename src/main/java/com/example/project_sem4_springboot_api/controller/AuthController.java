@@ -1,6 +1,5 @@
 package com.example.project_sem4_springboot_api.controller;
 
-//import com.example.project_sem4_springboot_api.config.EmailConfig;
 import com.example.project_sem4_springboot_api.controller.service.WebSocketController;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.Notifications;
@@ -10,18 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.messaging.WebSocketStompClient;
-
-//import javax.mail.MessagingException;
 import java.io.IOException;
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -29,7 +19,6 @@ import java.util.List;
 public class AuthController {
     private final AuthService authService;
 //    private final EmailConfig emailConfig;
-
     private final WebSocketController webSocketController;
 
     @PostMapping("/login")

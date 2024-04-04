@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,26 +12,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "test_point")
-public class TestPoint {
-
+@Table(name = "schoolyear_subject_grade")
+public class SchoolYearSubjectGrade {
+    // ATB
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String title;
-    private float point;
-
+    private int number;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ESem sem;
     @ManyToOne
-    @JoinColumn(name = "testPoints")
-    private StudentYearInfo studentYearInfo;
-
+    @JoinColumn(name = "grade_id")
+    private Grade grade;
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
     private SchoolYearSubject schoolYearSubject;
+    // foreign key
 
-    @ManyToOne
-    @JoinColumn(name = "point_type_id")
-    private PointType pointType;
 
 }

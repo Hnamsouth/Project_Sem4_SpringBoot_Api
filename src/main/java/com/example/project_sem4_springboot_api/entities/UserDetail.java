@@ -30,9 +30,8 @@ public class UserDetail {
     private String citizen_id;
     private String nation;
     private String avatar;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
 
 }

@@ -11,26 +11,24 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "test_point")
-public class TestPoint {
-
+@Table(name = "teacher_schoolyear_class_subject")
+public class TeacherSchoolYearClassSubject {
+    // atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
-    private float point;
-
     @ManyToOne
-    @JoinColumn(name = "testPoints")
-    private StudentYearInfo studentYearInfo;
+    @JoinColumn(name = "schoolyear_class_id")
+    private SchoolYearClass schoolYearClass;
+    @ManyToOne
+    @JoinColumn(name = "teacher_schoolyear_id")
+    private TeacherSchoolYear teacherSchoolYear;
 
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
     private SchoolYearSubject schoolYearSubject;
 
-    @ManyToOne
-    @JoinColumn(name = "point_type_id")
-    private PointType pointType;
+    // foreign key
 
 }

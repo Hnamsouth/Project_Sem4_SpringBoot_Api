@@ -36,9 +36,13 @@ public class Student {
     private List<Parent> parents;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Attendance> attendances;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<StudentYearInfo> studentYearInfos;
 
 

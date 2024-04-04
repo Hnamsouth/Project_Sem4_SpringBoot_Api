@@ -12,33 +12,41 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "schoolyear_class")
 public class SchoolYearClass {
-
+    // attribute
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false)
     private String className;
     @Column(nullable = false)
     private String classCode;
-
-    private int grade;
+    @ManyToOne
+    @JoinColumn(name = "grade_id")
+    private Grade grade;
     @ManyToOne
     @JoinColumn(name = "room_id")
     private Room room;
-
-    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
-    private List<StudentYearInfo> studentYearInfos;
-
+    @ManyToOne
+    @JoinColumn(name = "teacher_schoolyear_id")
+    private TeacherSchoolYear teacherSchoolYear;
     @ManyToOne
     @JoinColumn(name = "schoolyear_id")
     private SchoolYear schoolYear;
 
-    @ManyToOne
-    @JoinColumn(name = "teacher_id",nullable = true)
-    private Teacher teacher;
+    // foreign key
+    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<StudentYearInfo> studentYearInfos;
 
     @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Schedule> schedules;
+
+    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects;
 
 }
