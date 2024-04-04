@@ -111,6 +111,7 @@ public class AuthService {
                             .username(user.getUsername())
                             .authResponse(resp)
                             .roles(user.getRoles())
+                            .userDetail(user.getUserDetail().get(0).getDto(false))
                             .permissions(user.getRoles().stream().toList().get(0).getPermission())
                     .build());
         }catch (Exception e){

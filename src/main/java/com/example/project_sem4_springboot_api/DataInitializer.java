@@ -273,27 +273,25 @@ public class DataInitializer {
             userRepository.save(user);
         }
         System.out.println("Created user "+role+" data");
-        if(!role.equals("parent")){
-            Faker faker = new Faker();
-            for (int i=1;i<=number;i++) {
-                Name teacher = faker.name();
-                User user = userRepository.findByUsername(role + i).orElseThrow();
-                var userDetail = UserDetail.builder()
-                        .firstname(teacher.firstName())
-                        .lastname(teacher.lastName())
-                        .address(faker.address().fullAddress())
-                        .phone(faker.phoneNumber().cellPhone())
-                        .email(role+i+"@gmail.com")
-                        .gender(i>10)
-                        .birthday(faker.date().birthday())
-                        .citizen_id(faker.address().countryCode())
-                        .avatar(faker.avatar().image())
-                        .user(user)
-                        .build();
-                userDetailRepository.save(userDetail);
-            }
-            System.out.println("Created user "+role+" detail data");
+        Faker faker = new Faker();
+        for (int i=1;i<=number;i++) {
+            Name teacher = faker.name();
+            User user = userRepository.findByUsername(role + i).orElseThrow();
+            var userDetail = UserDetail.builder()
+                    .firstname(teacher.firstName())
+                    .lastname(teacher.lastName())
+                    .address(faker.address().fullAddress())
+                    .phone(faker.phoneNumber().cellPhone())
+                    .email(role+i+"@gmail.com")
+                    .gender(i>10)
+                    .birthday(faker.date().birthday())
+                    .citizen_id(faker.address().countryCode())
+                    .avatar(faker.avatar().image())
+                    .user(user)
+                    .build();
+            userDetailRepository.save(userDetail);
         }
+        System.out.println("Created user "+role+" detail data");
     }
     private void createStudents(){
         /*

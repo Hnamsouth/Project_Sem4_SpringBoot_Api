@@ -1,5 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,6 +35,23 @@ public class UserDetail {
     private String avatar;
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonManagedReference
     private User user;
 
+    public UserDetail getDto(@Nullable  boolean getU){
+        return UserDetail.builder()
+                .id(this.id)
+                .firstname(this.firstname)
+                .lastname(this.lastname)
+                .address(this.address)
+                .phone(this.phone)
+                .email(this.email)
+                .gender(this.gender)
+                .birthday(this.birthday)
+                .citizen_id(this.citizen_id)
+                .nation(this.nation)
+                .avatar(this.avatar)
+                .user(getU ? this.user:null)
+                .build();
+    }
 }
