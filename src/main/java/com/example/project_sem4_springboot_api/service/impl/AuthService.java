@@ -104,15 +104,9 @@ public class AuthService {
     }
 
     public ResponseEntity<?> refreshToken(
-            HttpServletRequest request,String type
+            String  refreshToken,String type
     ) throws  IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
         final String username;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.badRequest().body("Error: Token is required!");
-        }
-        refreshToken = authHeader.substring(7);
         if(jwtService.validateJwtToken(refreshToken)){
             username = jwtService.extractUsername(refreshToken);
             var user = userRepository.findByUsername(username)

@@ -27,14 +27,12 @@ public class AuthController {
     }
 
     @PostMapping("/login-token")
-    public ResponseEntity<?> login (HttpServletRequest request) throws IOException {
-        return authService.refreshToken(request, AuthService.LOGIN_TOKEN);
+    public ResponseEntity<?> login (@RequestBody String refreshToken) throws IOException {
+        return authService.refreshToken(refreshToken, AuthService.LOGIN_TOKEN);
     }
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(
-            HttpServletRequest request
-    ) throws IOException {
-        return authService.refreshToken(request, AuthService.REFRESH_TOKEN);
+    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) throws IOException {
+        return authService.refreshToken(refreshToken, AuthService.REFRESH_TOKEN);
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request){
