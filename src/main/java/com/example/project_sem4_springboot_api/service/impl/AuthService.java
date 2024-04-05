@@ -113,14 +113,14 @@ public class AuthService {
             return ResponseEntity.badRequest().body("Error: Token is required!");
         }
         refreshToken = authHeader.substring(7);
-        username = jwtService.extractUsername(refreshToken);
-        if (username != null) {
+        if(jwtService.validateJwtToken(refreshToken)){
+            username = jwtService.extractUsername(refreshToken);
             var user = userRepository.findByUsername(username)
                     .orElseThrow();
             if (jwtService.isTokenValid(refreshToken, user)) {
                 return returnUserInfo(user,type);
             } else {
-               return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
+                return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
             }
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
