@@ -4,6 +4,7 @@ import com.example.project_sem4_springboot_api.config.JwtService;
 import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
+import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
@@ -104,14 +105,14 @@ public class AuthService {
     }
 
     public ResponseEntity<?> refreshToken(
-            String  refreshToken,String type
+            TokenRequest refreshToken, String type
     ) throws  IOException {
         final String username;
-        if(jwtService.validateJwtToken(refreshToken)){
-            username = jwtService.extractUsername(refreshToken);
+        if(jwtService.validateJwtToken(refreshToken.getRefreshToken())){
+            username = jwtService.extractUsername(refreshToken.getRefreshToken());
             var user = userRepository.findByUsername(username)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
+            if (jwtService.isTokenValid(refreshToken.getRefreshToken(), user)) {
                 return returnUserInfo(user,type);
             } else {
                 return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
