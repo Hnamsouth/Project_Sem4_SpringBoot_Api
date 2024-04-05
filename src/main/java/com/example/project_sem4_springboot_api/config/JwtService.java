@@ -73,7 +73,7 @@ public class JwtService {
 //                .claim("authority",author)
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token
-                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // set thời hạn token
+                .setExpiration(new Date(System.currentTimeMillis() + (expiration*1000))) // set thời hạn token
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // token đc ký với key
                 .compact();
     }

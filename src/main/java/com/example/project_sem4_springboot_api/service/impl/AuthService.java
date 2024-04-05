@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,10 +30,13 @@ import java.io.IOException;
 import java.sql.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    static public final String LOGIN_TOKEN = "LOGIN_TOKEN";
+    static public final String REGISTER = "REGISTER";
+    static public final String REFRESH_TOKEN = "REFRESH_TOKEN";
+
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
@@ -78,13 +82,7 @@ public class AuthService {
                 .build();
         userDetailRepository.save(userDetail);
         // generate token
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(user);
-        var resp = AuthResponse.builder()
-                .accessToken(jwtToken)
-                .refreshToken(refreshToken)
-                .build();
-        return ResponseEntity.ok(resp);
+        return returnUserInfo(user,REFRESH_TOKEN);
     }
 
     public ResponseEntity<?> login (LoginRequest request){
@@ -96,15 +94,46 @@ public class AuthService {
                             request.getPassword()
                     )
             );
-
             SecurityContextHolder.getContext().setAuthentication(authentication);
             var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
-            var jwtToken = jwtService.generateToken(user);
-            var refreshToken = jwtService.generateRefreshToken(user);
-            var resp = AuthResponse.builder()
-                    .accessToken(jwtToken)
-                    .refreshToken(refreshToken)
-                    .build();
+            return returnUserInfo(user,LOGIN_TOKEN);
+        }catch (Exception e){
+            System.err.println(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> refreshToken(
+            HttpServletRequest request,String type
+    ) throws  IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String refreshToken;
+        final String username;
+        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body("Error: Token is required!");
+        }
+        refreshToken = authHeader.substring(7);
+        username = jwtService.extractUsername(refreshToken);
+        if (username != null) {
+            var user = userRepository.findByUsername(username)
+                    .orElseThrow();
+            if (jwtService.isTokenValid(refreshToken, user)) {
+                return returnUserInfo(user,type);
+            } else {
+               return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");
+    }
+
+    private ResponseEntity<?> returnUserInfo(User user,String type){
+        var jwtToken = jwtService.generateToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
+        var resp = AuthResponse.builder()
+                .accessToken(jwtToken)
+                .refreshToken(refreshToken)
+                .build();
+        if(type.equals(LOGIN_TOKEN)|| type.equals(REGISTER)){
             return ResponseEntity.ok(
                     LoginResponse.builder()
                             .id(user.getId())
@@ -113,38 +142,10 @@ public class AuthService {
                             .roles(user.getRoles())
                             .userDetail(user.getUserDetail().get(0).getDto(false))
                             .permissions(user.getRoles().stream().toList().get(0).getPermission())
-                    .build());
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+                            .build());
+        }else{
+            return ResponseEntity.ok().body(resp);
         }
-    }
 
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws  IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String refreshToken;
-        final String username;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
-            return;
-        }
-        refreshToken = authHeader.substring(7);
-        username = jwtService.extractUsername(refreshToken);
-        if (username != null) {
-            var user = userRepository.findByUsername(username)
-                    .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken, user)) {
-                var accessToken = jwtService.generateToken(user);
-                // save user token
-                var refeshToken = jwtService.generateRefreshToken(user);
-                var resp = AuthResponse.builder()
-                        .accessToken(accessToken)
-                        .refreshToken(refeshToken)
-                        .build();
-                new ObjectMapper().writeValue(response.getOutputStream(), resp);
-            }
-        }
     }
-
 }

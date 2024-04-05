@@ -42,15 +42,17 @@ public class WebSecurityConfiguration {
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
     private  final AuthenticationProvider authenticationProvider;
     private final LogoutService logoutHandler;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
 
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(req->
                         req.requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(GET,"/api/v1/user/test-authority").hasAuthority("admin:read")
+                        .requestMatchers(GET,"/api/v1/auth/test-auth").authenticated()
 //                      .requestMatchers(DELETE,"/api/v1/product/**").hasAnyRole(String.valueOf(ROLE_MANAGER))
                         .anyRequest().authenticated()
                         )

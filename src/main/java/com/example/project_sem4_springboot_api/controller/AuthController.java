@@ -26,6 +26,16 @@ public class AuthController {
         return authService.login(request);
     }
 
+    @PostMapping("/login-token")
+    public ResponseEntity<?> login (HttpServletRequest request) throws IOException {
+        return authService.refreshToken(request, AuthService.LOGIN_TOKEN);
+    }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(
+            HttpServletRequest request
+    ) throws IOException {
+        return authService.refreshToken(request, AuthService.REFRESH_TOKEN);
+    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request){
         return authService.register(request);
@@ -34,6 +44,13 @@ public class AuthController {
     @GetMapping("/test-authority")
     @PreAuthorize("hasAuthority('gv:chu_nhiem') or hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<?> testAuth (){
+        return ResponseEntity.ok("----------- success --------------");
+    }
+
+    @GetMapping("/test-auth")
+    // required login token valid
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_GV','ROLE_PH','ROLE_BGH','ROLE_DEV','ROLE_NV_TC','ROLE_NV_TV','ROLE_NV_VT')")
+    public ResponseEntity<?> testAuth2 (){
         return ResponseEntity.ok("----------- success --------------");
     }
      @GetMapping("/test-api")
@@ -61,13 +78,7 @@ public class AuthController {
         return ResponseEntity.ok("teacher"+1+"@gmail.com");
     }
 
-    @PostMapping("/refresh-token")
-    public void refreshToken(
-            HttpServletRequest request,
-            HttpServletResponse response
-    ) throws IOException {
-        authService.refreshToken(request, response);
-    }
+
 
 
 }
