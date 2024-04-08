@@ -1,18 +1,14 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
-import com.example.project_sem4_springboot_api.dto.SchoolYearClassDto;
-import com.example.project_sem4_springboot_api.dto.SchoolYearDto;
-import com.example.project_sem4_springboot_api.dto.SchoolYearSubjectDto;
-import com.example.project_sem4_springboot_api.dto.TeacherSchoolYearDto;
+import com.example.project_sem4_springboot_api.dto.*;
 import com.example.project_sem4_springboot_api.entities.*;
-import com.example.project_sem4_springboot_api.entities.enums.EGrade;
 import com.example.project_sem4_springboot_api.repositories.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.Map;
 
 @Service
@@ -27,6 +23,7 @@ public class SchoolServiceImpl {
     private final GradeRepository gradeRepository;
     private final SubjectRepository subjectRepository;
     private final RoomRepository roomRepository;
+    private final ScheduleRepository scheduleRepository;
     /*
     * 1: create school year
     * 2: create schoolyear_subject
@@ -162,23 +159,50 @@ public class SchoolServiceImpl {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    public ResponseEntity<?> getSchoolYear(
-            @Nullable Long id,
-            @Nullable Date startSem1,
-            @Nullable Date startSem2,
-            @Nullable Date end
-    ){
+    public ResponseEntity<?> getSchoolYear(@Nullable Long id){
         try {
-            if(id!=null || startSem1 != null|| startSem2 != null|| end != null){
+            if(id!=null){
                 return ResponseEntity.ok(schoolYearRepository
-                    .filterSchoolYear(id,startSem1,startSem2,end)
+                    .findById(id)
                     .orElseThrow(()->new NullPointerException("Not Found!!!")));
             }
             return ResponseEntity.ok(schoolYearRepository.findAll());
-        }catch (Exception e){
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+    // get schoolyear class
+    public ResponseEntity<?> getSchoolYearClass(@Nullable Long id,@Nullable String name, @Nullable Long teacherId){
+        TeacherSchoolYear teacher = null;
+        try {
+            if(teacherId!=null){
+                teacher = teacherSchoolYearRepository.findById(teacherId).orElseThrow(()->new NullPointerException("Teacher Not Found!!!"));
+            }
+            if(id!=null || name != null ){
+                var data = schoolYearClassRepository.findAllByIdOrClassNameOrTeacherSchoolYear(id,name,teacher);
+                if(data.isEmpty()){
+                    return ResponseEntity.badRequest().body("Not Found !!!");
+                }
+                return ResponseEntity.ok(data);
+            }
+            return ResponseEntity.ok(schoolYearClassRepository.findAll());
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
+    @JsonIgnoreProperties(value = {"schoolYear"})
+    public ResponseEntity<?> getSchedule(@Nullable Long classId){
+        try {
+            var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Class Not Found!!!"));
+            var schedule =scheduleRepository.findAllBySchoolYearClass(schoolYearClass);
+            if(schedule.isEmpty()){
+                return ResponseEntity.badRequest().body("Not Found !!!");
+            }
+            return ResponseEntity.ok(schedule);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
 }

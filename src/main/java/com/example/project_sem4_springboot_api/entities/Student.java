@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,6 +29,7 @@ public class Student {
     private int status;
     private String studentCode;
 
+    @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_parent",
@@ -38,14 +41,17 @@ public class Student {
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<Attendance> attendances;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<StudentYearInfo> studentYearInfos;
 
 
+    @JsonIgnore
     public StudentDto getDto(){
         StudentDto studentDto = new StudentDto();
         studentDto.setId(id);

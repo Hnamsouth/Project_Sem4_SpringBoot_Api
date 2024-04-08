@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,14 +51,17 @@ public class User  implements UserDetails  {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private Teacher teacher ;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private Parent parent;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // add role
         var authorities = this.getRoles().stream()
@@ -71,22 +76,27 @@ public class User  implements UserDetails  {
         return authorities;
     }
     @Override
+    @JsonIgnore
     public String getUsername() {
         return username;
     }
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return true;
     }
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return true;
     }

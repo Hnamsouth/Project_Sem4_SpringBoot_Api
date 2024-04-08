@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -38,6 +39,7 @@ public class UserDetail {
     @JsonManagedReference
     private User user;
 
+    @JsonIgnore
     public UserDetail getDto(@Nullable  boolean getU){
         return UserDetail.builder()
                 .id(this.id)

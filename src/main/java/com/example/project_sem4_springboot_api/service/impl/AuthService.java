@@ -108,11 +108,11 @@ public class AuthService {
             TokenRequest refreshToken, String type
     ) throws  IOException {
         final String username;
-        if(jwtService.validateJwtToken(refreshToken.getRefreshToken())){
-            username = jwtService.extractUsername(refreshToken.getRefreshToken());
+        if(jwtService.validateJwtToken(refreshToken.getToken())){
+            username = jwtService.extractUsername(refreshToken.getToken());
             var user = userRepository.findByUsername(username)
                     .orElseThrow();
-            if (jwtService.isTokenValid(refreshToken.getRefreshToken(), user)) {
+            if (jwtService.isTokenValid(refreshToken.getToken(), user)) {
                 return returnUserInfo(user,type);
             } else {
                 return  ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error: Token is invalid!");

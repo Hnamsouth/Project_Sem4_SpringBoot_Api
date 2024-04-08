@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,25 +21,30 @@ public class TeacherSchoolYear {
     private Long id;
     @ManyToOne
     @JoinColumn(name = "teacher_id")
+    @JsonManagedReference
     private Teacher teacher;
     @ManyToOne
     @JoinColumn(name = "schoolyear_id")
+    @JsonManagedReference
     private SchoolYear schoolYear;
 
     // foreign key
     @OneToMany(mappedBy = "teacherSchoolYear", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<Schedule> schedules;
 
     @OneToMany(mappedBy = "teacherSchoolYear", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<SchoolYearClass> schoolYearClass;
 
     @OneToMany(mappedBy = "teacherSchoolYear", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -45,6 +52,8 @@ public class TeacherSchoolYear {
             joinColumns = @JoinColumn(name="teacher_schoolyear_id"),
             inverseJoinColumns = @JoinColumn(name="department_id")
     )
+    @JsonBackReference
     private List<Department> departments;
 
+    // equals and hashcode
 }

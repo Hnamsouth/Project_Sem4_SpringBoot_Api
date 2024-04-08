@@ -6,16 +6,11 @@ import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.Notifications;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
-class Token{
-    String refresh_token;
-}
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -31,8 +26,8 @@ public class AuthController {
     }
 
     @PostMapping("/login-token")
-    public ResponseEntity<?> login (@RequestBody TokenRequest refreshToken) throws IOException {
-        return authService.refreshToken(refreshToken, AuthService.LOGIN_TOKEN);
+    public ResponseEntity<?> login (@RequestBody TokenRequest token) throws IOException {
+        return authService.refreshToken(token, AuthService.LOGIN_TOKEN);
     }
     @PostMapping("/refresh-token")
     public ResponseEntity<?> refreshToken(@RequestBody TokenRequest refreshToken) throws IOException {

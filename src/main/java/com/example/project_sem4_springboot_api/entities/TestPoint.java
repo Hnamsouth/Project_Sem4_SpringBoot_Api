@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,14 +24,17 @@ public class TestPoint {
 
     @ManyToOne
     @JoinColumn(name = "testPoints")
+    @JsonManagedReference
     private StudentYearInfo studentYearInfo;
 
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
+    @JsonManagedReference
     private SchoolYearSubject schoolYearSubject;
 
     @ManyToOne
     @JoinColumn(name = "point_type_id")
+    @JsonManagedReference
     private PointType pointType;
 
 }

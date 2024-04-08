@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
+import com.example.project_sem4_springboot_api.entities.response.TeacherContact;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -37,21 +39,26 @@ public class Teacher {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+    @JsonBackReference
     private User user;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<TeacherSchoolYear> teacherSchoolYears;
 
-    public TeacherDto getDto(){
-        TeacherDto teacherDto = new TeacherDto();
-        teacherDto.setId(id);
-        teacherDto.setActive(active);
-        teacherDto.setOfficerNumber(officerNumber);
-        teacherDto.setJoiningDate(joiningDate);
-        return teacherDto;
+    @JsonIgnore
+    public TeacherContact getContact(){
+        var userDetail = user.getUserDetail().get(0);
+        return TeacherContact.builder()
+                .phone(userDetail.getPhone())
+                .email(userDetail.getEmail())
+                .name(userDetail.getFirstname()+" "+userDetail.getLastname())
+                .sortName(sortName)
+                .build();
     }
+
 
 
 

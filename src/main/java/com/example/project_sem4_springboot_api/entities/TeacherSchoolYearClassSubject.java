@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,13 +21,16 @@ public class TeacherSchoolYearClassSubject {
 
     @ManyToOne
     @JoinColumn(name = "schoolyear_class_id")
+    @JsonManagedReference
     private SchoolYearClass schoolYearClass;
     @ManyToOne
     @JoinColumn(name = "teacher_schoolyear_id")
+    @JsonManagedReference
     private TeacherSchoolYear teacherSchoolYear;
 
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
+    @JsonManagedReference
     private SchoolYearSubject schoolYearSubject;
 
     // foreign key

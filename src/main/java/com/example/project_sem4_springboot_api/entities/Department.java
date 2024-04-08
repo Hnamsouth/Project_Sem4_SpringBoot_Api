@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,5 +24,6 @@ public class Department {
     private String name;
 
     @ManyToMany(mappedBy = "departments")
+    @JsonBackReference
     private List<TeacherSchoolYear> teacherSchoolYears;
 }

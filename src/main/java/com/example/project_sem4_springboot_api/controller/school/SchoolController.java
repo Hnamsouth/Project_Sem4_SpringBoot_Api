@@ -43,7 +43,7 @@ public class SchoolController {
 
     /*
     * read:
-    *
+    *   school year
     *
     * */
 
@@ -52,13 +52,18 @@ public class SchoolController {
         return schoolService.getSubject(id);
     }
     @GetMapping("/school-year")
-    public ResponseEntity<?> get_SchoolYear(
-        @Nullable @RequestParam Long id,
-        @Nullable @RequestParam Date startSem1,
-        @Nullable @RequestParam Date startSem2,
-        @Nullable @RequestParam Date end
-    ){
-        return schoolService.getSchoolYear(id,startSem1,startSem2,end);
+    public ResponseEntity<?> get_SchoolYear( @Nullable @RequestParam Long id){
+        return schoolService.getSchoolYear(id);
+    }
+
+    @GetMapping("/school-year-class")
+    public ResponseEntity<?> get_SchoolYearClass( @Nullable Long id,@Nullable String name, @Nullable Long teacherId){
+        return schoolService.getSchoolYearClass(id,name,teacherId);
+    }
+
+    @GetMapping("/schedule")
+    public ResponseEntity<?> get_Schedule( @Nullable Long id){
+        return schoolService.getSchedule(id);
     }
 
 }

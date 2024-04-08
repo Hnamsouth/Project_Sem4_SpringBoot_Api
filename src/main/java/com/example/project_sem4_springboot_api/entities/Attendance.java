@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,10 +27,12 @@ public class Attendance {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
+    @JsonManagedReference
     private Student students;
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")
+    @JsonManagedReference
     private Schedule schedule;
 
 }
