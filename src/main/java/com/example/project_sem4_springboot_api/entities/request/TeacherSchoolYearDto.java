@@ -1,4 +1,4 @@
-package com.example.project_sem4_springboot_api.dto;
+package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.entities.SchoolYear;
 import com.example.project_sem4_springboot_api.entities.Teacher;

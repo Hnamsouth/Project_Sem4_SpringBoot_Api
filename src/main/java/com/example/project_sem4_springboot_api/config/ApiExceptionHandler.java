@@ -16,7 +16,7 @@ public class ApiExceptionHandler {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorMessage handleAllException(Exception ex, WebRequest request) {
         // quá trình kiểm soat lỗi diễn ra ở đây
-        return new ErrorMessage(10000, ex.getLocalizedMessage());
+        return new ErrorMessage(500, ex.getLocalizedMessage());
     }
 
     /**

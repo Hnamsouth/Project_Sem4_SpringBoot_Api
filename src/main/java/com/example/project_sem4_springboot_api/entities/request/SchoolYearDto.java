@@ -1,4 +1,4 @@
-package com.example.project_sem4_springboot_api.dto;
+package com.example.project_sem4_springboot_api.entities.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

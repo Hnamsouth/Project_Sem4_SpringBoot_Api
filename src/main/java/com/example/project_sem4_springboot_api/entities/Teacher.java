@@ -39,7 +39,7 @@ public class Teacher {
 
     @OneToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
+    @JsonManagedReference
     private User user;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
