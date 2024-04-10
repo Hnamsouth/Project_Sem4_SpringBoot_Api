@@ -3,9 +3,7 @@ package com.example.project_sem4_springboot_api.security.service;
 import com.example.project_sem4_springboot_api.entities.Permission;
 import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.User;
-import com.example.project_sem4_springboot_api.repositories.PermissionRepository;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,7 +37,6 @@ public class UserDetailsImpl implements UserDetails {
         List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());
-
         for(Role r:user.getRoles()){
             authorities.add(new SimpleGrantedAuthority(r.getName().name()));
             if(!r.getPermission().isEmpty()){
@@ -48,7 +45,6 @@ public class UserDetailsImpl implements UserDetails {
                 }
             }
         }
-
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
@@ -56,24 +52,13 @@ public class UserDetailsImpl implements UserDetails {
                 authorities
         );
     }
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-
-//        var authorities = this.getRoles().stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-//                .collect(Collectors.toList());
-//        // add permission
-//        PermissionRepository pmsRepo = null;
-//        pmsRepo.findAllByRoles(this.getRoles());
-//        authorities.add(new SimpleGrantedAuthority(username.equals("user1") ? "admin:read":"admin:create"));
-        return authorities;
-    }
-
     public Long getId() {
         return id;
     }
-
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
     @Override
     public String getPassword() {
         return password;

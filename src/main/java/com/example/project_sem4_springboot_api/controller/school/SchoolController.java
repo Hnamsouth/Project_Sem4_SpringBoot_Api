@@ -5,9 +5,11 @@ import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.service.impl.SchoolServiceImpl;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,24 +24,26 @@ public class SchoolController {
      * 3: create teacher_schoolyear
      * 4: create schoolyear_class
      * 5: create schoolyear-subject-grade
+     * 6: create teacher schoolyear subject
+     * 7: create schedule
      * */
     private final SchoolServiceImpl schoolService;
 
     @PostMapping("/creat-school-year")
-    public ResponseEntity<?> createSchoolYear (@RequestBody SchoolYearDto data){
+    public ResponseEntity<?> createSchoolYear (@Valid @RequestBody SchoolYearCreate data){
         return schoolService.createSchoolYear(data);
     }
     @PostMapping("/creat-school-year_subject")
-    public ResponseEntity<?> createSchoolYearSubject (@Valid @RequestBody SchoolYearSubjectDto data){
+    public ResponseEntity<?> createSchoolYearSubject (@Valid @RequestBody SchoolYearSubjectCreate data){
         return schoolService.createSchoolYearSubject(data);
     }
     @PostMapping("/creat-teacher-school-year")
-    public ResponseEntity<?> createTeacherSchoolYear (@RequestBody TeacherSchoolYearDto data){
+    public ResponseEntity<?> createTeacherSchoolYear (@Valid @RequestBody TeacherSchoolYearCreate data){
         return schoolService.createTeacherSchoolYear(data);
     }
     @PostMapping(value = "/creat-school-year-class")
     @Description("create school year class")
-    public ResponseEntity<?> createSchoolYearClass (@RequestBody SchoolYearClassDto data){
+    public ResponseEntity<?> createSchoolYearClass (@Valid @RequestBody SchoolYearClassCreate data){
         return schoolService.createSchoolYearClass(data);
     }
     @PostMapping(value = "/creat-school-year-subject-grade")
@@ -47,11 +51,24 @@ public class SchoolController {
     public ResponseEntity<?> createSchoolYearSubjectGrade (@Valid @RequestBody SchoolYearSubjectGradeCreate data){
         return schoolService.createSchoolYearSubjectGrade(data);
     }
+
+    @PostMapping("/creat-teacher-school-year-class-subject")
+    public ResponseEntity<?> createTeacherSchoolYearClassSubject (@Valid @RequestBody TeacherSchoolYearClassSubjectCreate data){
+        return schoolService.createTeacherSchoolYearClassSubject(data);
+    }
+
+    @PostMapping("/creat-schedule")
+    public ResponseEntity<?> createSchedule (@Valid @RequestBody ScheduleCreate data){
+        return schoolService.createSchedule(data);
+    }
     /*
-    * read:
-    *   school year
-    *
-    * */
+     * READ & SEARCH
+     * 1: read school year
+     * 2: read schoolyear_subject
+     * 3: read teacher_schoolyear
+     * 4: read schoolyear_class
+     * 5: read schoolyear-subject-grade
+     * */
 
     @GetMapping("/subject")
     public ResponseEntity<?> get_Subject( @RequestParam @Nullable Long id){
@@ -102,7 +119,6 @@ public class SchoolController {
     ){
         return schoolService.getSchoolYearSubjectGrade(id,schoolYearSubjectId,gradeId,number,sem);
     }
-
     @GetMapping("/schedule")
     public ResponseEntity<?> get_Schedule( @RequestParam @Nullable Long id){
         return schoolService.getSchedule(id);

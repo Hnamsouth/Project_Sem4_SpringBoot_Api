@@ -1,5 +1,7 @@
 package com.example.project_sem4_springboot_api.controller.parent;
 
+import com.example.project_sem4_springboot_api.entities.request.CreateParent;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +19,7 @@ public class ParentController {
     * */
 
     @PostMapping("/create-parent")
-    public ResponseEntity<?> createParent(){
+    public ResponseEntity<?> createParent(@Valid CreateParent data){
         return null;
     }
 }

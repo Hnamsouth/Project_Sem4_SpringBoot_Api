@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User  implements UserDetails  {
+public class User extends AbstractEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -59,46 +59,4 @@ public class User  implements UserDetails  {
     @ToString.Exclude
     @JsonBackReference
     private Parent parent;
-
-    @Override
-    @JsonIgnore
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        // add role
-        var authorities = this.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
-        // add permission
-        this.getRoles().forEach(role -> {
-            role.getPermission().forEach(permission -> {
-                authorities.add(new SimpleGrantedAuthority(permission.getName().getPermission()));
-            });
-        });
-        return authorities;
-    }
-    @Override
-    @JsonIgnore
-    public String getUsername() {
-        return username;
-    }
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-    @Override
-    @JsonIgnore
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-    @Override
-    @JsonIgnore
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-    @Override
-    @JsonIgnore
-    public boolean isEnabled() {
-        return true;
-    }
-
 }

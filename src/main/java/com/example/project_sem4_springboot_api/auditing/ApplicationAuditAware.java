@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.auditing;
 import com.example.project_sem4_springboot_api.entities.User;
+import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,7 +22,7 @@ public class ApplicationAuditAware implements AuditorAware<Long> {
             return Optional.empty();
         }
 
-        User userPrincipal = (User) authentication.getPrincipal();
+        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
         return Optional.ofNullable(userPrincipal.getId());
     }
 }

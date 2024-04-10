@@ -6,10 +6,15 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 public interface SchoolYearRepository extends JpaRepository<SchoolYear, Long> {
-    Optional<SchoolYear> findByIdOrStartSem1OrStartSem2OrEnd(Long id, Date startSem1, Date startSem2, Date end);
+
+    @Query("SELECT YEAR(s.startSem1) FROM SchoolYear s ")
+    List<Integer> getAllYear();
+
+
 
     @Query("SELECT sy FROM SchoolYear sy" +
             " WHERE (:id is NULL or sy.id = :id )" +

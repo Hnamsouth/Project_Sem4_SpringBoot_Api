@@ -29,13 +29,11 @@ public class JwtService {
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
     // lấy thông tin username đc gán trong claim của token
     public  String extractUsername(String token) { return extractClaim(token, Claims::getSubject);}
-
-    // trích xuất claim
+    public boolean isTokenExpired (String token){ return extractClaim(token,Claims::getExpiration).before(new Date());}
     private  <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
     }
-
     //    trích xuất tất cả claim trong token
     private Claims extractAllClaims(String token) {
         return Jwts
@@ -45,13 +43,6 @@ public class JwtService {
                 .parseClaimsJws(token) // phân tích token
                 .getBody(); // get dữ liệu
     }
-
-    // chuyển đổi string key sang object Key
-    private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
     // tạp token ko có claim
     public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(),userDetails);
@@ -60,9 +51,7 @@ public class JwtService {
     public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
         return builderToken(extraClaims,userDetails,jwtExpiration);
     }
-    public String generateRefreshToken(
-            UserDetails userDetails
-    ) {
+    public String generateRefreshToken(UserDetails userDetails) {
         return builderToken(new HashMap<>(), userDetails, refreshExpiration);
     }
     // build Token
@@ -70,7 +59,6 @@ public class JwtService {
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // set claim cho token
-//                .claim("authority",author)
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token
                 .setExpiration(new Date(System.currentTimeMillis() + (expiration*1000))) // set thời hạn token
@@ -82,9 +70,7 @@ public class JwtService {
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
-    public boolean isTokenExpired (String token){ return extractClaim(token,Claims::getExpiration).before(new Date());}
-
-    public boolean validateJwtToken(String authToken) {
+    public boolean validateJwtToken(String authToken) throws RuntimeException {
         try {
             Jwts
                     .parserBuilder()
@@ -94,15 +80,21 @@ public class JwtService {
             return true;
         } catch (MalformedJwtException e) {
             logger.error("Invalid JWT token: {}", e.getMessage());
+            throw new MalformedJwtException("Invalid JWT token: " + e.getMessage());
         } catch (ExpiredJwtException e) {
             logger.error("JWT token is expired: {}", e.getMessage());
+            throw new ExpiredJwtException(null, null, "JWT token is expired: " + e.getMessage());
         } catch (UnsupportedJwtException e) {
             logger.error("JWT token is unsupported: {}", e.getMessage());
+            throw new UnsupportedJwtException("JWT token is unsupported: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             logger.error("JWT claims string is empty: {}", e.getMessage());
+            throw new IllegalArgumentException("JWT claims string is empty: " + e.getMessage());
         }
-
-        return false;
     }
-
+    // chuyển đổi string key sang object Key
+    private Key getSignInKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
 }
