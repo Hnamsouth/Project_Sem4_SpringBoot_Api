@@ -6,30 +6,26 @@ import java.util.List;
 import java.util.Map;
 
 public class dataSeeding {
-    public static List<String> ListSubject = List.of(
-            "BB-Toán",
-            "BB-Tiếng việt",
-            "BB-Anh",
-            "BB-Lịch sử và Địa lý",
-            "BB-Đạo đức",
-            "BB-GGTC",
-            "BB-Âm nhạc",
-            "BB-Mỹ thuật",
-            "BB-Tin",
-            "BB-Tự nhiên và Xã hội",
-            "BB-Hoạt động trải nghiệm",
-            "TC-Hoạt động tập thể",
-            "TC-Nghệ thuật tăng cường",
-            "TC-Tiếng dân tộc",
-            "TC-Hướng dẫn học",
-            "TC-Môn tc 2",
-            "TC-Môn tc 3",
-            "TC-Môn tc 4"
+    public static Map<String,String> ListSubject = Map.ofEntries(
+            Map.entry("BB-Toán","TOAN"),
+            Map.entry("BB-Tiếng việt","TV"),
+            Map.entry("BB-Anh","ANH"),
+            Map.entry("BB-Lịch sử và Địa lý","LS_DL"),
+            Map.entry("BB-Đạo đức","DD"),
+            Map.entry("BB-Giáo dục thể chất","GDTC"),
+            Map.entry("BB-Âm nhạc","AN"),
+            Map.entry("BB-Mỹ thuật","MT"),
+            Map.entry("BB-Tin","TIN"),
+            Map.entry("BB-Tự nhiên và Xã hội","TNXH"),
+            Map.entry("BB-Hoạt động trải nghiệm","HDTN"),
+            Map.entry("BB-Hoạt động tập thể","HDTT"),
+            Map.entry("TC-Nghệ thuật tăng cường","NTTC"),
+            Map.entry("TC-Tiếng dân tộc","TDT"),
+            Map.entry("TC-Hướng dẫn học","HDH"),
+            Map.entry("TC-Môn tc 2","MT2"),
+            Map.entry("TC-Môn tc 3","MT3")
     );
-    /*
-    * k1: 945 - 27/tuan/
-    * k5: 1015 29/tuan
-    * */
+   
     public static Map<String,Map<EGrade,Integer>> ListSubjectGrade = Map.ofEntries(
             Map.entry("Toán",Map.ofEntries(
                     Map.entry(EGrade.KHOI_1,105),

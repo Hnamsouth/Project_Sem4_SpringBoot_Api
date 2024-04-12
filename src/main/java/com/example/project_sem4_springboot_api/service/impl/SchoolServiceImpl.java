@@ -33,6 +33,7 @@ public class SchoolServiceImpl {
     private final SubjectRepository subjectRepository;
     private final RoomRepository roomRepository;
     private final ScheduleRepository scheduleRepository;
+
     /*
     * 1: create school year
     * 2: create schoolyear_subject
@@ -205,6 +206,7 @@ public class SchoolServiceImpl {
         }
     }
     public ResponseEntity<?> createTeacherSchoolYearClassSubject(TeacherSchoolYearClassSubjectCreate data) {
+        List<TeacherSchoolYearClassSubject> result = new ArrayList<>();
         var teacherSchoolYear = teacherSchoolYearRepository.findByTeacherId(data.getTeacherSchoolYearId());
         if(teacherSchoolYear == null) {
             throw new NullPointerException("Không tìm thấy Giáo viên với id : "+data.getTeacherSchoolYearId()+"!!!") ;
@@ -234,9 +236,9 @@ public class SchoolServiceImpl {
                         .build());
             });
             // save teacher teach subject to class
-            teacherSchoolYearClassSubjectRepository.saveAll(teacherSchoolYearClassSubjects);
+            result.addAll(teacherSchoolYearClassSubjectRepository.saveAll(teacherSchoolYearClassSubjects));
         });
-        return new ResponseEntity<>("Đã thêm mới Phân công giảng dạy",HttpStatus.CREATED);
+        return new ResponseEntity<>(result,HttpStatus.CREATED);
     }
 
     public ResponseEntity<?> createSchedule(ScheduleCreate data){
@@ -307,11 +309,12 @@ public class SchoolServiceImpl {
             throw new RuntimeException("Cần ít nhất 1 trong các tham số sau [ id , teacherId , schoolYearId ] !!!");
         }
     }
-    /*
-     * get list class by school year
-     * get list class by school year & grade
-    * get list class by school year & teacher
-    * */
+
+    /**
+     * @get list class by school year
+     * @get list class by school year & grade
+     * @get list class by school year & teacher
+     * */
     public ResponseEntity<?> getSchoolYearClass(
             @Nullable Long id,
             @Nullable Long gradeId,
@@ -349,13 +352,14 @@ public class SchoolServiceImpl {
 
 
 
-    /*
-    * get subject by id
-    * get list subject by grade
-    * get list subject by grade between number
-    * get list subject by grade and sem
-    * get list TeacherSchoolYearClassSubject
-    * */
+    /**
+     * @get subject by id
+     * @get list subject by grade
+     * @get list subject by grade between number
+     * @get list subject by grade and sem
+     * @return SchoolYearSubjectGrade or List<SchoolYearSubjectGrade>
+     * @throws NullPointerException if not found
+     */
     public ResponseEntity<?> getSchoolYearSubjectGrade(
             @Nullable Long id,
             @Nullable Long schoolYearSubjectId,
@@ -363,33 +367,30 @@ public class SchoolServiceImpl {
             @Nullable Integer number,
             @Nullable ESem sem
     ){
-        try {
-            if(gradeId!=null){
-                if(sem!=null){
-                    return checkListEmptyGetResponse(
-                            schoolYearSubjectGradeRepository.findAllByGrade_IdAndSemIsLike(gradeId,sem),
-                            "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" và sem: "+sem+" !!!"
-                    );
-                }
-                if(number!=null){
-                    return checkListEmptyGetResponse(
-                            schoolYearSubjectGradeRepository.findAllByGrade_IdAndNumber(gradeId,number),
-                            "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" và number: "+number+" !!!"
-                    );
-                }
+        if(gradeId!=null){
+            if(sem!=null){
                 return checkListEmptyGetResponse(
-                        schoolYearSubjectGradeRepository.findAllByGrade_Id(gradeId),
-                        "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" !!!"
+                    schoolYearSubjectGradeRepository.findAllByGrade_IdAndSemIsLike(gradeId,sem),
+                    "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" và sem: "+sem+" !!!"
                 );
             }
-            var result = schoolYearSubjectGradeRepository
-                    .findAllByIdOrSchoolYearSubject_Id(id,schoolYearSubjectId);
-            if(result.size() > 0) throw new NullPointerException("Không tìm thấy SchoolYearSubjectGrade !!!");
-            return  ResponseEntity.ok(result);
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            if(number!=null){
+                return checkListEmptyGetResponse(
+                    schoolYearSubjectGradeRepository.findAllByGrade_IdAndNumber(gradeId,number),
+                    "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" và number: "+number+" !!!"
+                );
+            }
+            return checkListEmptyGetResponse(
+                schoolYearSubjectGradeRepository.findAllByGrade_Id(gradeId),
+                "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" !!!"
+            );
         }
+        var result = schoolYearSubjectGradeRepository
+            .findAllByIdOrSchoolYearSubject_Id(id,schoolYearSubjectId);
+        if(result.size() > 0) throw new NullPointerException("Không tìm thấy SchoolYearSubjectGrade !!!");
+        return  ResponseEntity.ok(result);
     }
+
     public ResponseEntity<?> getSchedule(@Nullable Long classId){
         var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thất Lớp với id: "+classId+"!!!"));
         return checkListEmptyGetResponse(
@@ -398,6 +399,10 @@ public class SchoolServiceImpl {
         );
     }
 
+    /**
+     * @description Kiểm tra số tiết học trong 1 năm học khi phân phối chương trình học
+     * @return true - nếu số tiết học trong 1 năm học đã đủ
+     * */
     private boolean checkPeriod(SchoolYear schoolYear,int addPeriod){
         var month = ChronoUnit.MONTHS.between(
                 LocalDate.parse(schoolYear.getStartSem1().toString().substring(0,10)),
@@ -406,8 +411,14 @@ public class SchoolServiceImpl {
         var numberPeriodOfYear = month*TONG_TIET_HOC_1_TUAN;
         var currentPeriod =  schoolYearSubjectGradeRepository.getPeriodOfSchoolYearAndGrade(1L,1L);
 //        schoolYearSubjectGradeRepository
-        return currentPeriod > numberPeriodOfYear;
+        return currentPeriod >= numberPeriodOfYear;
     }
+
+    /**
+     * @description Kiểm tra danh sách trống và trả về response
+     * @throws NullPointerException nếu danh sách trống
+     * @return ResponseEntity<?> nếu danh sách không trống
+     * */
     private ResponseEntity<?> checkListEmptyGetResponse(List<?> data,String message){
         if(data.isEmpty()) throw new NullPointerException(message);
         return ResponseEntity.ok(data);

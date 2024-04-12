@@ -138,13 +138,25 @@ public class ApiExceptionHandler {
      *
      * @description: Lỗi bảo mật
      */
-    @ExceptionHandler({SecurityException.class,IOException.class})
+    @ExceptionHandler(SecurityException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseErr handleJwtException(SecurityException ex,IOException ex2 ,HttpServletRequest request) {
+    public ResponseErr handleSecurityException(SecurityException ex,HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.FORBIDDEN.value(),
-                ex.getMessage()+ex2.getMessage(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                "Forbidden"
+        );
+    }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ResponseErr handleIOException(IOException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
                 request.getRequestURI(),
                 "Forbidden"
         );

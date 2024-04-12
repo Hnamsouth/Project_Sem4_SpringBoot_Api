@@ -135,7 +135,6 @@ public class AuthService {
         }else{
             return ResponseEntity.ok().body(resp);
         }
-
     }
 
     public ResponseEntity<?> testDemo(RegisterRequest data){

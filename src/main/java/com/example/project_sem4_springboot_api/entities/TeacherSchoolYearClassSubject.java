@@ -35,4 +35,6 @@ public class TeacherSchoolYearClassSubject {
 
     // foreign key
 
+
+
 }
