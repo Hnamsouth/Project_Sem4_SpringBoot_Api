@@ -15,9 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -129,7 +127,7 @@ public class TeacherServiceImpl implements TeacherService {
      * get tất cả gv dạy của lớp theo schoolYearClassId
      *
      **/
-    public ResponseEntity<?> getContactTeacher(@Nullable Long studentId,Long schoolYearClassId){
+    public ResponseEntity<?> getContactTeacher(Long schoolYearClassId){
         var result =  teacherSchoolYearClassSubjectRepository.findAllBySchoolYearClass_Id(schoolYearClassId);
         if(result.isEmpty()) throw new NullPointerException("Khong tim thay giao vien nao");
         // những gv dạy 2 môn trở lên sẽ cập nhật subjects
@@ -141,16 +139,14 @@ public class TeacherServiceImpl implements TeacherService {
             Long teacherSchoolYearId = e.getTeacherSchoolYear().getId();
             String subject = e.getSchoolYearSubject().getSubject().getName();
             // if teacherContactDetails empty then add new ,
-            AtomicBoolean checkExist = new AtomicBoolean(teacherContactDetails.stream().anyMatch((s)->s.getTeacherSchoolYearId().equals(teacherSchoolYearId)));
-            if(checkExist.get()){
-                System.out.println(subject);
-                teacherContactDetails.stream().filter(a ->a.getTeacherSchoolYearId().equals(teacherSchoolYearId))
-                        .peek(x -> System.out.println("Filtered value: " + x))
-                        .map(z->{
-                            z.getSubjects().add(subject);
-                            return z;
-                        }).peek(c -> System.out.println("Mapped value: " + c))
-                        .collect(Collectors.toList());
+            var checkExist = teacherContactDetails.stream().filter((s)->s.getTeacherSchoolYearId().equals(teacherSchoolYearId)).toList();
+            if(!checkExist.isEmpty()){
+                checkExist.forEach(s->{
+                    Set<String> subjects = s.getSubjects().stream().map(String::new).collect(Collectors.toSet());
+                    subjects.add(subject);
+                    s.setSubjects(subjects);
+                    teacherContactDetails.set(teacherContactDetails.indexOf(s),s);
+                });
             }else{
                 teacherContactDetails.add(
                         TeacherContactDetail.builder()
@@ -158,7 +154,7 @@ public class TeacherServiceImpl implements TeacherService {
                         .name(teacher.getSortName())
                         .email(teacher.getUser().getUserDetail().get(0).getEmail())
                         .phone(teacher.getUser().getUserDetail().get(0).getPhone())
-                        .subjects(List.of(e.getSchoolYearSubject().getSubject().getName()))
+                        .subjects(Set.of(e.getSchoolYearSubject().getSubject().getName()))
                         .teacherType(checkType ? TeacherType.GV_CHU_NHIEM:TeacherType.GV_BO_MON)
                         .build());
             }

@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
@@ -18,7 +20,7 @@ public class TeacherContactDetail {
     public String name;
     public String email;
     public String phone;
-    public List<String> subjects;
+    public Set<String> subjects;
     @Enumerated(EnumType.STRING)
     public TeacherType teacherType;
 
