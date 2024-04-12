@@ -53,5 +53,11 @@ public class StudentController {
         return ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/class/{classId}")
+    public ResponseEntity<List<Student>> findStudentByClass(@PathVariable Long classId) {
+        List<Student> students = studentService.findStudentByClass(classId);
+        return ResponseEntity.ok(students);
+    }
+
 
 }
