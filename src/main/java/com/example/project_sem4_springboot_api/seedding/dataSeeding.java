@@ -1,11 +1,31 @@
 package com.example.project_sem4_springboot_api.seedding;
 
 import com.example.project_sem4_springboot_api.entities.enums.EGrade;
+import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 public class dataSeeding {
+    public static String Ran = "admin" + new Random().nextInt(1000,9999999);
+    public static RegisterRequest registerRequestTest = RegisterRequest.builder()
+            .username(Ran)
+            .password("123456")
+            .role(Set.of(1L))
+            .first_name("admin")
+            .last_name("admin")
+            .address("admin")
+            .phone("0123456789")
+            .email("admin@gmail")
+            .birthday(null)
+            .nation("Viet Nam")
+            .gender(true)
+            .build();
+
+
     public static Map<String,String> ListSubject = Map.ofEntries(
             Map.entry("BB-Toán","TOAN"),
             Map.entry("BB-Tiếng việt","TV"),

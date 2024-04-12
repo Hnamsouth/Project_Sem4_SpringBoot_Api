@@ -1,12 +1,14 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
+import com.example.project_sem4_springboot_api.entities.Role;
+import com.example.project_sem4_springboot_api.entities.User;
+import com.example.project_sem4_springboot_api.entities.UserDetail;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -56,8 +58,21 @@ public class RegisterRequest  implements Serializable {
     private  Date birthday;
     @Size(min = 9, max = 12, message = "Citizen ID must be between 9 and 12 characters")
     private  String citizen_id;
+
     @Size(min = 9, max = 12, message = "Passport must be between 9 and 12 characters")
     private  String nation;
+
     private  String avatar;
 
+    @JsonIgnore
+    public UserDetail toUserDetail(User user){
+        return UserDetail.builder().address(address).phone(phone).birthday(birthday)
+            .avatar(avatar).gender(this.isGender()).firstname(first_name).lastname(last_name)
+            .email(email).nation(nation).citizen_id(citizen_id).user(user).build();
+    }
+    @JsonIgnore
+    public User toUser(Set<Role> roles,String pwEncode){
+        return User.builder().username(username).password(pwEncode)
+            .roles(roles).status(1).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
+    }
 }

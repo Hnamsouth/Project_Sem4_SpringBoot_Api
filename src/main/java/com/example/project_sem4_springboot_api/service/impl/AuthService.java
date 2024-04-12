@@ -3,35 +3,29 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.config.JwtService;
 import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.User;
-import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
 import com.example.project_sem4_springboot_api.entities.response.LoginResponse;
-import com.example.project_sem4_springboot_api.entities.response.MessageResponse;
 import com.example.project_sem4_springboot_api.exception.AuthException;
-import com.example.project_sem4_springboot_api.exception.UserAlreadyRegisteredException;
+import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.RoleRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.sql.Date;
 import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -42,43 +36,19 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
-    private final PasswordEncoder passwordEncoder;
+    public final  PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepo;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
     public ResponseEntity<?> register (RegisterRequest request)  {
-        if(userRepository.existsByUsername(request.getUsername())){
-            throw new UserAlreadyRegisteredException("Username is already taken !!!");
-        }
-        Set<Long> rolesReq = request.getRole();
-        Set<Role> roles = roleRepo.findByIdIn(rolesReq);
-        if(roles.isEmpty()){
-            throw  new NullPointerException("Role not found !!!");
-        }
-        var user = User.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .roles(roles)
-                .status(1)
-                .createdAt(new Date(System.currentTimeMillis()))
-                .build();
-
+        if(userRepository.existsByUsername(request.getUsername())) throw new DataExistedException("Username is already taken !!!");
+        Set<Role> roles = roleRepo.findByIdIn(request.getRole());
+        if(roles.isEmpty()) throw  new NullPointerException("Role not found !!!");
+        var user = request.toUser(roles,passwordEncoder.encode(request.getPassword()));
         var saveUser = userRepository.save(user);
         // save user detail info
-        var userDetail = UserDetail.builder()
-                .address(request.getAddress())
-                .phone(request.getPhone())
-                .birthday(request.getBirthday())
-                .avatar(request.getAvatar())
-                .gender(request.isGender())
-                .firstname(request.getFirst_name())
-                .lastname(request.getLast_name())
-                .email(request.getEmail())
-                .nation(request.getNation())
-                .citizen_id(request.getCitizen_id())
-                .user(saveUser)
-                .build();
+        var userDetail = request.toUserDetail(saveUser);
         userDetailRepository.save(userDetail);
         // generate token
         return returnUserInfo(user,UserDetailsImpl.build(saveUser),REFRESH_TOKEN);
@@ -97,6 +67,7 @@ public class AuthService {
             throw new UsernameNotFoundException("invalid username or password");
         }
     }
+
     /**
      * Refresh token
      *
@@ -104,7 +75,6 @@ public class AuthService {
      * @param type
      * @return ResponseEntity<?>
      */
-
     public ResponseEntity<?> refreshToken(TokenRequest refreshToken, String type) throws  RuntimeException {
         final String username;
         if(jwtService.validateJwtToken(refreshToken.getToken())){
@@ -124,14 +94,9 @@ public class AuthService {
         var resp = AuthResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
         if(type.equals(LOGIN_TOKEN) || type.equals(REGISTER)){
             return ResponseEntity.ok(
-                LoginResponse.builder()
-                    .id(user.getId())
-                    .username(user.getUsername())
-                    .authResponse(resp)
-                    .roles(user.getRoles())
-                    .userDetail(user.getUserDetail().get(0).getDto(false))
-                    .permissions(user.getRoles().stream().toList().get(0).getPermission())
-                    .build());
+                LoginResponse.builder().id(user.getId()).username(user.getUsername()).authResponse(resp)
+                    .roles(user.getRoles()).userDetail(user.getUserDetail().get(0).getDto(false))
+                    .permissions(user.getRoles().stream().toList().get(0).getPermission()).build());
         }else{
             return ResponseEntity.ok().body(resp);
         }

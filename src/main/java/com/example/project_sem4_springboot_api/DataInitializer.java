@@ -1,15 +1,20 @@
 package com.example.project_sem4_springboot_api;
 
 import com.example.project_sem4_springboot_api.config.AuthEntryPointJwt;
+import com.example.project_sem4_springboot_api.dto.UserDetailDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.*;
+import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import com.example.project_sem4_springboot_api.mappers.UserMapper;
 import com.example.project_sem4_springboot_api.repositories.*;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -24,11 +29,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.example.project_sem4_springboot_api.seedding.dataSeeding.*;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 @Component
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class DataInitializer {
 
     private final RoleRepository roleRepository;
@@ -49,7 +56,6 @@ public class DataInitializer {
     private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
-
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @PostConstruct
@@ -58,11 +64,6 @@ public class DataInitializer {
 //        createSchoolInfo();
 //        createStudents();
 //        createUser("bdht2207a",2);
-
-        Stream.of("one", "two", "three", "four").filter(e -> e.length() > 3)
-                .peek(e -> System.out.println("Filtered value: " + e))
-                .map(String::toUpperCase)      .peek(e -> System.out.println("Mapped value: " + e))
-                .collect(Collectors.toList());
     }
     private void createRolePermission(){
         // Create Permission

@@ -49,7 +49,7 @@ public class ApiExceptionHandler {
     /**
      * MethodArgumentNotValidException
      *
-     * @description: Tham số không hợp lệ
+     * @description: Tham số request không hợp lệ
      */
     @ExceptionHandler({MethodArgumentNotValidException.class,})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -66,13 +66,13 @@ public class ApiExceptionHandler {
     }
 
     /**
-     * UserAlreadyRegisteredException
+     * DataExistedException
      *
-     * @description: User đã tồn tại
+     * @description: Data đã tồn tại
      */
-    @ExceptionHandler(UserAlreadyRegisteredException.class)
+    @ExceptionHandler(DataExistedException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseErr userAlreadyRegisteredException(UserAlreadyRegisteredException ex, HttpServletRequest request) {
+    public ResponseErr userAlreadyRegisteredException(DataExistedException ex, HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -93,7 +93,7 @@ public class ApiExceptionHandler {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()+" test",
+                ex.getMessage(),
                 request.getRequestURI(),
                 "Not Found"
         );

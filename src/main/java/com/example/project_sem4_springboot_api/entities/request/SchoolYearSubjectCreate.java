@@ -1,7 +1,10 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.entities.SchoolYear;
+import com.example.project_sem4_springboot_api.entities.SchoolYearSubject;
 import com.example.project_sem4_springboot_api.entities.Subject;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.Min;
@@ -20,9 +23,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SchoolYearSubjectCreate {
-    private Long subject;
-    private List<Long> subjects;
+    private Long subjectId;
+    private List<Long> subjectIds;
     @NotNull(message = "SchoolYear is required")
     @Min(value = 1, message = "SchoolYear must be greater than 0")
-    private Long schoolYear;
+    private Long schoolYearId;
 }

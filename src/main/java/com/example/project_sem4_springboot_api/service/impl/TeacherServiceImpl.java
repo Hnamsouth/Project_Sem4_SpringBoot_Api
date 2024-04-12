@@ -4,21 +4,18 @@ import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import com.example.project_sem4_springboot_api.entities.Teacher;
+import com.example.project_sem4_springboot_api.entities.TeacherSchoolYearClassSubject;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.example.project_sem4_springboot_api.entities.enums.TeacherType;
 import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.service.TeacherService;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -67,13 +64,12 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     public ResponseEntity<?> getTeacher(Long id){
-        return null;
-//        if(id!=null){
-//            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
-//                    ()->new NullPointerException("Giao vien khong ton tai")
-//            ).getDto());
-//        }
-//        return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::getDto).toList());
+        if(id!=null){
+            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
+                    ()->new NullPointerException("Giao vien khong ton tai")
+            ));
+        }
+        return ResponseEntity.ok(teacherRepository.findAll());
     }
 
 
@@ -132,33 +128,16 @@ public class TeacherServiceImpl implements TeacherService {
         if(result.isEmpty()) throw new NullPointerException("Khong tim thay giao vien nao");
         // những gv dạy 2 môn trở lên sẽ cập nhật subjects
         List<TeacherContactDetail> teacherContactDetails = new ArrayList<>();
-
-        result.forEach((e)->{
-            boolean checkType = e.getSchoolYearClass().getTeacherSchoolYear().equals(e.getTeacherSchoolYear());
-            var teacher = e.getTeacherSchoolYear().getTeacher();
+        for(TeacherSchoolYearClassSubject e : result){
             Long teacherSchoolYearId = e.getTeacherSchoolYear().getId();
             String subject = e.getSchoolYearSubject().getSubject().getName();
-            // if teacherContactDetails empty then add new ,
             var checkExist = teacherContactDetails.stream().filter((s)->s.getTeacherSchoolYearId().equals(teacherSchoolYearId)).toList();
             if(!checkExist.isEmpty()){
-                checkExist.forEach(s->{
-                    Set<String> subjects = s.getSubjects().stream().map(String::new).collect(Collectors.toSet());
-                    subjects.add(subject);
-                    s.setSubjects(subjects);
-                    teacherContactDetails.set(teacherContactDetails.indexOf(s),s);
-                });
-            }else{
-                teacherContactDetails.add(
-                        TeacherContactDetail.builder()
-                        .teacherSchoolYearId(teacherSchoolYearId)
-                        .name(teacher.getSortName())
-                        .email(teacher.getUser().getUserDetail().get(0).getEmail())
-                        .phone(teacher.getUser().getUserDetail().get(0).getPhone())
-                        .subjects(Set.of(e.getSchoolYearSubject().getSubject().getName()))
-                        .teacherType(checkType ? TeacherType.GV_CHU_NHIEM:TeacherType.GV_BO_MON)
-                        .build());
+                checkExist.forEach(s->teacherContactDetails.set(teacherContactDetails.indexOf(s),s.addSubject(subject)));
+                continue;
             }
-        });
+            teacherContactDetails.add(e.toContact());
+        }
         return ResponseEntity.ok(teacherContactDetails);
     }
 

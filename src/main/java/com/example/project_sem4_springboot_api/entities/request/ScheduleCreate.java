@@ -2,6 +2,8 @@ package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.entities.enums.DayOfWeek;
 import com.example.project_sem4_springboot_api.entities.enums.StudyTime;
+import com.example.project_sem4_springboot_api.entities.response.ScheduleResponse;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +16,7 @@ public class ScheduleCreate {
 
     @NotNull(message = "teacher school year id is required")
     @Min(value = 1, message = "index lesson must be greater than 0")
-    @Max(value = 8, message = "index lesson must be less than 8")
+    @Max(value = 4, message = "index lesson must be less than or equal 4")
     private int indexLesson;
 
     @NotNull(message = "study time is required")
@@ -40,4 +42,7 @@ public class ScheduleCreate {
     @NotNull(message = "school year subject id is required")
     @Min(value = 1, message = "school year subject id must be greater than 0")
     private Long schoolYearSubjectId;
+
+
+
 }

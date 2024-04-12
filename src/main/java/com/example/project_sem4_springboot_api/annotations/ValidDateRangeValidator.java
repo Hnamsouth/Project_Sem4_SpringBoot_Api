@@ -9,12 +9,11 @@ import java.time.LocalDateTime;
 /**
  * The type Valid date range validator.
  */
+
 public class ValidDateRangeValidator implements ConstraintValidator<ValidDateRange, Object> {
 
     private String fromDate;
-
     private String toDate;
-
     private String message;
 
     @Override
