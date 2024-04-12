@@ -2,6 +2,9 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.entities.enums.DayOfWeek;
 import com.example.project_sem4_springboot_api.entities.enums.StudyTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,22 +32,25 @@ public class Schedule {
     private Date releaseAt;
     private String note;
     @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
-    @ManyToOne
     @JoinColumn(name = "teacher_schoolyear_id")
+    @JsonManagedReference
+    @JsonIgnoreProperties({"schoolYear"})
     private TeacherSchoolYear teacherSchoolYear;
     @ManyToOne
     @JoinColumn(name = "schoolyear_class_id")
+    @JsonManagedReference
     private SchoolYearClass schoolYearClass;
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
+    @JsonManagedReference
     private SchoolYearSubject schoolYearSubject;
     // foreign key
     @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private List<Attendance> attendances;
 
+    // equals and hashcode
 
 }

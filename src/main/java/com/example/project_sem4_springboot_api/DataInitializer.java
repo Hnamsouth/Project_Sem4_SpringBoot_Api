@@ -12,6 +12,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.sql.Date;
 import static com.example.project_sem4_springboot_api.seedding.dataSeeding.*;
@@ -43,10 +46,12 @@ public class DataInitializer {
 
     @PostConstruct
     public void initializeData()  {
-        createRolePermission();
-        createSchoolInfo();
-        createStudents();
+//        createRolePermission();
+//        createSchoolInfo();
+//        createStudents();
 //        createUser("bdht2207a",2);
+        var check = schoolYearSubjectRepository.existsBySubject_IdIn(List.of(1L,2L));
+        System.out.println(check);
     }
     private void createRolePermission(){
         // Create Permission
@@ -173,22 +178,26 @@ public class DataInitializer {
         // create school year class
         if(schoolYearClassRepository.findAll().isEmpty()){
             int classes = 15;
-            int grade = 0;
+            int grade = 1;
+            int charName = 0;
             String[] var = {"A","B","C","D","E"};
             var schoolYear = schoolYearRepository.findById((long) 1).orElseThrow();
             for(int i=1; i <= classes; i++){
                 schoolYearClassRepository.save(
                         SchoolYearClass.builder()
-                            .className("Lớp " + grade + var[grade])
-                            .classCode("L"+grade + var[grade] )
+                            .className("Lớp " + grade + var[charName])
+                            .classCode("L"+grade + var[charName] )
 //                            .teacherSchoolYear()
-                            .grade(gradeRepository.findByName(EGrade.values()[grade]))
+                            .grade(gradeRepository.findByName(EGrade.values()[grade-1]))
                             .room(roomRepository.findById((long) i).orElseThrow())
                             .schoolYear(schoolYear)
                             .build()
                 );
                 if(i%3==0){
                     grade = grade + 1;
+                    charName=0;
+                }else{
+                    charName=charName+1;
                 }
             }
             System.out.println("Created schoolYearClass data");
@@ -362,6 +371,14 @@ public class DataInitializer {
         * --> các môn khác có thể trùng tiết học
         * -->
         * */
+
+        /*
+        * create : teacher-schoolyear-subject-class
+        *   get: schoolyear-subject
+        *   get: shoolyear subject grade
+        * */
+
+//        if()
 
 //        var classes = schoolYearClassRepository.findAll();
 //        var teachers = teacherRepository.findAll();

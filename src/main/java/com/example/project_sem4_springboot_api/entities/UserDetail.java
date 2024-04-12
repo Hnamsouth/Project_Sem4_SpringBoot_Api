@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -35,9 +37,10 @@ public class UserDetail {
     private String avatar;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonManagedReference
+    @JsonBackReference
     private User user;
 
+    @JsonIgnore
     public UserDetail getDto(@Nullable  boolean getU){
         return UserDetail.builder()
                 .id(this.id)

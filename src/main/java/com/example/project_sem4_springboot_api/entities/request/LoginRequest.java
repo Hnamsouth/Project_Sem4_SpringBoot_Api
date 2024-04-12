@@ -1,18 +1,19 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
+import lombok.*;
+import org.hibernate.validator.constraints.Length;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRequest {
-    @NotBlank
+    @NotBlank(message = "Username is required")
+//    @Size(min = 6, max = 50, message = "Username must be between 6 and 50 characters")
     private String username;
-    @NotBlank
+    @NotBlank(message = "Password is required")
+//    @Size(min = 6, max = 50, message = "Password must be between 6 and 50 characters")
     private String password;
 }

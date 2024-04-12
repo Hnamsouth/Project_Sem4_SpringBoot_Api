@@ -5,6 +5,8 @@ import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.Teacher;
 import com.example.project_sem4_springboot_api.service.TeacherService;
+import com.example.project_sem4_springboot_api.service.impl.TeacherServiceImpl;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +19,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TeacherController {
 
-    private final TeacherService teacherService;
+    private final TeacherServiceImpl teacherService;
+
+
 
     @PostMapping("/add-teacher")
     public ResponseEntity<TeacherDto> createTeacher(@RequestBody TeacherDetailsDto teacherDto, @RequestParam Long userId) {
-        TeacherDto createdTeacherDto = teacherService.createTeacher(teacherDto, userId).getDto();
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdTeacherDto);
+//        TeacherDto createdTeacherDto = teacherService.createTeacher(teacherDto, userId).getDto();
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
     @GetMapping("/teachers")
-    public ResponseEntity<List<TeacherDto>> getAllTeacher(){
-        List<TeacherDto> teacherDtoList = teacherService.getAllTeacher();
-        return ResponseEntity.ok(teacherDtoList);
+    public ResponseEntity<?> getTeacher(@Nullable Long id){
+        return teacherService.getTeacher(id);
     }
 
     @PutMapping("/student/{studentId}")
@@ -45,6 +48,14 @@ public class TeacherController {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+    /*
+    * get contact teacher by id parent
+    *
+    * */
+    @GetMapping("/teacher-contact")
+    public ResponseEntity<?> getTeacherContact(  @Nullable Long studentId , @Nullable Long schoolYearClassId){
+        return teacherService.getContactTeacher(studentId,schoolYearClassId);
     }
 
 

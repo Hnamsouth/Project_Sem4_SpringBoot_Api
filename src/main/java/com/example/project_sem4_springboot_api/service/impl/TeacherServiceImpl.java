@@ -8,11 +8,14 @@ import com.example.project_sem4_springboot_api.entities.Teacher;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
+import com.example.project_sem4_springboot_api.repositories.ParentRepository;
 import com.example.project_sem4_springboot_api.repositories.TeacherRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import com.example.project_sem4_springboot_api.service.TeacherService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,7 @@ public class TeacherServiceImpl implements TeacherService {
     private final UserDetailRepository userDetailRepository;
 
     private final TeacherRepository teacherRepository;
+    private final ParentRepository parentRepository;
 
     private final UserRepository userRepository;
 
@@ -61,9 +65,21 @@ public class TeacherServiceImpl implements TeacherService {
         }
     }
 
-    public List<TeacherDto> getAllTeacher(){
+    @Override
+    public List<TeacherDto> getAllTeacher() {
         List<Teacher> teacherDto = teacherRepository.findAll();
-        return teacherDto.stream().map(Teacher::getDto).collect(Collectors.toList());
+        return null;
+//        return teacherDto.stream().map(Teacher::getDto).collect(Collectors.toList());
+    }
+
+    public ResponseEntity<?> getTeacher(Long id){
+        return null;
+//        if(id!=null){
+//            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
+//                    ()->new NullPointerException("Giao vien khong ton tai")
+//            ).getDto());
+//        }
+//        return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::getDto).toList());
     }
 
 
@@ -111,6 +127,28 @@ public class TeacherServiceImpl implements TeacherService {
             return true;
         }
         return false;
+    }
+
+    /*\
+    *
+    * tim kiem giao vien theo id hoc sinh
+    *
+    * */
+    public ResponseEntity<?> getContactTeacher(@Nullable Long studentId,Long schoolYearClassId){
+        if(studentId != null){
+            return ResponseEntity.ok(teacherRepository.findById(studentId).orElseThrow(
+                    ()-> new NullPointerException("Giao vien khong ton tai")
+            ).getContact());
+        }
+//        if(byParent != null){
+//            var parent = parentRepository.findById(byParent).orElseThrow(
+//                    ()-> new NullPointerException("Phu huynh khong ton tai")
+//            );
+//                return ResponseEntity.ok(teacherRepository.findByUserParent(parent).orElseThrow(
+//                        ()-> new NullPointerException("Giao vien khong ton tai")
+//                ).getContact());
+//        }
+        return ResponseEntity.notFound().build();
     }
 
 }

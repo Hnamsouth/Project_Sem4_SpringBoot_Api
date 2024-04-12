@@ -8,6 +8,7 @@ import java.util.Date;
 public class TeacherDto {
 
     private Long id;
+    private String sortName;
     private String username;
     private String password;
     private String officerNumber;

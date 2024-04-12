@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +18,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User  implements UserDetails  {
+public class User extends AbstractEntity  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -43,52 +45,18 @@ public class User  implements UserDetails  {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    @JsonBackReference
+    @JsonManagedReference
     private List<UserDetail> userDetail;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private Teacher teacher ;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
+    @JsonBackReference
     private Parent parent;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        // add role
-        var authorities = this.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getName().name()))
-                .collect(Collectors.toList());
-        // add permission
-        this.getRoles().forEach(role -> {
-            role.getPermission().forEach(permission -> {
-                authorities.add(new SimpleGrantedAuthority(permission.getName().getPermission()));
-            });
-        });
-        return authorities;
-    }
-    @Override
-    public String getUsername() {
-        return username;
-    }
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
-
 }

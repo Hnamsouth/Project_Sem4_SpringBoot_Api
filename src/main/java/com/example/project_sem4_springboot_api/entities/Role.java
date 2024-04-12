@@ -26,6 +26,8 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private ERole name;
 
+
+
     @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

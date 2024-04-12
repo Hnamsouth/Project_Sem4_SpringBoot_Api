@@ -1,16 +1,18 @@
 package com.example.project_sem4_springboot_api.controller.school;
 
-import com.example.project_sem4_springboot_api.dto.SchoolYearClassDto;
-import com.example.project_sem4_springboot_api.dto.SchoolYearDto;
-import com.example.project_sem4_springboot_api.dto.SchoolYearSubjectDto;
-import com.example.project_sem4_springboot_api.dto.TeacherSchoolYearDto;
+import com.example.project_sem4_springboot_api.entities.enums.ESem;
+import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.service.impl.SchoolServiceImpl;
 import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Description;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/school")
@@ -21,44 +23,105 @@ public class SchoolController {
      * 2: create schoolyear_subject
      * 3: create teacher_schoolyear
      * 4: create schoolyear_class
+     * 5: create schoolyear-subject-grade
+     * 6: create teacher schoolyear subject
+     * 7: create schedule
      * */
     private final SchoolServiceImpl schoolService;
 
     @PostMapping("/creat-school-year")
-    public ResponseEntity<?> createSchoolYear (@RequestBody SchoolYearDto data){
+    public ResponseEntity<?> createSchoolYear (@Valid @RequestBody SchoolYearCreate data){
         return schoolService.createSchoolYear(data);
     }
     @PostMapping("/creat-school-year_subject")
-    public ResponseEntity<?> createSchoolYearSubject (@RequestBody SchoolYearSubjectDto data){
+    public ResponseEntity<?> createSchoolYearSubject (@Valid @RequestBody SchoolYearSubjectCreate data){
         return schoolService.createSchoolYearSubject(data);
     }
     @PostMapping("/creat-teacher-school-year")
-    public ResponseEntity<?> createTeacherSchoolYear (@RequestBody TeacherSchoolYearDto data){
+    public ResponseEntity<?> createTeacherSchoolYear (@Valid @RequestBody TeacherSchoolYearCreate data){
         return schoolService.createTeacherSchoolYear(data);
     }
-    @PostMapping("/creat-school-year-class")
-    public ResponseEntity<?> createSchoolYearClass (@RequestBody SchoolYearClassDto data){
+    @PostMapping(value = "/creat-school-year-class")
+    @Description("create school year class")
+    public ResponseEntity<?> createSchoolYearClass (@Valid @RequestBody SchoolYearClassCreate data){
         return schoolService.createSchoolYearClass(data);
     }
+    @PostMapping(value = "/creat-school-year-subject-grade")
+    @Description("create school year class")
+    public ResponseEntity<?> createSchoolYearSubjectGrade (@Valid @RequestBody SchoolYearSubjectGradeCreate data){
+        return schoolService.createSchoolYearSubjectGrade(data);
+    }
 
+    @PostMapping("/creat-teacher-school-year-class-subject")
+    public ResponseEntity<?> createTeacherSchoolYearClassSubject (@Valid @RequestBody TeacherSchoolYearClassSubjectCreate data){
+        return schoolService.createTeacherSchoolYearClassSubject(data);
+    }
+
+    @PostMapping("/creat-schedule")
+    public ResponseEntity<?> createSchedule (@Valid @RequestBody ScheduleCreate data){
+        return schoolService.createSchedule(data);
+    }
     /*
-    * read:
-    *
-    *
-    * */
+     * READ & SEARCH
+     * 1: read school year
+     * 2: read schoolyear_subject
+     * 3: read teacher_schoolyear
+     * 4: read schoolyear_class
+     * 5: read schoolyear-subject-grade
+     * */
 
     @GetMapping("/subject")
-    public ResponseEntity<?> get_Subject(@Nullable Long id){
+    public ResponseEntity<?> get_Subject( @RequestParam @Nullable Long id){
         return schoolService.getSubject(id);
     }
     @GetMapping("/school-year")
+    public ResponseEntity<?> get_SchoolYear( @Nullable @RequestParam Long id){
+        return schoolService.getSchoolYear(id);
+    }
+    @GetMapping("/school-year-subject")
     public ResponseEntity<?> get_SchoolYear(
-        @Nullable @RequestParam Long id,
-        @Nullable @RequestParam Date startSem1,
-        @Nullable @RequestParam Date startSem2,
-        @Nullable @RequestParam Date end
+            @Nullable @RequestParam Long id,
+            @Nullable @RequestParam Long schoolYearId,
+            @Nullable @RequestParam List<Long> subjectIds
     ){
-        return schoolService.getSchoolYear(id,startSem1,startSem2,end);
+        return schoolService.getSchoolYearSubject(id,schoolYearId,subjectIds);
+    }
+
+    @GetMapping("/school-year-class")
+    public ResponseEntity<?> get_SchoolYearClass(
+            @Nullable @RequestParam Long id,
+            @Nullable @RequestParam Long gradeId,
+            @Nullable @RequestParam Long schoolYearId,
+            @Nullable @RequestParam Long teacherSchoolYearId,
+            @Nullable @RequestParam Long roomId,
+            @Nullable @RequestParam String className,
+            @Nullable @RequestParam String classCode
+    ){
+        return schoolService.getSchoolYearClass(
+                id,gradeId,schoolYearId,teacherSchoolYearId,roomId,className,classCode
+        );
+    }
+    @GetMapping("/teacher-school-year")
+    public ResponseEntity<?> get_TeacherSchoolYear(
+            @Nullable @RequestParam Long id,
+            @Nullable @RequestParam Long teacherId,
+            @Nullable @RequestParam Long schoolYearId
+    ){
+        return schoolService.getTeacherSchoolYear(id,teacherId,schoolYearId);
+    }
+    @GetMapping("/school-year-subject-grade")
+    public ResponseEntity<?> get_SchoolYearSubjectGrade(
+            @Nullable @RequestParam Long id,
+            @Nullable @RequestParam Long schoolYearSubjectId,
+            @Nullable @RequestParam Long gradeId,
+            @Nullable @RequestParam Integer number,
+            @Nullable @RequestParam ESem sem
+    ){
+        return schoolService.getSchoolYearSubjectGrade(id,schoolYearSubjectId,gradeId,number,sem);
+    }
+    @GetMapping("/schedule")
+    public ResponseEntity<?> get_Schedule( @RequestParam @Nullable Long id){
+        return schoolService.getSchedule(id);
     }
 
 }
