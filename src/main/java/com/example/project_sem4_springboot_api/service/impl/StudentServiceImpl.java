@@ -2,8 +2,11 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
+import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
 import com.example.project_sem4_springboot_api.exception.StudentNotFoundException;
+import com.example.project_sem4_springboot_api.repositories.SchoolYearRepository;
 import com.example.project_sem4_springboot_api.repositories.StudentRepository;
+import com.example.project_sem4_springboot_api.repositories.StudentYearInfoRepository;
 import com.example.project_sem4_springboot_api.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,10 @@ import java.util.stream.Collectors;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
+
+    private final SchoolYearRepository schoolYearRepository;
+
+    private final StudentYearInfoRepository studentYearInfoRepository;
 
     public StudentDto createStudent(StudentDto studentDto) {
         Student student = new Student();
@@ -89,6 +96,10 @@ public class StudentServiceImpl implements StudentService {
             return student.get();
         }
         throw new Exception("user not exits with user id " + studentId);
+    }
+
+    public List<Student> findStudentByClass(Long classId) {
+        return studentRepository.findByStudentYearInfosSchoolYearClassId(classId);
     }
 
 }

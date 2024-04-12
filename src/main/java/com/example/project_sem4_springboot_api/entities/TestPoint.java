@@ -26,8 +26,8 @@ public class TestPoint {
     private StudentYearInfo studentYearInfo;
 
     @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
+    @JoinColumn(name = "schoolyear_subject_id")
+    private SchoolYearSubject schoolYearSubject;
 
     @ManyToOne
     @JoinColumn(name = "point_type_id")

@@ -12,14 +12,15 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "room")
 public class Room {
-
+    // atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
+    // foreign key
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
-    private List<SchoolYearClass> schoolYearClasses;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<SchoolYearClass> schoolYearClass;
 
 }

@@ -1,10 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -29,6 +26,8 @@ public class Fee {
     private String object;
 
     @OneToMany(mappedBy = "fee", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<StudentFee> studentFees;
 
 }

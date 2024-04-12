@@ -35,22 +35,21 @@ public class WebSecurityConfiguration {
             "/swagger-ui/**",
             "/webjars/**",
             "/swagger-ui.html",
-            "/test/api"
+            "/test/api",
+            "/**"
     };
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
     private  final AuthenticationProvider authenticationProvider;
-    private final LogoutHandler logoutHandler;
+    private final LogoutService logoutHandler;
 
     @Bean
 
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //
-//               .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests(req->
                         req.requestMatchers(WHITE_LIST_URL).permitAll()
-//                      .requestMatchers(GET,"/api/v1/product/**").permitAll()
                         .requestMatchers(GET,"/api/v1/user/test-authority").hasAuthority("admin:read")
 //                      .requestMatchers(DELETE,"/api/v1/product/**").hasAnyRole(String.valueOf(ROLE_MANAGER))
                         .anyRequest().authenticated()
@@ -67,7 +66,6 @@ public class WebSecurityConfiguration {
 //                                 .logoutSuccessUrl("/home")
                 )
         ;
-
         return http.build();
     }
 

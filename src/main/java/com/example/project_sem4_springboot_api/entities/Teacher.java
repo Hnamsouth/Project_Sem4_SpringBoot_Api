@@ -2,10 +2,7 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Date;
 import java.util.List;
@@ -17,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "teacher")
 public class Teacher {
-
+    // atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -28,14 +25,8 @@ public class Teacher {
 
     private Long positionId;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "teacher_subject",
-            joinColumns = @JoinColumn(name="teacher_id"),
-            inverseJoinColumns = @JoinColumn(name="subject_id")
-    )
-    private List<Subject> subjects;
 
+    // foreign key
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "teacher_department",
@@ -49,10 +40,9 @@ public class Teacher {
     private User user;
 
     @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
-    private List<SchoolYearClass> schoolYearClasses;
-
-    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<TeacherSchoolYear> teacherSchoolYears;
 
     public TeacherDto getDto(){
         TeacherDto teacherDto = new TeacherDto();

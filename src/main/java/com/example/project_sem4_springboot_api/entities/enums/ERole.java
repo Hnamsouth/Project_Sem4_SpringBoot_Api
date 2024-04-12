@@ -10,7 +10,9 @@ public enum ERole {
     ROLE_BGH("ban_giam_hieu"), // BAN GIAM HIEU
     ROLE_PH("phu_huynh"), // PHU HUYNH
     ROLE_DEV("dev"),
-    ROLE_NV("nhan_vien") // NHAN VIEN
+    ROLE_NV_TC("nv:tai_chinh"), // NHAN VIEN
+    ROLE_NV_TV("nv:thu_vien"), // NHAN VIEN
+    ROLE_NV_VT("nv:van_thu"), // NHAN VIEN
     ;
     @Getter
     private final String role;

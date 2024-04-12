@@ -23,7 +23,7 @@ public class JwtService {
     private String secretKey;
     @Value("${application.security.jwt.expiration}")
     private long jwtExpiration;
-    @Value("${application.security.jwt.refresh-token.expiration}")
+    @Value("${application.security.jwt.refresh-token.expiration}") // thời gian sống của refresh token (ms) 1 tháng
     private long refreshExpiration;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
@@ -53,22 +53,27 @@ public class JwtService {
     }
 
     // tạp token ko có claim
-    public String generateToken(User userDetails){
+    public String generateToken(UserDetails userDetails){
         return generateToken(new HashMap<>(),userDetails);
     }
     // tạo token có claims
-    public  String generateToken(Map<String,Object> extraClaims, User userDetails){
-        return builderToken(extraClaims,userDetails);
+    public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
+        return builderToken(extraClaims,userDetails,jwtExpiration);
+    }
+    public String generateRefreshToken(
+            UserDetails userDetails
+    ) {
+        return builderToken(new HashMap<>(), userDetails, refreshExpiration);
     }
     // build Token
-    public String builderToken( Map<String, Object> extraClaims,    User userDetails ){
+    public String builderToken( Map<String, Object> extraClaims,  UserDetails userDetails ,long expiration){
         return Jwts
                 .builder()
                 .setClaims(extraClaims) // set claim cho token
 //                .claim("authority",author)
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token
-                .setExpiration(new Date(System.currentTimeMillis()+jwtExpiration)) // set thời hạn token
+                .setExpiration(new Date(System.currentTimeMillis() + expiration)) // set thời hạn token
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256) // token đc ký với key
                 .compact();
     }

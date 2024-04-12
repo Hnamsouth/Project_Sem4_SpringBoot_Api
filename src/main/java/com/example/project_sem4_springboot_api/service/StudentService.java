@@ -20,4 +20,6 @@ public interface StudentService {
 
     Student findStudentById(Long studentId)throws Exception;
 
+    List<Student> findStudentByClass(Long classId);
+
 }

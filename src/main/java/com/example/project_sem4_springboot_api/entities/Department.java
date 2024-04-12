@@ -23,5 +23,5 @@ public class Department {
     private String name;
 
     @ManyToMany(mappedBy = "departments")
-    private List<Teacher> teachers;
+    private List<TeacherSchoolYear> teacherSchoolYears;
 }

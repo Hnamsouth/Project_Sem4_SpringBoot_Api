@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/v1/")
+@RequestMapping("/api/v1/student")
 @RequiredArgsConstructor
 public class StudentController {
 
     private final StudentService studentService;
 
-    @PostMapping("/student")
+    @PostMapping("")
     public ResponseEntity<StudentDto> createStudent(@ModelAttribute StudentDto studentDto){
         StudentDto studentDto1 = studentService.createStudent(studentDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(studentDto1);
@@ -51,6 +51,12 @@ public class StudentController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping("/class/{classId}")
+    public ResponseEntity<List<Student>> findStudentByClass(@PathVariable Long classId) {
+        List<Student> students = studentService.findStudentByClass(classId);
+        return ResponseEntity.ok(students);
     }
 
 

@@ -75,7 +75,7 @@ public class TeacherServiceImpl implements TeacherService {
             teacher.setPositionId(teacherDetailsDto.getPositionId());
             teacher.setJoiningDate(teacherDetailsDto.getJoiningDate());
 
-            UserDetail userDetails = teacher.getUser().getUserDetaill();
+            UserDetail userDetails = teacher.getUser().getUserDetail().get(0);
             if (userDetails == null) {
                 throw new ResourceNotFoundException("User details not found for teacher: " + teacherId);
             }

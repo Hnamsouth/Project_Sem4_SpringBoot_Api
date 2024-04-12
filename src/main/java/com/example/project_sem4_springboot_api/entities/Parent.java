@@ -31,6 +31,7 @@ public class Parent {
 
     @OneToOne
     @JoinColumn(name = "user_id")
+
     private User user;
 
 

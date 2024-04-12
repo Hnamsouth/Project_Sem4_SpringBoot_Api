@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.entities.enums.ERole;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class Role {
     @Enumerated(EnumType.STRING)
     private ERole name;
 
+    @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "role_permission",
@@ -33,7 +35,7 @@ public class Role {
     )
     private List<Permission> permission;
 
-    public Role(ERole role) {
-        this.name = role;
+    public Role(ERole eRole) {
+        this.name=eRole;
     }
 }

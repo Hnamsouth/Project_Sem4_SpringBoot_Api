@@ -1,10 +1,9 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.entities.enums.ESubjectType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
@@ -15,26 +14,21 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "subjects")
 public class Subject {
-
+    // atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String code;
-
-    private String type;
-
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ESubjectType type;
     private String name;
-
-    private Integer number;
-
-    @ManyToMany(mappedBy = "subjects")
-    private List<Teacher> teachers;
+    // foreign key
 
     @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    private List<TestPoint> testPoints;
-
-    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL)
-    private List<Schedule> schedules;
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<SchoolYearSubject> schoolYearSubjects;
 
 }
