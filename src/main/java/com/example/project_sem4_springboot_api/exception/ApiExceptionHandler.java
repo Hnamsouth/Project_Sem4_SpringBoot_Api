@@ -51,17 +51,21 @@ public class ApiExceptionHandler {
      *
      * @description: Tham số request không hợp lệ
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class,})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseErr handleException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+    public ResponseErr handleException(MethodArgumentNotValidException exception,HttpServletRequest request) {
         var errorMessages = exception.getBindingResult().getFieldErrors();
         var mess = errorMessages.stream().map(err -> err.getDefaultMessage() +" with : "+ err.getField() + ": " +err.getRejectedValue()).collect(Collectors.joining("\n "));
         return new ResponseErr(
-                OffsetDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation failed at: "+mess,
-                request.getRequestURI(),
-                "Bad Request"
+                OffsetDateTime.now(),HttpStatus.BAD_REQUEST.value(),"Validation failed at: "+mess,request.getRequestURI(),"Bad Request"
+        );
+    }
+
+    @ExceptionHandler(ArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseErr handleException(ArgumentNotValidException aex, HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),HttpStatus.BAD_REQUEST.value(),aex.getMessage(),request.getRequestURI(),"Bad Request"
         );
     }
 
@@ -161,5 +165,6 @@ public class ApiExceptionHandler {
                 "Forbidden"
         );
     }
+
 
 }

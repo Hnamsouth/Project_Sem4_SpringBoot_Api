@@ -183,20 +183,6 @@ public class SchoolServiceImpl {
         });
         return new ResponseEntity<>(result,HttpStatus.CREATED);
     }
-    public ResponseEntity<?> createSchedule(ScheduleCreate data){
-        var teacher = teacherSchoolYearRepository.findById(data.getTeacherSchoolYearId()).orElseThrow(
-                ()-> new NullPointerException("Không tìm thấy giáo viên !!!"));
-        var classs = schoolYearClassRepository.findById(data.getSchoolYearClassId()).orElseThrow(
-                ()-> new NullPointerException("Không tìm thấy Lớp học !!!"));
-        var subject = schoolYearSubjectRepository.findById(data.getSchoolYearSubjectId()).orElseThrow(
-                ()-> new NullPointerException("Không tìm thấy Môn học !!!"));
-        if(scheduleRepository.existsByDayOfWeekAndStudyTimeAndIndexLessonAndSchoolYearClass_Id(data.getDayOfWeek(),data.getStudyTime(),data.getIndexLesson(),data.getSchoolYearClassId()))
-            throw new DataExistedException("Tiết học "+data.getIndexLesson()+" buổi "+data.getStudyTime()+" thứ "+data.getDayOfWeek().toString()+" của lớp "+classs.getClassName()+" đã tồn tại !!!");
-        var createdData =  scheduleRepository.save(Schedule.builder().schoolYearSubject(subject).teacherSchoolYear(teacher)
-                .schoolYearClass(classs).dayOfWeek(data.getDayOfWeek()).studyTime(data.getStudyTime())
-                .indexLesson(data.getIndexLesson()).note(data.getNote()).build());
-        return new ResponseEntity<>(createdData.toScheduleResponse(),HttpStatus.CREATED);
-    }
     /**
     * 1: read subject
     * 2: read school year
@@ -330,31 +316,6 @@ public class SchoolServiceImpl {
     }
 
     /**
-     * get thời khóa biêu
-     *
-     * @get lấy theo lớp
-     * @get lấy theo giáo viên
-     * @get lấy theo khối
-     * @get lây theo năm học
-     *
-     * */
-    public ResponseEntity<?> getSchedule(@Nullable Long classId,@Nullable Long teacherSchoolYearId,@Nullable Long gradeId,@Nullable Long schoolYearId){
-        if(classId!=null){
-            var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
-            return checkListEmptyGetResponse(scheduleRepository.findAllBySchoolYearClass(schoolYearClass).stream().map(Schedule::toScheduleResponse).toList(),
-                    "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
-        }
-        if(teacherSchoolYearId!=null || gradeId!=null || schoolYearId != null){
-            String mess = teacherSchoolYearId!=null ? "teacherSchoolYearId: "+teacherSchoolYearId :
-                    gradeId!=null ? "gradeId:"+gradeId:"schoolYearId:"+schoolYearId;
-            return checkListEmptyGetResponse(
-                scheduleRepository.findAllBySchoolYearClass_Grade_IdOrSchoolYearClass_SchoolYear_IdOrTeacherSchoolYear_Id(gradeId,schoolYearId,teacherSchoolYearId).stream().map(Schedule::toScheduleResponse).toList(),
-                "Thời khóa biểu của "+mess+" Rỗng !!!");
-        }
-        throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
-    }
-
-    /**
      * @description Kiểm tra số tiết học trong 1 năm học khi phân phối chương trình học
      * @return true - nếu số tiết học trong 1 năm học đã đủ
      * */
@@ -374,7 +335,7 @@ public class SchoolServiceImpl {
      * @throws NullPointerException nếu danh sách trống
      * @return ResponseEntity<?> nếu danh sách không trống
      * */
-    private ResponseEntity<?> checkListEmptyGetResponse(List<?> data,String message){
+    public static ResponseEntity<?> checkListEmptyGetResponse(List<?> data,String message){
         if(data.isEmpty()) throw new NullPointerException(message);
         return ResponseEntity.ok(data);
     }

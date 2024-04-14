@@ -18,20 +18,16 @@ public class ScheduleResponse {
     private StudyTime studyTime;
     @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
-    private Date releaseAt;
     private String note;
     // id, sort name
-    @JsonProperty("teacherId")
     private Long teacherSchoolYearId;
     @JsonProperty("teacherName")
     private String teacherSchoolYearName;
     // id , name
-    @JsonProperty("classId")
     private Long schoolYearClassId;
     @JsonProperty("className")
     private String SchoolYearClassName;
     // id name
-    @JsonProperty("subjectId")
     private Long schoolYearSubjectId;
     @JsonProperty("subjectName")
     private String SchoolYearSubjectName;
