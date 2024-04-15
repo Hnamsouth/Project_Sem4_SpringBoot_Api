@@ -50,7 +50,6 @@ public class Student {
     @JsonBackReference
     private List<StudentYearInfo> studentYearInfos;
 
-
     @JsonIgnore
     public StudentDto getDto(){
         StudentDto studentDto = new StudentDto();

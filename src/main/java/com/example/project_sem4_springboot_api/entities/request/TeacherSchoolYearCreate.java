@@ -13,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 public class TeacherSchoolYearCreate {
 
-    private Long teacher;
-    private List<Long> teachers;
+    private Long teacherId;
+    private List<Long> teacherIds;
     @NotNull(message = "SchoolYear is required")
     @Min(value = 1, message = "SchoolYear must be greater than 0")
-    private Long schoolYear;
+    private Long schoolYearId;
 }

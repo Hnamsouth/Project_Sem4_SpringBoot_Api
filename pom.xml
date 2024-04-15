@@ -69,7 +69,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.4.2.Final</version>
+            <version>1.6.0.Beta1</version>
         </dependency>
         <!--	swagger	-->
         <dependency>
@@ -128,6 +128,15 @@
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
                         </exclude>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct</artifactId>
+                                <version>1.6.0.Beta1</version>
+                            </path>
+                        </annotationProcessorPaths>
                     </excludes>
                 </configuration>
             </plugin>

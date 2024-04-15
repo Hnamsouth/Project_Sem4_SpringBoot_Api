@@ -1,28 +1,20 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
+import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
-import com.example.project_sem4_springboot_api.dto.UserDto;
-import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.Teacher;
+import com.example.project_sem4_springboot_api.entities.TeacherSchoolYearClassSubject;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
+import com.example.project_sem4_springboot_api.entities.enums.TeacherType;
 import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
-import com.example.project_sem4_springboot_api.repositories.ParentRepository;
-import com.example.project_sem4_springboot_api.repositories.TeacherRepository;
-import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
-import com.example.project_sem4_springboot_api.repositories.UserRepository;
+import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.service.TeacherService;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,10 +22,9 @@ import java.util.stream.Collectors;
 public class TeacherServiceImpl implements TeacherService {
 
     private final UserDetailRepository userDetailRepository;
-
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
-
+    private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final UserRepository userRepository;
 
     public Teacher createTeacher(TeacherDetailsDto teacherDetailsDto, Long userId) throws ResourceNotFoundException {
@@ -73,13 +64,12 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     public ResponseEntity<?> getTeacher(Long id){
-        return null;
-//        if(id!=null){
-//            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
-//                    ()->new NullPointerException("Giao vien khong ton tai")
-//            ).getDto());
-//        }
-//        return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::getDto).toList());
+        if(id!=null){
+            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
+                    ()->new NullPointerException("Giao vien khong ton tai")
+            ));
+        }
+        return ResponseEntity.ok(teacherRepository.findAll());
     }
 
 
@@ -129,26 +119,28 @@ public class TeacherServiceImpl implements TeacherService {
         return false;
     }
 
-    /*\
-    *
-    * tim kiem giao vien theo id hoc sinh
-    *
-    * */
-    public ResponseEntity<?> getContactTeacher(@Nullable Long studentId,Long schoolYearClassId){
-        if(studentId != null){
-            return ResponseEntity.ok(teacherRepository.findById(studentId).orElseThrow(
-                    ()-> new NullPointerException("Giao vien khong ton tai")
-            ).getContact());
+    /**
+     * get tất cả gv dạy của lớp theo schoolYearClassId
+     *
+     **/
+    public ResponseEntity<?> getContactTeacher(Long schoolYearClassId){
+        var result =  teacherSchoolYearClassSubjectRepository.findAllBySchoolYearClass_Id(schoolYearClassId);
+        if(result.isEmpty()) throw new NullPointerException("Khong tim thay giao vien nao");
+        // những gv dạy 2 môn trở lên sẽ cập nhật subjects
+        List<TeacherContactDetail> teacherContactDetails = new ArrayList<>();
+        for(TeacherSchoolYearClassSubject e : result){
+            Long teacherSchoolYearId = e.getTeacherSchoolYear().getId();
+            String subject = e.getSchoolYearSubject().getSubject().getName();
+            var checkExist = teacherContactDetails.stream().filter((s)->s.getTeacherSchoolYearId().equals(teacherSchoolYearId)).toList();
+            if(!checkExist.isEmpty()){
+                checkExist.forEach(s->teacherContactDetails.set(teacherContactDetails.indexOf(s),s.addSubject(subject)));
+                continue;
+            }
+            teacherContactDetails.add(e.toContact());
         }
-//        if(byParent != null){
-//            var parent = parentRepository.findById(byParent).orElseThrow(
-//                    ()-> new NullPointerException("Phu huynh khong ton tai")
-//            );
-//                return ResponseEntity.ok(teacherRepository.findByUserParent(parent).orElseThrow(
-//                        ()-> new NullPointerException("Giao vien khong ton tai")
-//                ).getContact());
-//        }
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(teacherContactDetails);
     }
+
+
 
 }

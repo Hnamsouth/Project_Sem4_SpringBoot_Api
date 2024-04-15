@@ -1,12 +1,20 @@
 package com.example.project_sem4_springboot_api;
 
+import com.example.project_sem4_springboot_api.config.AuthEntryPointJwt;
+import com.example.project_sem4_springboot_api.dto.UserDetailDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.*;
+import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import com.example.project_sem4_springboot_api.mappers.UserMapper;
 import com.example.project_sem4_springboot_api.repositories.*;
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -17,12 +25,17 @@ import java.time.Period;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.sql.Date;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static com.example.project_sem4_springboot_api.seedding.dataSeeding.*;
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 
 @Component
 @RequiredArgsConstructor
 @Service
 @Transactional
+@Slf4j
 public class DataInitializer {
 
     private final RoleRepository roleRepository;
@@ -43,6 +56,7 @@ public class DataInitializer {
     private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
+    private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @PostConstruct
     public void initializeData()  {
@@ -50,8 +64,6 @@ public class DataInitializer {
 //        createSchoolInfo();
 //        createStudents();
 //        createUser("bdht2207a",2);
-        var check = schoolYearSubjectRepository.existsBySubject_IdIn(List.of(1L,2L));
-        System.out.println(check);
     }
     private void createRolePermission(){
         // Create Permission
@@ -119,14 +131,27 @@ public class DataInitializer {
         }
     }
 
-    private void createSchoolInfo(){
-        /*
+    /**
+     * create school info
+     * 1. school year
+     * 2. subject
+     * 3. room
+     * 4. grade
+     * 5. teacher
+     * 6. teacher-schoolyear
+     * 7. school year class
+     * 8. school year subject
+     * 9. school year subject grade
+     * 10. teacher-schoolyear-subject-class
+     * */
+    private void createSchoolInfo() {
+        /**
          *  Tổ chức khai giảng vào ngày 05 tháng 9 năm 2022.
          *  Kết thúc học kỳ I trước ngày 15 tháng 01 năm 2023,
          *  hoàn thành kế hoạch giáo dục học kỳ II trước ngày 25 tháng 5 năm 2023
          *  kết thúc năm học trước ngày 31 tháng 5 năm 2023
          * có 35 tuần thực học (học kỳ I có 18 tuần, học kỳ II có 17 tuần).
-         *   */
+         **/
         // create school year
         if(schoolYearRepository.findAll().isEmpty()){
             schoolYearRepository.save(
@@ -140,11 +165,17 @@ public class DataInitializer {
         }
         //  create subject
         if (subjectRepository.findAll().isEmpty()){
-            subjectRepository.saveAll(ListSubject.stream().map((s)->Subject.builder()
-                .code(s.toUpperCase(Locale.US).strip().substring(3))
-                .name(s.substring(3))
-                .type(s.substring(0,3).toString().equals("BB") ? ESubjectType.BAT_BUOC: ESubjectType.TU_CHON)
-                .build()).toList());
+            List<Subject> subjects = new ArrayList<>();
+            ListSubject.forEach((name,code)->{
+                subjects.add(
+                    Subject.builder()
+                        .code(code)
+                        .name(name.substring(3))
+                        .type(name.substring(0,2).contains("BB") ? ESubjectType.BAT_BUOC: ESubjectType.TU_CHON)
+                        .build()
+                );
+            });
+            subjectRepository.saveAll(subjects);
             System.out.println("Created subject data");
         }
         // create room
@@ -167,7 +198,27 @@ public class DataInitializer {
             );
         }
         // create teacher
-        createTeacher();
+        if(teacherRepository.findAll().isEmpty()){
+            createUser("teacher",20);
+            int check = 1;
+            for(int i=1;i<=20;i++){
+                // create user
+                User user = userRepository.findByUsername("teacher"+i).orElseThrow();
+                // create teacher
+                String sortName =user.getUserDetail().get(0).isGender() ? "Mr." +  user.getUserDetail().get(0).getLastname(): "Mrs." +  user.getUserDetail().get(0).getLastname();
+                Teacher teacher = Teacher.builder()
+                        .officerNumber("GV"+i)
+                        .joiningDate(new Date(System.currentTimeMillis()))
+                        .active(true)
+                        .sortName(sortName)
+                        .user(user)
+                        .build();
+
+                teacherRepository.save(teacher);
+                check = i%5==0 ? 1 : check +1;
+            }
+            System.out.println("Created teacher data");
+        }
         // teacher school year
         if(teacherSchoolYearRepository.findAll().isEmpty()){
             teacherSchoolYearRepository.saveAll(teacherRepository.findAll().stream().map((teacher)->TeacherSchoolYear.builder()
@@ -175,7 +226,13 @@ public class DataInitializer {
                     .teacher(teacher)
                     .build()).toList());
         }
-        // create school year class
+        /**
+         *  create school year class
+         *
+         * @var classes: 15 lớp
+         * @var grade: 1-5
+         * @var charName: A-E
+         */
         if(schoolYearClassRepository.findAll().isEmpty()){
             int classes = 15;
             int grade = 1;
@@ -214,14 +271,13 @@ public class DataInitializer {
             );
             System.out.println("Created schoolYear subject data");
         };
-        /*
-        * create schoolyear subject grade: môn học của khối
-        * 1 năm : 35 tuần học _ 1225 tiết học
-        * số tiết học trung bình/tuần: 27
-        * k1: 945 - 29/tuan/
-        * k5: 1015 31/tuan
-        * chưa học thêm
-        * */
+        /**
+         * create schoolyear subject grade: phân phối chương trình học
+         *
+         * @var tuần học: 35 -- k1: 18 tuần, k2: 17 tuần
+         * @var số tiết học trung bình/tuần: 27
+         * @var số tiết cả năm : 1225
+         */
         if(schoolYearSubjectGradeRepository.findAll().isEmpty()){
             ListSubjectGrade.forEach((subject,numberOfGrade)->{
                 List<SchoolYearSubjectGrade> sysg= new ArrayList<>() ;
@@ -239,39 +295,29 @@ public class DataInitializer {
             });
             System.out.println("Created schoolYear subject Grade data");
         }
-    }
-    @Transactional
-    void createTeacher() {
-        if(teacherRepository.findAll().isEmpty()){
-            createUser("teacher",20);
-            int check = 1;
-            for(int i=1;i<=20;i++){
-                // create user
-                User user = userRepository.findByUsername("teacher"+i).orElseThrow();
-                // create teacher
-                String sortName =user.getUserDetail().get(0).isGender() ? "Mr." +  user.getUserDetail().get(0).getLastname(): "Mrs." +  user.getUserDetail().get(0).getLastname();
-                Teacher teacher = Teacher.builder()
-                        .officerNumber("GV"+i)
-                        .joiningDate(new Date(System.currentTimeMillis()))
-                        .active(true)
-                        .sortName(sortName)
-                        .user(user)
-                        .build();
 
-                teacherRepository.save(teacher);
-                check = i%5==0 ? 1 : check +1;
-            }
-            System.out.println("Created teacher data");
-        }
+        /**
+         * create teacher-schoolyear-subject-class: phân công giảng dạy
+         * 1 giáo viên chỉ dạy 1-2 môn học
+         *
+         **/
+
+
     }
     public void createUser (String role,int number) {
         ERole rolename = ERole.ROLE_DEV;
+        int inituser = number;
         switch (role){
             case "teacher" -> rolename = ERole.ROLE_GV;
             case "parent" -> rolename = ERole.ROLE_PH;
             case "bdht2207a" -> rolename = ERole.ROLE_BGH;
         }
         for(int i=1;i<=number;i++){
+            if(userRepository.existsByUsername(role+i)){
+                logger.warn("User "+role+i+" already exists");
+                inituser--;
+                continue;
+            }
             User user = User.builder()
                     .username(role+i)
                     .password(passwordEncoder.encode("123456"))
@@ -281,31 +327,39 @@ public class DataInitializer {
                     .build();
             userRepository.save(user);
         }
-        System.out.println("Created user "+role+" data");
-        Faker faker = new Faker();
-        for (int i=1;i<=number;i++) {
-            Name teacher = faker.name();
-            User user = userRepository.findByUsername(role + i).orElseThrow();
-            var userDetail = UserDetail.builder()
-                    .firstname(teacher.firstName())
-                    .lastname(teacher.lastName())
-                    .address(faker.address().fullAddress())
-                    .phone(faker.phoneNumber().cellPhone())
-                    .email(role+i+"@gmail.com")
-                    .gender(i>10)
-                    .birthday(faker.date().birthday())
-                    .citizen_id(faker.address().countryCode())
-                    .avatar(faker.avatar().image())
-                    .user(user)
-                    .build();
-            userDetailRepository.save(userDetail);
+        if(inituser >0){
+            System.out.println("Created user "+role+" data");
+            Faker faker = new Faker();
+            for (int i=1;i<=inituser;i++) {
+                Name teacher = faker.name();
+                User user = userRepository.findByUsername(role + i).orElseThrow();
+                var userDetail = UserDetail.builder()
+                        .firstname(teacher.firstName())
+                        .lastname(teacher.lastName())
+                        .address(faker.address().fullAddress())
+                        .phone(faker.phoneNumber().cellPhone())
+                        .email(role+i+"@gmail.com")
+                        .gender(i>10)
+                        .birthday(faker.date().birthday())
+                        .citizen_id(faker.address().countryCode())
+                        .avatar(faker.avatar().image())
+                        .user(user)
+                        .build();
+                userDetailRepository.save(userDetail);
+            }
+            System.out.println("Created user "+role+" detail data");
         }
-        System.out.println("Created user "+role+" detail data");
+
     }
+
+    /**
+     * creat student-schoolyear & parent
+     *
+     * @var initStudent: 15 học sinh/lớp
+     * @var parent: 1 phụ huynh/2 học sinh
+     */
     private void createStudents(){
-        /*
-        * moi phu huynh co 2 con
-        */
+
         int initStudent = 15;
         List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
         if(userRepository.findAllByUsernameContains("parent").isEmpty()){

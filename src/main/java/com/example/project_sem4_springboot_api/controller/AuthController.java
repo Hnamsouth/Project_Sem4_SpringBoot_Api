@@ -1,11 +1,8 @@
 package com.example.project_sem4_springboot_api.controller;
 
-import com.example.project_sem4_springboot_api.controller.service.WebSocketController;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
-import com.example.project_sem4_springboot_api.entities.request.Notifications;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
-import com.example.project_sem4_springboot_api.mappers.UserMapper;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +18,6 @@ import java.io.IOException;
 @Slf4j
 public class AuthController {
     private final AuthService authService;
-//    private final EmailConfig emailConfig;
-    private final WebSocketController webSocketController;
-
     @PostMapping("/login")
     public ResponseEntity<?> login (@Valid @RequestBody LoginRequest request){
         return authService.login(request);

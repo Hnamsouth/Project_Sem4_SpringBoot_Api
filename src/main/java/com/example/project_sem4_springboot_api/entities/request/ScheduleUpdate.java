@@ -2,13 +2,18 @@ package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.entities.enums.DayOfWeek;
 import com.example.project_sem4_springboot_api.entities.enums.StudyTime;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
 @Builder
-public class ScheduleCreate {
+public class ScheduleUpdate {
+
+    @NotNull(message = "Id Tkb không được để trống!!!")
+    private Long Id;
 
     @NotNull(message = "Tiết học không được để trống!!!")
     @Min(value = 1, message = "Vị trí tiết học phải lớn hơn 0 và nhỏ hơn hoặc bằng 4")
@@ -31,10 +36,5 @@ public class ScheduleCreate {
 
     @NotNull(message = "Id Môn học không được để trống!!!")
     private Long schoolYearSubjectId;
-
-    @NotNull(message = "Id Đợt áp dụng TKb không được để trống!!!")
-    private Long calendarReleaseId;
-
-
 
 }

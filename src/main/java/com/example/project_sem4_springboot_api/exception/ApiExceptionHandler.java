@@ -49,30 +49,34 @@ public class ApiExceptionHandler {
     /**
      * MethodArgumentNotValidException
      *
-     * @description: Tham số không hợp lệ
+     * @description: Tham số request không hợp lệ
      */
-    @ExceptionHandler({MethodArgumentNotValidException.class,})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseErr handleException(MethodArgumentNotValidException exception, HttpServletRequest request) {
+    public ResponseErr handleException(MethodArgumentNotValidException exception,HttpServletRequest request) {
         var errorMessages = exception.getBindingResult().getFieldErrors();
         var mess = errorMessages.stream().map(err -> err.getDefaultMessage() +" with : "+ err.getField() + ": " +err.getRejectedValue()).collect(Collectors.joining("\n "));
         return new ResponseErr(
-                OffsetDateTime.now(),
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation failed at: "+mess,
-                request.getRequestURI(),
-                "Bad Request"
+                OffsetDateTime.now(),HttpStatus.BAD_REQUEST.value(),"Validation failed at: "+mess,request.getRequestURI(),"Bad Request"
+        );
+    }
+
+    @ExceptionHandler(ArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseErr handleException(ArgumentNotValidException aex, HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),HttpStatus.BAD_REQUEST.value(),aex.getMessage(),request.getRequestURI(),"Bad Request"
         );
     }
 
     /**
-     * UserAlreadyRegisteredException
+     * DataExistedException
      *
-     * @description: User đã tồn tại
+     * @description: Data đã tồn tại
      */
-    @ExceptionHandler(UserAlreadyRegisteredException.class)
+    @ExceptionHandler(DataExistedException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseErr userAlreadyRegisteredException(UserAlreadyRegisteredException ex, HttpServletRequest request) {
+    public ResponseErr userAlreadyRegisteredException(DataExistedException ex, HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),
@@ -93,7 +97,7 @@ public class ApiExceptionHandler {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.NOT_FOUND.value(),
-                ex.getMessage()+" test",
+                ex.getMessage(),
                 request.getRequestURI(),
                 "Not Found"
         );
@@ -138,16 +142,29 @@ public class ApiExceptionHandler {
      *
      * @description: Lỗi bảo mật
      */
-    @ExceptionHandler({SecurityException.class,IOException.class})
+    @ExceptionHandler(SecurityException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseErr handleJwtException(SecurityException ex,IOException ex2 ,HttpServletRequest request) {
+    public ResponseErr handleSecurityException(SecurityException ex,HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.FORBIDDEN.value(),
-                ex.getMessage()+ex2.getMessage(),
+                ex.getMessage(),
                 request.getRequestURI(),
                 "Forbidden"
         );
     }
+
+    @ExceptionHandler(IOException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ResponseErr handleIOException(IOException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
+                request.getRequestURI(),
+                "Forbidden"
+        );
+    }
+
 
 }

@@ -23,6 +23,4 @@ public class UserDetailDto {
     private String citizen_id;
     private String nation;
     private String avatar;
-
-
 }

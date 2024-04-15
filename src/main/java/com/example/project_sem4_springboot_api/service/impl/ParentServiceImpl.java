@@ -9,7 +9,6 @@ import com.example.project_sem4_springboot_api.repositories.TeacherSchoolYearRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 @RequiredArgsConstructor

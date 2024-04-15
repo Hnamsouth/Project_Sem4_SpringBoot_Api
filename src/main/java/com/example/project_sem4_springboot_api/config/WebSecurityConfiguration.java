@@ -45,7 +45,6 @@ public class WebSecurityConfiguration {
     private final AuthEntryPointJwt unauthorizedHandler;
 
     @Bean
-
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //

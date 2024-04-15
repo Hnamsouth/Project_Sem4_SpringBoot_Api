@@ -49,13 +49,14 @@ public class TeacherController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
     /*
     * get contact teacher by id parent
     *
     * */
     @GetMapping("/teacher-contact")
-    public ResponseEntity<?> getTeacherContact(  @Nullable Long studentId , @Nullable Long schoolYearClassId){
-        return teacherService.getContactTeacher(studentId,schoolYearClassId);
+    public ResponseEntity<?> getTeacherContact( @Nullable Long schoolYearClassId){
+        return teacherService.getContactTeacher(schoolYearClassId);
     }
 
 
