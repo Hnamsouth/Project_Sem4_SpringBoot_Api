@@ -4,6 +4,7 @@ import com.example.project_sem4_springboot_api.dto.ResponseErr;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -20,6 +21,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseErr handleAllException(Exception ex,  HttpServletRequest request) {
+
         // quá trình kiểm soat lỗi diễn ra ở đây
         return new ResponseErr(
                 OffsetDateTime.now(),
@@ -27,6 +29,24 @@ public class ApiExceptionHandler {
                 ex.getLocalizedMessage(),
                 request.getRequestURI(),
                 "Internal Server Error"
+        );
+    }
+
+    /**
+     * AccessDeniedException
+     *
+     * @description : Không đủ quyền truy cập
+     * */
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ResponseErr TodoException(AccessDeniedException ex,  HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Không đủ quyền truy cập!!!",
+                request.getRequestURI(),
+                "Forbidden"
         );
     }
 

@@ -45,19 +45,20 @@ public class JwtService {
     }
     // tạp token ko có claim
     public String generateToken(UserDetails userDetails){
-        return generateToken(new HashMap<>(),userDetails);
+        return generateToken( Map.of("Author",userDetails.getAuthorities()),userDetails);
     }
     // tạo token có claims
     public  String generateToken(Map<String,Object> extraClaims, UserDetails userDetails){
         return builderToken(extraClaims,userDetails,jwtExpiration);
     }
     public String generateRefreshToken(UserDetails userDetails) {
-        return builderToken(new HashMap<>(), userDetails, refreshExpiration);
+        return builderToken(Map.of("Author",userDetails.getAuthorities()), userDetails, refreshExpiration);
     }
     // build Token
     public String builderToken( Map<String, Object> extraClaims,  UserDetails userDetails ,long expiration){
         return Jwts
                 .builder()
+//                .setClaims()
                 .setClaims(extraClaims) // set claim cho token
                 .setSubject(userDetails.getUsername()) // set chủ thể
                 .setIssuedAt(new Date(System.currentTimeMillis())) // set thời điểm phat hành token

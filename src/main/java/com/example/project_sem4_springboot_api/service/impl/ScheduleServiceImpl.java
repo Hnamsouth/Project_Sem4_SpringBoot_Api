@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 
@@ -113,6 +112,11 @@ public class ScheduleServiceImpl {
     public ResponseEntity<?> deleteSchedule(Long id, List<Long> ids){
         scheduleRepository.deleteById(id);
        return ResponseEntity.ok("Xóa Thành công !!!");
+    }
+    public ResponseEntity<?> deleteCalendarRelease(Long id){
+        var deleteData = calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy Đợt áp dụng TKB với id: "+id+" !!!"));
+        calendarReleaseRepository.delete(deleteData);
+        return ResponseEntity.ok("Xóa Thành công !!!");
     }
     private Object checkData(Long id,int index) throws NullPointerException,DataExistedException {
         if(index==1){

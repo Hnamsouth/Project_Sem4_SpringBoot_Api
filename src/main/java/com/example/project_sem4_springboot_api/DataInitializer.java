@@ -63,7 +63,7 @@ public class DataInitializer {
 //        createRolePermission();
 //        createSchoolInfo();
 //        createStudents();
-//        createUser("bdht2207a",2);
+        createUser("bdht2207a",2);
     }
     private void createRolePermission(){
         // Create Permission

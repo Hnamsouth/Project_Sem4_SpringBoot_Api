@@ -3,12 +3,15 @@ package com.example.project_sem4_springboot_api.controller;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
@@ -37,18 +40,23 @@ public class AuthController {
     }
 
     @GetMapping("/test-authority")
-    @PreAuthorize("hasAuthority('gv:chu_nhiem') or hasAnyRole('ROLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('update:student','update:user') or hasAnyRole('ROLE_BGH') or hasAuthority('read:user')")
     public ResponseEntity<?> testAuth (){
-        return ResponseEntity.ok("----------- success --------------");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
+        return ResponseEntity.ok(currentUser);
     }
 
-    @GetMapping("/test-auth")
+    @GetMapping("/get-auth")
     // required login token valid
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_GV','ROLE_PH','ROLE_BGH','ROLE_DEV','ROLE_NV_TC','ROLE_NV_TV','ROLE_NV_VT')")
     public ResponseEntity<?> testAuth2 (){
-        return ResponseEntity.ok("----------- success --------------");
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
+        return ResponseEntity.ok(currentUser);
     }
      @GetMapping("/test-api")
+     @PreAuthorize("hasPermission('test')")
     public ResponseEntity<?> testApi (){
         return ResponseEntity.ok("-----------  success  --------------");
     }

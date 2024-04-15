@@ -65,14 +65,14 @@ public class RegisterRequest  implements Serializable {
     private  String avatar;
 
     @JsonIgnore
-    public UserDetail toUserDetail(User user){
+    public  UserDetail toUserDetail(User user){
         return UserDetail.builder().address(address).phone(phone).birthday(birthday)
             .avatar(avatar).gender(this.isGender()).firstname(first_name).lastname(last_name)
             .email(email).nation(nation).citizen_id(citizen_id).user(user).build();
     }
     @JsonIgnore
-    public User toUser(Set<Role> roles,String pwEncode){
-        return User.builder().username(username).password(pwEncode)
+    public  User toUser(Set<Role> roles,String pwEncode){
+        return User.builder().username(username).password(pwEncode).realPassword(password)
             .roles(roles).status(1).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
     }
 }

@@ -3,125 +3,90 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherDto;
-import com.example.project_sem4_springboot_api.entities.Teacher;
-import com.example.project_sem4_springboot_api.entities.TeacherSchoolYearClassSubject;
-import com.example.project_sem4_springboot_api.entities.User;
-import com.example.project_sem4_springboot_api.entities.UserDetail;
-import com.example.project_sem4_springboot_api.entities.enums.TeacherType;
+import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
+import com.example.project_sem4_springboot_api.entities.*;
+import com.example.project_sem4_springboot_api.entities.enums.ERole;
+import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.service.TeacherService;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TeacherServiceImpl implements TeacherService {
+public class TeacherServiceImpl {
 
     private final UserDetailRepository userDetailRepository;
     private final TeacherRepository teacherRepository;
-    private final ParentRepository parentRepository;
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
-    public Teacher createTeacher(TeacherDetailsDto teacherDetailsDto, Long userId) throws ResourceNotFoundException {
-        try {
-            User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+    public ResponseEntity<?> createTeacher(TeacherDetailsDto data) throws ResourceNotFoundException {
 
-            Teacher teacher = new Teacher();
-            teacher.setUser(user);
-            teacher.setOfficerNumber(teacherDetailsDto.getOfficerNumber());
-            teacher.setPositionId(teacherDetailsDto.getPositionId());
-            teacher.setJoiningDate(teacherDetailsDto.getJoiningDate());
-            teacher.setActive(teacher.isActive());
+        Set<Role> roles = roleRepository.findByIdIn(data.getRole());
+        if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
+        if(userRepository.existsByUsername(data.getUsername())) throw new DataExistedException("Username đã tồn tại!!!");
 
-            UserDetail userDetails = new UserDetail();
-            userDetails.setUser(user);
-            userDetails.setFirstname(teacherDetailsDto.getFirstname());
-            userDetails.setLastname(teacherDetailsDto.getLastname());
-            userDetails.setAddress(teacherDetailsDto.getAddress());
-            userDetails.setPhone(teacherDetailsDto.getPhone());
-            userDetails.setEmail(teacherDetailsDto.getEmail());
-            userDetails.setGender(teacherDetailsDto.isGender());
-            userDetails.setBirthday(teacherDetailsDto.getBirthday());
+        var newUser = userRepository.save(data.toUser(roles,passwordEncoder.encode(data.getPassword())));
+        var userDetail = userDetailRepository.save(data.toUserDetail(newUser));
+        newUser.setUserDetail(List.of(userDetail));
+        var newTeacher =teacherRepository.save(data.toTeacher(newUser));
 
-            teacherRepository.save(teacher);
-
-            return teacher;
-        } catch (Exception e) {
-            throw new RuntimeException("Error creating teacher: " + e.getMessage());
-        }
+        return new ResponseEntity<>(newTeacher.toResponse(), HttpStatus.CREATED);
     }
 
-    @Override
-    public List<TeacherDto> getAllTeacher() {
-        List<Teacher> teacherDto = teacherRepository.findAll();
-        return null;
-//        return teacherDto.stream().map(Teacher::getDto).collect(Collectors.toList());
+    public ResponseEntity<?> getTeacher(@Nullable  boolean status,@Nullable Long id) {
+        if(id!=null) return ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Giáo viên không tồn tại!!!")).toResponse());
+        if(status) return ResponseEntity.ok(teacherRepository.findAllByActive(false).stream().map(Teacher::toResponse).toList());
+        return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::toResponse).toList());
     }
 
-    public ResponseEntity<?> getTeacher(Long id){
-        if(id!=null){
-            return  ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(
-                    ()->new NullPointerException("Giao vien khong ton tai")
-            ));
-        }
-        return ResponseEntity.ok(teacherRepository.findAll());
-    }
-
-
-    public Teacher updateTeacher(TeacherDetailsDto teacherDetailsDto, Long teacherId) throws ResourceNotFoundException {
-        try {
-            Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new ResourceNotFoundException("Teacher not found with id: " + teacherId));
-
-            teacher.setOfficerNumber(teacherDetailsDto.getOfficerNumber());
-            teacher.setPositionId(teacherDetailsDto.getPositionId());
-            teacher.setJoiningDate(teacherDetailsDto.getJoiningDate());
-
-            UserDetail userDetails = teacher.getUser().getUserDetail().get(0);
-            if (userDetails == null) {
-                throw new ResourceNotFoundException("User details not found for teacher: " + teacherId);
+    public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
+        try{
+            Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Giáo viên với id: " + data.getId()));
+            Set<Role> roles = roleRepository.findByIdIn(data.getRole());
+            if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
+            User user = teacher.getUser();
+            if(!data.getUsername().equals(user.getUsername())) {
+                if(userRepository.existsByUsername(data.getUsername())) throw new DataExistedException("Username đã tồn tại!!!");
+                user.setUsername(data.getUsername());
             }
+            if(!data.getPassword().equals(user.getRealPassword())){
+                user.setPassword(passwordEncoder.encode(data.getPassword()));
+                user.setRealPassword(data.getPassword());
+            }
+            user.setRoles(roles);
+            var newUser = userRepository.save(user);
 
-            userDetails.setFirstname(teacherDetailsDto.getFirstname());
-            userDetails.setLastname(teacherDetailsDto.getLastname());
-            userDetails.setAddress(teacherDetailsDto.getAddress());
-            userDetails.setPhone(teacherDetailsDto.getPhone());
-            userDetails.setEmail(teacherDetailsDto.getEmail());
-            userDetails.setGender(teacherDetailsDto.isGender());
-            userDetails.setBirthday(teacherDetailsDto.getBirthday());
-            teacherRepository.save(teacher);
+            UserDetail userDetail = newUser.getUserDetail().get(0).from(data);
+            userDetailRepository.save(userDetail);
 
-            return teacher;
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating teacher: " + e.getMessage());
+            var newTeacher = teacherRepository.save(teacher.from(data)).toResponse();
+
+            return ResponseEntity.ok(newTeacher);
+        }catch (Exception e){
+            LoggerFactory.getLogger(TeacherServiceImpl.class).error("Lỗi cập nhật thông tin giáo viên: "+e.getMessage());
+            throw new NullPointerException("Lỗi cập nhật thông tin giáo viên: "+e.getMessage());
         }
     }
 
-    @Override
-    public Teacher findTeacherById(Long teacherId) throws Exception {
-        Optional<Teacher> teacher = teacherRepository.findById(teacherId);
-        if (teacher.isPresent()){
-            return teacher.get();
-        }
-        throw new Exception("user not exits with user id " + teacherId);
-    }
-
-    public boolean deleteTeacher(Long id){
-        Optional<Teacher> teacherOptional = teacherRepository.findById(id);
-        if (teacherOptional.isPresent()){
-            teacherRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public ResponseEntity<?> deleteTeacher(Long id){
+        Teacher teacher = teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Gíao viên không tồn tại!!!"));
+        teacherRepository.deleteById(id);
+        return ResponseEntity.ok("Xóa thành công giáo viên: "+teacher.getSortName());
     }
 
     /**
      * get tất cả gv dạy của lớp theo schoolYearClassId
-     *
      **/
     public ResponseEntity<?> getContactTeacher(Long schoolYearClassId){
         var result =  teacherSchoolYearClassSubjectRepository.findAllBySchoolYearClass_Id(schoolYearClassId);
