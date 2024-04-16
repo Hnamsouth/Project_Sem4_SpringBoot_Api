@@ -1,6 +1,4 @@
 package com.example.project_sem4_springboot_api.controller;
-
-
 import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseCreate;
 import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseUpdate;
 import com.example.project_sem4_springboot_api.entities.request.ScheduleCreate;
@@ -9,13 +7,10 @@ import com.example.project_sem4_springboot_api.exception.ArgumentNotValidExcepti
 import com.example.project_sem4_springboot_api.service.impl.ScheduleServiceImpl;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/v1/schedule")
@@ -23,9 +18,6 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleServiceImpl scheduleService;
-
-
-
 
     @GetMapping()
     public ResponseEntity<?> get_Schedule(
@@ -40,9 +32,6 @@ public class ScheduleController {
     public  ResponseEntity<?> get_CalendarRelease(@Nullable @RequestParam Long Id, @Nullable @RequestParam Long schoolYearId){
         return scheduleService.getCalendarRelease(Id,schoolYearId);
     }
-
-
-
     @PostMapping("/create-schedule")
     public ResponseEntity<?> createSchedule (@Valid @RequestBody ScheduleCreate data){
         return scheduleService.createSchedule(data);
@@ -68,5 +57,9 @@ public class ScheduleController {
     @DeleteMapping("/delete-schedule")
     private  ResponseEntity<?> deleteSchedule(@Nullable @RequestParam Long Id,@Nullable List<Long> Ids){
         return scheduleService.deleteSchedule(Id,Ids);
+    }
+    @DeleteMapping("/delete-calendar-release")
+    private  ResponseEntity<?> delete_CalendarRelease(@Nullable @RequestParam Long Id){
+        return scheduleService.deleteCalendarRelease(Id);
     }
 }

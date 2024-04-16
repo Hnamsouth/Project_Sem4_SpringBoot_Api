@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -41,20 +42,24 @@ public class UserDetail {
     private User user;
 
     @JsonIgnore
-    public UserDetail getDto(@Nullable  boolean getU){
+    public UserDetail getDto(@Nullable boolean getU){
         return UserDetail.builder()
-                .id(this.id)
-                .firstname(this.firstname)
-                .lastname(this.lastname)
-                .address(this.address)
-                .phone(this.phone)
-                .email(this.email)
-                .gender(this.gender)
-                .birthday(this.birthday)
-                .citizen_id(this.citizen_id)
-                .nation(this.nation)
-                .avatar(this.avatar)
-                .user(getU ? this.user:null)
-                .build();
+            .id(id).firstname(firstname).lastname(lastname).address(address).phone(phone).email(email).gender(gender)
+            .birthday(birthday).citizen_id(citizen_id).nation(nation).avatar(avatar).user(getU ? user:null).build();
+    }
+
+    @JsonIgnore
+    public UserDetail from(TeacherUpdateDto data){
+        this.firstname = data.getFirst_name();
+        this.lastname = data.getLast_name();
+        this.address = data.getAddress();
+        this.phone = data.getPhone();
+        this.email = data.getEmail();
+        this.nation= data.getNation();
+        this.gender = data.isGender();
+        this.birthday = data.getBirthday();
+        this.citizen_id = data.getCitizen_id();
+        this.avatar = data.getAvatar();
+        return this;
     }
 }

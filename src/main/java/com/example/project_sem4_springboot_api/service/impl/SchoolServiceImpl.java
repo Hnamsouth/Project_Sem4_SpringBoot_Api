@@ -83,7 +83,7 @@ public class SchoolServiceImpl {
         throw new NullPointerException("Yêu cầu subjectId hoặc subjectIds !!!");
     }
     public ResponseEntity<?> createTeacherSchoolYear(TeacherSchoolYearCreate data){
-        var schoolYear = schoolYearRepository.findById(data.getTeacherId()).orElseThrow(
+        var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy năm học!!!")
         );
         if(data.getTeacherId() != null ){
@@ -163,13 +163,16 @@ public class SchoolServiceImpl {
             var schoolYearSubject = schoolYearSubjectRepository.findById(e.getSchoolYearSubjectId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy Môn học với Id: "+e.getSchoolYearSubjectId()+" !!!"));
             List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects = new ArrayList<>();
+
             e.getSchoolYearClassId().forEach(c->{
                 // check subject exist
                 var schoolYearClass =  schoolYearClassRepository.findById(c).orElseThrow(
                     ()->new NullPointerException("Không tìm thấy Lớp học với  Id: "+c+" !!!"));
-                // check teacher teach subject to class yet
-                if(teacherSchoolYearClassSubjectRepository.findByTeacherSchoolYear_IdAndSchoolYearClass_IdAndTeacherSchoolYear_Id(
-                        teacherSchoolYear.getId(),c,e.getSchoolYearSubjectId()))
+                // kiểm tra giáo viên đã dạy môn học ở lớp học này chưa
+                var checkSubject = teacherSchoolYearClassSubjectRepository.findBySchoolYearClass_IdAndSchoolYearSubject_Id(c,e.getSchoolYearSubjectId()).orElseThrow(
+                    ()->new NullPointerException("Đã có Giáo viên đã dạy subjectId: "+e.getSchoolYearSubjectId()+" ở lớp "+c+" !!!")
+                );
+                if(checkSubject.getTeacherSchoolYear().equals(teacherSchoolYear))
                     throw new NullPointerException("Giáo viên: "+teacherSchoolYear.getId()+" đã dạy subjectId: "+e.getSchoolYearSubjectId()+" ở lớp "+c+" !!!");
                 // add teacher teach subject to class
                 teacherSchoolYearClassSubjects.add(TeacherSchoolYearClassSubject.builder()

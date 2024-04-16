@@ -1,5 +1,7 @@
 package com.example.project_sem4_springboot_api.dto;
 
+import com.example.project_sem4_springboot_api.entities.UserDetail;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,4 +25,6 @@ public class UserDetailDto {
     private String citizen_id;
     private String nation;
     private String avatar;
+
+
 }

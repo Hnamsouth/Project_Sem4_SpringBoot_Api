@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.UserDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -27,6 +28,7 @@ public class User extends AbstractEntity  {
     private String username;
     @Column(nullable = false)
     private String password;
+    private String realPassword;
     private String token;
     @Column(name = "create_at")
     private Date createdAt;
@@ -59,4 +61,11 @@ public class User extends AbstractEntity  {
     @ToString.Exclude
     @JsonBackReference
     private Parent parent;
+
+    @JsonIgnore
+    public UserDto getDto(){
+        return UserDto.builder()
+            .id(this.id).username(this.username).password(this.realPassword).roles(this.roles)
+            .userDetail(userDetail.get(0).getDto(false)).build();
+    }
 }

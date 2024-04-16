@@ -1,7 +1,9 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.dto.TeacherDto;
+import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
+import com.example.project_sem4_springboot_api.dto.UserDto;
 import com.example.project_sem4_springboot_api.entities.response.TeacherContact;
+import com.example.project_sem4_springboot_api.entities.response.TeacherResponse;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
@@ -49,17 +51,23 @@ public class Teacher {
     private List<TeacherSchoolYear> teacherSchoolYears;
 
     @JsonIgnore
-    public TeacherContact getContact(){
-        var userDetail = user.getUserDetail().get(0);
-        return TeacherContact.builder()
-                .phone(userDetail.getPhone())
-                .email(userDetail.getEmail())
-                .name(userDetail.getFirstname()+" "+userDetail.getLastname())
+    public TeacherResponse toResponse(){
+        return TeacherResponse.builder()
+                .id(id)
+                .officerNumber(officerNumber)
                 .sortName(sortName)
-                .build();
+                .joiningDate(joiningDate)
+                .active(this.isActive())
+                .user(user.getDto()).build();
     }
 
-
-
+    @JsonIgnore
+    public Teacher from(TeacherUpdateDto data){
+        this.setActive(data.isActive());
+        this.setOfficerNumber(data.getOfficerNumber());
+        this.setSortName(data.getSortName());
+        this.setJoiningDate(data.getJoiningDate());
+        return this;
+    }
 
 }
