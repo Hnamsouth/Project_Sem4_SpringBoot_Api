@@ -31,6 +31,7 @@ public class SchoolServiceImpl {
     private final SubjectRepository subjectRepository;
     private final RoomRepository roomRepository;
     private final ScheduleRepository scheduleRepository;
+    private final RoleRepository roleRepository;
 
     /*
     * 1: create school year
@@ -321,6 +322,13 @@ public class SchoolServiceImpl {
 
     public ResponseEntity<?> getGrade(){
         return ResponseEntity.ok(gradeRepository.findAll());
+    }
+    public ResponseEntity<?> getRole(){
+        return ResponseEntity.ok(roleRepository.findAll());
+    }
+
+    public ResponseEntity<?> getRooms(){
+        return ResponseEntity.ok(roomRepository.findAll());
     }
 
     /**

@@ -173,9 +173,19 @@ public class SchoolController {
         return schoolService.getSchoolYearSubjectGrade(id,schoolYearSubjectId,gradeId,number,sem);
     }
 
-    @GetMapping("/get-grade")
+    @GetMapping("/get-grades")
     public ResponseEntity<?> getGrade(){
         return ResponseEntity.ok(schoolService.getGrade());
+    }
+
+    @GetMapping("/get-roles")
+    public ResponseEntity<?> getRole(){
+        return ResponseEntity.ok(schoolService.getRole());
+    }
+
+    @GetMapping("/get-rooms")
+    public ResponseEntity<?> getRooms(){
+        return ResponseEntity.ok(schoolService.getRooms());
     }
 
 }
