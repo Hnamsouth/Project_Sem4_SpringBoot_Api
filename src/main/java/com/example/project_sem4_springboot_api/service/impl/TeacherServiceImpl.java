@@ -2,14 +2,10 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
-import com.example.project_sem4_springboot_api.dto.TeacherDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.example.project_sem4_springboot_api.entities.*;
-import com.example.project_sem4_springboot_api.entities.enums.ERole;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
-import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
 import com.example.project_sem4_springboot_api.repositories.*;
-import com.example.project_sem4_springboot_api.service.TeacherService;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -30,7 +26,7 @@ public class TeacherServiceImpl {
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
 
-    public ResponseEntity<?> createTeacher(TeacherDetailsDto data) throws ResourceNotFoundException {
+    public ResponseEntity<?> createTeacher(TeacherDetailsDto data) {
 
         Set<Role> roles = roleRepository.findByIdIn(data.getRole());
         if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
@@ -52,7 +48,7 @@ public class TeacherServiceImpl {
 
     public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
         try{
-            Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Giáo viên với id: " + data.getId()));
+            Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new NullPointerException("Không tìm thấy Giáo viên với id: " + data.getId()));
             Set<Role> roles = roleRepository.findByIdIn(data.getRole());
             if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
             User user = teacher.getUser();

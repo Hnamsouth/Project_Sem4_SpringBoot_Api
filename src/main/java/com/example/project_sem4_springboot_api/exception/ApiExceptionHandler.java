@@ -1,6 +1,5 @@
 package com.example.project_sem4_springboot_api.exception;
 
-import com.example.project_sem4_springboot_api.dto.ResponseErr;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.MalformedJwtException;

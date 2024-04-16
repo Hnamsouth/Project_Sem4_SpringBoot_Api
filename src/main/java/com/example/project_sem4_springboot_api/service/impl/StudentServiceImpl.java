@@ -2,18 +2,12 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.exception.StudentAlreadyExistsException;
-import com.example.project_sem4_springboot_api.exception.StudentNotFoundException;
-import com.example.project_sem4_springboot_api.repositories.SchoolYearRepository;
 import com.example.project_sem4_springboot_api.repositories.StudentRepository;
-import com.example.project_sem4_springboot_api.repositories.StudentYearInfoRepository;
 import com.example.project_sem4_springboot_api.service.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,7 +45,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student getStudentById(Long id) {
         return studentRepository.findById(id)
-                .orElseThrow(()->new StudentNotFoundException("Sorry, no student found with the ID: " + id));
+                .orElseThrow(()->new NullPointerException("Sorry, no student found with the ID: " + id));
     }
 
     @Override
@@ -66,13 +60,13 @@ public class StudentServiceImpl implements StudentService {
             st.setStatus(studentDto.getStatus());
             st.setStudentCode(studentDto.getStudentCode());
             return studentRepository.save(st);
-        }).orElseThrow(()->new StudentNotFoundException("Sorry, this student cloud not be found"));
+        }).orElseThrow(()->new NullPointerException("Sorry, this student cloud not be found"));
     }
 
     @Override
     public void deleteStudent(Long id) {
         if (!studentRepository.existsById(id)){
-            throw new StudentNotFoundException("Sorry, Student not found");
+            throw new NullPointerException("Sorry, Student not found");
         }
         studentRepository.deleteById(id);
     }

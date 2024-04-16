@@ -9,7 +9,6 @@ import com.example.project_sem4_springboot_api.entities.request.ScheduleCreate;
 import com.example.project_sem4_springboot_api.entities.request.ScheduleUpdate;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
-import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +76,7 @@ public class ScheduleServiceImpl {
         if(id!=null) return ResponseEntity.ok(calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy CalendarRelease với id: "+id+" !!!")).toResponse());
         if(schoolYearId!=null) {
            var res = calendarReleaseRepository.findAllBySchoolYear_Id(schoolYearId);
-           if(res.isEmpty()) throw new ResourceNotFoundException("Không tìm thấy CalendarRelease với schoolYearId: "+schoolYearId+" !!!");
+           if(res.isEmpty()) throw new NullPointerException("Không tìm thấy CalendarRelease với schoolYearId: "+schoolYearId+" !!!");
            return ResponseEntity.ok(res.stream().map(CalendarRelease::toResponse).toList());
         }
         return ResponseEntity.ok(calendarReleaseRepository.findAll().stream().map(CalendarRelease::toResponse).toList());

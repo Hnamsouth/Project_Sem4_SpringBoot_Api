@@ -1,8 +1,7 @@
-package com.example.project_sem4_springboot_api.dto;
+package com.example.project_sem4_springboot_api.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import java.time.OffsetDateTime;
 
 @Data

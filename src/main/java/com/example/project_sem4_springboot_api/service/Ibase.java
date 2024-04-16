@@ -1,14 +1,14 @@
 package com.example.project_sem4_springboot_api.service;
 
-import java.util.List;
+import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
+import org.springframework.http.ResponseEntity;
 
-public interface Ibase<S> {
-    List<S> getAll();
-    S create(S s);
-    S update(S s);
-    S update(S s,Long e);
-    boolean delete(Long e);
-    <K> S find(K id);
+import java.security.Key;
 
-    List<S> search(String e);
+public interface Ibase<S,K> {
+    S getAll() ;
+    S create(K k);
+    S update(K s);
+    S delete(Long e);
+    S search(String e);
 }
