@@ -28,7 +28,7 @@ public class Student {
     private String firstName;
     private String lastName;
     private String email;
-    private LocalDate birthday;
+    private Date birthday;
     private String address;
     private int status;
     private String studentCode;

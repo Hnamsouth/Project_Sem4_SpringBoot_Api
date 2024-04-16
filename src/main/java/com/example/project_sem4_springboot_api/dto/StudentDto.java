@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -22,7 +23,7 @@ public class StudentDto {
     @Size(min = 3, message = "LASTNAME_INVALID")
     private String lastName;
     private String email;
-    private LocalDate birthday;
+    private Date birthday;
     private String address;
     private int status;
     private String studentCode;

@@ -32,7 +32,10 @@ public class TeacherServiceImpl {
         if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
         if(userRepository.existsByUsername(data.getUsername())) throw new DataExistedException("Username đã tồn tại!!!");
 
-        var newUser = userRepository.save(data.toUser(roles,passwordEncoder.encode(data.getPassword())));
+        var user = User.builder().username(data.getUsername()).password(passwordEncoder.encode(data.getPassword()))
+        .realPassword(data.getPassword()).roles(roles).status(1).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
+
+        var newUser = userRepository.save(user);
         var userDetail = userDetailRepository.save(data.toUserDetail(newUser));
         newUser.setUserDetail(List.of(userDetail));
         var newTeacher =teacherRepository.save(data.toTeacher(newUser));

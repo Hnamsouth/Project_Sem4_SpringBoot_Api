@@ -21,7 +21,7 @@ public class StudentServiceImpl implements StudentService {
         Student student = new Student();
 
         if (studentAlreadyExists(studentDto.getEmail())){
-            throw new StudentAlreadyExistsException(studentDto.getEmail()+ " already exist");
+            throw new NullPointerException(studentDto.getEmail()+ " already exist");
         }
 
         student.setFirstName(studentDto.getFirstName());

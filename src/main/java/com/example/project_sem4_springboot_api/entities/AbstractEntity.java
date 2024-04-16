@@ -20,31 +20,26 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 public abstract class AbstractEntity implements Serializable {
-
     /**
      * The Created date.
      */
     @CreatedDate
     protected LocalDateTime createdDate;
-
     /**
      * The Created by.
      */
     @CreatedBy
     protected String createdBy;
-
     /**
      * The Modified date.
      */
     @LastModifiedDate
     protected LocalDateTime modifiedDate;
-
     /**
      * The Modified by.
      */
     @LastModifiedBy
     protected String modifiedBy;
-
     /**
      * The Is deleted.
      */
