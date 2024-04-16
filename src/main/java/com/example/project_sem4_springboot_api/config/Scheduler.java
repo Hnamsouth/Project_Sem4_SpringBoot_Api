@@ -1,8 +1,5 @@
 package com.example.project_sem4_springboot_api.config;
 
-import com.example.project_sem4_springboot_api.controller.service.WebSocketController;
-import com.example.project_sem4_springboot_api.entities.request.Notifications;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -10,7 +7,7 @@ public class Scheduler {
 
 //    @Scheduled(fixedRate = 5000)
 //    public void scheduleTaskWithFixedRate() {
-//        WebSocketController webSocketController = new WebSocketController();
+//        TestController webSocketController = new TestController();
 //        webSocketController.sendMessage(
 //                Notifications.builder()
 //                        .content("FIRST MESSAGE")

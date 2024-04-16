@@ -173,5 +173,9 @@ public class SchoolController {
         return schoolService.getSchoolYearSubjectGrade(id,schoolYearSubjectId,gradeId,number,sem);
     }
 
+    @GetMapping("/get-grade")
+    public ResponseEntity<?> getGrade(){
+        return ResponseEntity.ok(schoolService.getGrade());
+    }
 
 }

@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,7 +39,6 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request){
         return authService.register(request);
     }
-
     @GetMapping("/test-authority")
     @PreAuthorize("hasAnyAuthority('update:student','update:user') or hasAnyRole('ROLE_BGH') or hasAuthority('read:user')")
     public ResponseEntity<?> testAuth (){
@@ -48,25 +48,14 @@ public class AuthController {
     }
 
     @GetMapping("/get-auth")
-    // required login token valid
-    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_GV','ROLE_PH','ROLE_BGH','ROLE_DEV','ROLE_NV_TC','ROLE_NV_TV','ROLE_NV_VT')")
     public ResponseEntity<?> testAuth2 (){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
         return ResponseEntity.ok(currentUser);
     }
-     @GetMapping("/test-api")
-     @PreAuthorize("hasPermission('test')")
-    public ResponseEntity<?> testApi (){
-        return ResponseEntity.ok("-----------  success  --------------");
-    }
-
     @GetMapping("/test-demo")
     public ResponseEntity<?> testDemo (RegisterRequest data) throws IOException {
         return authService.testDemo(data);
     }
-
-
-
 
 }

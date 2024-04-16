@@ -1,10 +1,14 @@
 package com.example.project_sem4_springboot_api.exception;
 
 import com.example.project_sem4_springboot_api.dto.ResponseErr;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -21,7 +25,6 @@ public class ApiExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseErr handleAllException(Exception ex,  HttpServletRequest request) {
-
         // quá trình kiểm soat lỗi diễn ra ở đây
         return new ResponseErr(
                 OffsetDateTime.now(),
@@ -32,23 +35,7 @@ public class ApiExceptionHandler {
         );
     }
 
-    /**
-     * AccessDeniedException
-     *
-     * @description : Không đủ quyền truy cập
-     * */
 
-    @ExceptionHandler(AccessDeniedException.class)
-    @ResponseStatus(value = HttpStatus.FORBIDDEN)
-    public ResponseErr TodoException(AccessDeniedException ex,  HttpServletRequest request) {
-        return new ResponseErr(
-                OffsetDateTime.now(),
-                HttpStatus.FORBIDDEN.value(),
-                "Không đủ quyền truy cập!!!",
-                request.getRequestURI(),
-                "Forbidden"
-        );
-    }
 
     /**
      * IndexOutOfBoundsException
@@ -174,6 +161,12 @@ public class ApiExceptionHandler {
         );
     }
 
+    /**
+     * IOException
+     *
+     * @description : Lỗi xử lý file
+     * */
+
     @ExceptionHandler(IOException.class)
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     public ResponseErr handleIOException(IOException ex ,HttpServletRequest request) {
@@ -185,6 +178,108 @@ public class ApiExceptionHandler {
                 "Forbidden"
         );
     }
+
+    /**
+     * AccessDeniedException
+     *
+     * @description : Không đủ quyền truy cập
+     * */
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(value = HttpStatus.FORBIDDEN)
+    public ResponseErr TodoException(AccessDeniedException ex,  HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Không đủ quyền truy cập!!!",
+                request.getRequestURI(),
+                "Forbidden"
+        );
+    }
+    /**
+     * AuthenticationException
+     *
+     * @description : Yêu cầu xác thực tài khoản
+     * */
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ResponseErr handleAuthenticationException(AuthenticationException ex,  HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Yêu cầu xác thực tài khoản !!!",
+                request.getRequestURI(),
+                "Unauthorized"
+        );
+    }
+
+    /**
+     * ExpiredJwtException
+     *
+     * @description : Token hết hạn
+     * */
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ResponseErr handleAuthenticationException(ExpiredJwtException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Token hết hạn: "+ex.getMessage(),
+                request.getRequestURI(),
+                "Unauthorized"
+        );
+    }
+
+    /**
+     * MalformedJwtException
+     *
+     * @description  : Token không hợp lệ
+     * */
+    @ExceptionHandler(MalformedJwtException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ResponseErr handleMalformedJwtException(MalformedJwtException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Token không hợp lệ: "+ex.getMessage(),
+                request.getRequestURI(),
+                "Unauthorized"
+        );
+    }
+
+    /**
+     * UnsupportedJwtException
+     *
+     * @description : Token không được hỗ trợ
+     * */
+    @ExceptionHandler(UnsupportedJwtException.class)
+    @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
+    public ResponseErr handleUnsupportedJwtException(UnsupportedJwtException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Token không được hỗ trợ: "+ex.getMessage(),
+                request.getRequestURI(),
+                "Unauthorized"
+        );
+    }
+
+    /**
+     * IllegalArgumentException
+     *
+     * @description : Được ném ra để chỉ ra rằng một phương thức đã được thông qua một đối số bất hợp pháp hoặc không phù hợp
+     * */
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public ResponseErr handleIllegalArgumentException(IllegalArgumentException ex ,HttpServletRequest request) {
+        return new ResponseErr(
+                OffsetDateTime.now(),
+                HttpStatus.NOT_FOUND.value(), ex.getMessage(),
+                request.getRequestURI(),
+                "Not Found"
+        );
+    }
+
 
 
 }

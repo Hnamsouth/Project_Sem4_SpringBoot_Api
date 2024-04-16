@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -36,7 +37,7 @@ public class WebSecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/test/api",
-            "/**"
+//            "/**"
     };
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -48,22 +49,22 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable) //
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .exceptionHandling(exception->{
+                    exception.authenticationEntryPoint(unauthorizedHandler);
+                })
                 .authorizeHttpRequests(req->
-                        req.requestMatchers(WHITE_LIST_URL).permitAll()
-                        .requestMatchers(GET,"/api/v1/auth/test-auth").authenticated()
-//                      .requestMatchers(DELETE,"/api/v1/product/**").hasAnyRole(String.valueOf(ROLE_MANAGER))
-                        .anyRequest().authenticated()
-                        )
+                    req.requestMatchers(WHITE_LIST_URL).permitAll()
+                    .requestMatchers(GET,"/api/v1/auth/test-auth").authenticated()
+                    .anyRequest().authenticated()
+                )
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Ko lưu phiên người dùng
                 .authenticationProvider(authenticationProvider)
                 // authenticate
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .logout( logout ->
-                                logout
-                                        .logoutUrl("/api/v1/auth/logout")
-                                        .addLogoutHandler(logoutHandler)
-                                        .logoutSuccessHandler(((request, response, authentication) -> clearContext() ))
+                .logout( logout ->logout
+                    .logoutUrl("/api/v1/auth/logout")
+                    .addLogoutHandler(logoutHandler)
+                    .logoutSuccessHandler(((request, response, authentication) -> clearContext() ))
 //                                 .logoutSuccessUrl("/home")
                 )
         ;

@@ -318,6 +318,11 @@ public class SchoolServiceImpl {
         return  ResponseEntity.ok(result);
     }
 
+
+    public ResponseEntity<?> getGrade(){
+        return ResponseEntity.ok(gradeRepository.findAll());
+    }
+
     /**
      * @description Kiểm tra số tiết học trong 1 năm học khi phân phối chương trình học
      * @return true - nếu số tiết học trong 1 năm học đã đủ

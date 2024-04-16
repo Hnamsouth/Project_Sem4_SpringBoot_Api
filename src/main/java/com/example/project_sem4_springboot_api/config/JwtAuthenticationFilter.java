@@ -3,6 +3,7 @@ package com.example.project_sem4_springboot_api.config;
 import com.example.project_sem4_springboot_api.exception.AuthException;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsServiceImpl;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -40,9 +42,11 @@ protected void doFilterInternal(
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 jwt = authHeader.substring(7);
                 username = jwtService.extractUsername(jwt);
+
             }
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetailsImpl userDetails = this.userDetailsService.loadUserByUsername(username);
+
                 if (jwtService.isTokenValid(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,null,userDetails.getAuthorities());
