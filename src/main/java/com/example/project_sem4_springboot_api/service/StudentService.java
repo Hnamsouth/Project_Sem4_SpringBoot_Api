@@ -8,18 +8,18 @@ import java.util.Optional;
 
 public interface StudentService {
 
-    StudentDto createStudent(StudentDto studentDto);
+    Student addStudent(StudentDto studentDto);
 
-    List<StudentDto> getAllStudent();
+    List<Student> getStudents();
 
-    List<StudentDto> getAllStudentByName(String firstName);
+    Student getStudentById(Long id);
 
-    Student updateStudent(Student student, Long studentId)throws Exception;
+    Student updateStudent(Long id, StudentDto studentDto);
 
-    boolean deleteStudent(Long id);
-
-    Student findStudentById(Long studentId)throws Exception;
+    void deleteStudent(Long id);
 
     List<Student> findStudentByClass(Long classId);
+
+    List<StudentDto> getAllStudentByName(String firstName);
 
 }

@@ -358,60 +358,60 @@ public class DataInitializer {
      * @var initStudent: 15 học sinh/lớp
      * @var parent: 1 phụ huynh/2 học sinh
      */
-    private void createStudents(){
-
-        int initStudent = 15;
-        List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
-        if(userRepository.findAllByUsernameContains("parent").isEmpty()){
-            createUser("parent",((classes.size()*initStudent)/2 + 1));
-        }
-        if(studentRepository.findAll().isEmpty()){
-            List<User> userParents = userRepository.findAllByUsernameContains("parent");
-            Faker faker = new Faker();
-            int studentNum = 1;
-            int parentUser = 0;
-            Parent parentS = new Parent();
-            for(int i=1 ; i <= classes.size();i++){
-                Name student = faker.name();
-                for(int J=1;J<=initStudent;J++){
-                    if(studentNum%2!=0){
-                        parentS = parentRepository.save(Parent.builder()
-                                .fullName(faker.name().fullName())
-                                .phone(faker.phoneNumber().toString())
-                                .address(faker.address().fullAddress())
-                                .email(faker.internet().emailAddress())
-                                .gender(parentUser%2==0)
-                                .user(userParents.get(parentUser))
-                                .build());
-                        parentUser++;
-                    }
-                    Student std =  Student.builder()
-                            .gender(J>(initStudent/2))
-                            .firstName(student.firstName())
-                            .lastName(student.lastName())
-                            .birthday(faker.date().birthday())
-                            .address(faker.address().fullAddress())
-                            .studentCode("HS"+classes.get(i-1).getClassCode()+J)
-                            .parents(List.of(parentS))
-                            .build();
-                    studentRepository.save(std);
-                    // create student year info
-                    List<StudentYearInfo> studentYearInfos = List.of(
-                            StudentYearInfo.builder()
-                                    .sem(1).students(std)
-                                    .schoolYearClass(classes.get(i-1))
-                                    .build(),
-                            StudentYearInfo.builder()
-                                    .sem(2).students(std)
-                                    .schoolYearClass(classes.get(i-1))
-                                    .build()
-                    );
-                    studentYearInfoRepository.saveAll(studentYearInfos);
-                    studentNum++;
-                }
-            }
-        }
-    }
+//    private void createStudents(){
+//
+//        int initStudent = 15;
+//        List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
+//        if(userRepository.findAllByUsernameContains("parent").isEmpty()){
+//            createUser("parent",((classes.size()*initStudent)/2 + 1));
+//        }
+//        if(studentRepository.findAll().isEmpty()){
+//            List<User> userParents = userRepository.findAllByUsernameContains("parent");
+//            Faker faker = new Faker();
+//            int studentNum = 1;
+//            int parentUser = 0;
+//            Parent parentS = new Parent();
+//            for(int i=1 ; i <= classes.size();i++){
+//                Name student = faker.name();
+//                for(int J=1;J<=initStudent;J++){
+//                    if(studentNum%2!=0){
+//                        parentS = parentRepository.save(Parent.builder()
+//                                .fullName(faker.name().fullName())
+//                                .phone(faker.phoneNumber().toString())
+//                                .address(faker.address().fullAddress())
+//                                .email(faker.internet().emailAddress())
+//                                .gender(parentUser%2==0)
+//                                .user(userParents.get(parentUser))
+//                                .build());
+//                        parentUser++;
+//                    }
+//                    Student std =  Student.builder()
+//                            .gender(J>(initStudent/2))
+//                            .firstName(student.firstName())
+//                            .lastName(student.lastName())
+//                            .birthday(faker.date().birthday())
+//                            .address(faker.address().fullAddress())
+//                            .studentCode("HS"+classes.get(i-1).getClassCode()+J)
+//                            .parents(List.of(parentS))
+//                            .build();
+//                    studentRepository.save(std);
+//                    // create student year info
+//                    List<StudentYearInfo> studentYearInfos = List.of(
+//                            StudentYearInfo.builder()
+//                                    .sem(1).students(std)
+//                                    .schoolYearClass(classes.get(i-1))
+//                                    .build(),
+//                            StudentYearInfo.builder()
+//                                    .sem(2).students(std)
+//                                    .schoolYearClass(classes.get(i-1))
+//                                    .build()
+//                    );
+//                    studentYearInfoRepository.saveAll(studentYearInfos);
+//                    studentNum++;
+//                }
+//            }
+//        }
+//    }
     private void createSchedule (){
         /* create schedule
         * 1 lop 1 tuan 1 tkb
