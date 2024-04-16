@@ -2,6 +2,8 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
+import com.example.project_sem4_springboot_api.exception.StudentAlreadyExistsException;
+import com.example.project_sem4_springboot_api.exception.StudentNotFoundException;
 import com.example.project_sem4_springboot_api.repositories.SchoolYearRepository;
 import com.example.project_sem4_springboot_api.repositories.StudentRepository;
 import com.example.project_sem4_springboot_api.repositories.StudentYearInfoRepository;
@@ -17,87 +19,75 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class StudentServiceImpl implements StudentService {
 
+
     private final StudentRepository studentRepository;
 
-    private final SchoolYearRepository schoolYearRepository;
-
-    private final StudentYearInfoRepository studentYearInfoRepository;
-
-    public StudentDto createStudent(StudentDto studentDto) {
+    @Override
+    public Student addStudent(StudentDto studentDto) {
         Student student = new Student();
-        student.setGender(studentDto.isGender());
+
+        if (studentAlreadyExists(studentDto.getEmail())){
+            throw new StudentAlreadyExistsException(studentDto.getEmail()+ " already exist");
+        }
+
         student.setFirstName(studentDto.getFirstName());
         student.setLastName(studentDto.getLastName());
-        student.setBirthday(studentDto.getBirthday());
         student.setAddress(studentDto.getAddress());
+        student.setGender(studentDto.isGender());
+        student.setEmail(studentDto.getEmail());
+        student.setBirthday(studentDto.getBirthday());
         student.setStatus(studentDto.getStatus());
         student.setStudentCode(studentDto.getStudentCode());
-        return studentRepository.save(student).getDto();
-    }
 
-    public List<StudentDto> getAllStudent(){
-        List<Student> students = studentRepository.findAll();
-        return students.stream().map(Student::getDto).collect(Collectors.toList());
-    }
+        return studentRepository.save(student);
 
-    public List<StudentDto> getAllStudentByName(String firstName){
-        List<Student> students = studentRepository.findAllByFirstNameContaining(firstName);
-        return students.stream().map(Student::getDto).collect(Collectors.toList());
     }
 
     @Override
-    public Student updateStudent(Student student, Long studentId) throws Exception {
-        Optional<Student> student1 = studentRepository.findById(studentId);
-        if (student1.isEmpty()){
-            throw new Exception("user not exits with id " + studentId);
-        }
-        Student oldStudent = student1.get();
-
-        if (student.getFirstName()!=null){
-            oldStudent.setFirstName(student.getFirstName());
-        }
-        if (student.getLastName()!=null){
-            oldStudent.setLastName(student.getLastName());
-        }
-        if (student.isGender()){
-            oldStudent.setGender(student.isGender());
-        }
-        if (student.getBirthday()!= null){
-            oldStudent.setBirthday(student.getBirthday());
-        }
-        if (student.getAddress()!= null){
-            oldStudent.setAddress(student.getAddress());
-        }
-        if (student.getStatus()!= 1){
-            oldStudent.setStatus(student.getStatus());
-        }
-        if (student.getStudentCode()!= null){
-            oldStudent.setStudentCode(student.getStudentCode());
-        }
-        Student updatedStudent = studentRepository.save(oldStudent);
-        return updatedStudent;
-    }
-
-    public boolean deleteStudent(Long id){
-        Optional<Student> optionalStudent = studentRepository.findById(id);
-        if (optionalStudent.isPresent()){
-            studentRepository.deleteById(id);
-            return true;
-        }
-        return false;
+    public List<Student> getStudents() {
+        return studentRepository.findAll();
     }
 
     @Override
-    public Student findStudentById(Long studentId) throws Exception {
-        Optional<Student> student = studentRepository.findById(studentId);
-        if (student.isPresent()){
-            return student.get();
-        }
-        throw new Exception("user not exits with user id " + studentId);
+    public Student getStudentById(Long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(()->new StudentNotFoundException("Sorry, no student found with the ID: " + id));
     }
 
+    @Override
+    public Student updateStudent(Long id, StudentDto studentDto) {
+        return studentRepository.findById(id).map(st -> {
+            st.setFirstName(studentDto.getFirstName());
+            st.setLastName(studentDto.getLastName());
+            st.setEmail(studentDto.getEmail());
+            st.setAddress(studentDto.getAddress());
+            st.setGender(studentDto.isGender());
+            st.setBirthday(studentDto.getBirthday());
+            st.setStatus(studentDto.getStatus());
+            st.setStudentCode(studentDto.getStudentCode());
+            return studentRepository.save(st);
+        }).orElseThrow(()->new StudentNotFoundException("Sorry, this student cloud not be found"));
+    }
+
+    @Override
+    public void deleteStudent(Long id) {
+        if (!studentRepository.existsById(id)){
+            throw new StudentNotFoundException("Sorry, Student not found");
+        }
+        studentRepository.deleteById(id);
+    }
+
+    private boolean studentAlreadyExists(String email) {
+        return studentRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
     public List<Student> findStudentByClass(Long classId) {
-        return studentRepository.findByStudentYearInfosSchoolYearClassId(classId);
+        return null;
     }
 
+    @Override
+    public List<StudentDto> getAllStudentByName(String firstName) {
+        return null;
+    }
 }

@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "students")
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Student {
 
     @Id
@@ -24,7 +27,8 @@ public class Student {
     private boolean gender;
     private String firstName;
     private String lastName;
-    private Date birthday;
+    private String email;
+    private LocalDate birthday;
     private String address;
     private int status;
     private String studentCode;
