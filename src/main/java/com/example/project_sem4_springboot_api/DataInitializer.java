@@ -43,6 +43,11 @@ public class DataInitializer {
     private final StudentRepository studentRepository;
     private final ParentRepository parentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
+    private final StudentStatusRepository studentStatusRepository;
+    private final StatusRepository statusRepository;
+
+//    @Getter
+    private final List<EStudentStatus> studentStatus = Arrays.stream(EStudentStatus.values()).toList();
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @PostConstruct
@@ -51,6 +56,8 @@ public class DataInitializer {
         createSchoolInfo();
         createStudents();
         createUser("bdht2207a",2);
+//        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
+//        createRoleAccount();
     }
     private void createRolePermission(){
         // Create Permission
@@ -141,12 +148,18 @@ public class DataInitializer {
          **/
         // create school year
         if(schoolYearRepository.findAll().isEmpty()){
-            schoolYearRepository.save(
-                SchoolYear.builder()
-                    .startSem1(Date.valueOf("2023-09-05"))
-                    .startSem2(Date.valueOf("2024-01-15"))
-                    .end(Date.valueOf("2024-05-31"))
-                    .build()
+            schoolYearRepository.saveAll(List.of(
+                    SchoolYear.builder()
+                            .startSem1(Date.valueOf("2023-09-05"))
+                            .startSem2(Date.valueOf("2024-01-15"))
+                            .end(Date.valueOf("2024-05-31"))
+                            .build(),
+                    SchoolYear.builder()
+                            .startSem1(Date.valueOf("2025-09-05"))
+                            .startSem2(Date.valueOf("2026-01-15"))
+                            .end(Date.valueOf("2026-05-31"))
+                            .build()
+                    )
             );
             System.out.println("Created schoolYear data");
         }
@@ -348,7 +361,14 @@ public class DataInitializer {
      * @var parent: 1 phụ huynh/2 học sinh
      */
     private void createStudents(){
-
+        if(statusRepository.findAll().isEmpty()){
+            statusRepository.saveAll(
+                studentStatus.stream().map((status)->Status.builder()
+                    .name(status.getName())
+                    .code(status.name())
+                    .build()).toList()
+            );
+        }
         int initStudent = 15;
         List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
         if(userRepository.findAllByUsernameContains("parent").isEmpty()){
@@ -360,6 +380,7 @@ public class DataInitializer {
             int studentNum = 1;
             int parentUser = 0;
             Parent parentS = new Parent();
+            var status = statusRepository.findByCode(EStudentStatus.STUDENT_DANG_HOC.name());
             for(int i=1 ; i <= classes.size();i++){
                 Name student = faker.name();
                 for(int J=1;J<=initStudent;J++){
@@ -383,19 +404,15 @@ public class DataInitializer {
                             .studentCode("HS"+classes.get(i-1).getClassCode()+J)
                             .parents(List.of(parentS))
                             .build();
-                    studentRepository.save(std);
+                    var newStudent = studentRepository.save(std);
+                    // create StudentStatus
+                    StudentStatus sts = StudentStatus.builder().student(newStudent).status(status).createdAt(new java.util.Date(System.currentTimeMillis())).description("Bắt đầu nhập học.").build();
+                    studentStatusRepository.save(sts);
                     // create student year info
-                    List<StudentYearInfo> studentYearInfos = List.of(
-                            StudentYearInfo.builder()
-                                    .sem(1).students(std)
-                                    .schoolYearClass(classes.get(i-1))
-                                    .build(),
-                            StudentYearInfo.builder()
-                                    .sem(2).students(std)
-                                    .schoolYearClass(classes.get(i-1))
-                                    .build()
-                    );
-                    studentYearInfoRepository.saveAll(studentYearInfos);
+                    studentYearInfoRepository.save(StudentYearInfo.builder()
+                            .students(newStudent)
+                            .schoolYearClass(classes.get(i-1))
+                            .build());
                     studentNum++;
                 }
             }
@@ -457,6 +474,10 @@ public class DataInitializer {
 //                }
 //            }
 //        }
+    }
+
+    public void createRoleAccount(){
+
     }
 
 }

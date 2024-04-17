@@ -168,7 +168,7 @@ public class SchoolController {
             @Nullable @RequestParam Long schoolYearSubjectId,
             @Nullable @RequestParam Long gradeId,
             @Nullable @RequestParam Integer number,
-            @Nullable @RequestParam ESem sem
+            @Nullable @RequestParam Integer sem
     ){
         return schoolService.getSchoolYearSubjectGrade(id,schoolYearSubjectId,gradeId,number,sem);
     }
@@ -186,6 +186,10 @@ public class SchoolController {
     @GetMapping("/get-rooms")
     public ResponseEntity<?> getRooms(){
         return ResponseEntity.ok(schoolService.getRooms());
+    }
+    @GetMapping("/get-statuses")
+    public ResponseEntity<?> getStatuses(){
+        return ResponseEntity.ok(schoolService.getStatuses());
     }
 
 }

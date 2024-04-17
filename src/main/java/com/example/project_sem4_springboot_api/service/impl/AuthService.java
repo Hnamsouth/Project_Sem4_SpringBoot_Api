@@ -14,12 +14,14 @@ import com.example.project_sem4_springboot_api.repositories.RoleRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,7 +56,7 @@ public class AuthService {
         return returnUserInfo(user,UserDetailsImpl.build(saveUser),REFRESH_TOKEN);
     }
 
-    public ResponseEntity<?> login (LoginRequest request){
+    public ResponseEntity<?> login (LoginRequest request) throws JwtException, AuthenticationException {
         System.out.println(request);
         try {
             Authentication authentication = authenticationManager.authenticate(

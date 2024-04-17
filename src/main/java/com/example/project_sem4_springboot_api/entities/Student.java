@@ -1,15 +1,16 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Filter;
+import org.springframework.data.web.SortDefault;
 
-import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
@@ -27,11 +28,10 @@ public class Student {
     private boolean gender;
     private String firstName;
     private String lastName;
-    private String email;
     private Date birthday;
     private String address;
-    private int status;
     private String studentCode;
+    private Date createdAt;
 
     @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
@@ -42,11 +42,7 @@ public class Student {
     )
     private List<Parent> parents;
 
-    @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private List<Attendance> attendances;
+
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
@@ -54,18 +50,20 @@ public class Student {
     @JsonBackReference
     private List<StudentYearInfo> studentYearInfos;
 
+    @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonManagedReference
+    @JsonIgnoreProperties("student")
+    private List<StudentStatus> studentStatuses;
+
+
     @JsonIgnore
-    public StudentDto getDto(){
-        StudentDto studentDto = new StudentDto();
-        studentDto.setId(id);
-        studentDto.setGender(gender);
-        studentDto.setFirstName(firstName);
-        studentDto.setLastName(lastName);
-        studentDto.setBirthday(birthday);
-        studentDto.setAddress(address);
-        studentDto.setStatus(status);
-        studentDto.setStudentCode(studentCode);
-        return studentDto;
+    public Student toResInfo(){
+        Student student = this;
+        var sts = studentStatuses.stream().sorted(Comparator.comparing(StudentStatus::getId).reversed()).toList();
+        student.setStudentStatuses(List.of(sts.get(0)));
+        return this;
     }
 
 }

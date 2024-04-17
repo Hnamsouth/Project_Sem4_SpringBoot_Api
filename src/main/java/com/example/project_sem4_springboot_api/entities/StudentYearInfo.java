@@ -1,10 +1,12 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -18,7 +20,8 @@ public class StudentYearInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private int sem;
+
+    private Date createdAt;
     @ManyToOne
     @JoinColumn(name = "student_id")
     @JsonManagedReference
@@ -33,10 +36,17 @@ public class StudentYearInfo {
     @ToString.Exclude
     @JsonBackReference
     private List<StudentFee> studentFee;
+
     @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
     private List<TestPoint> testPoints;
+
+    @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<Attendance> attendances;
 
 }

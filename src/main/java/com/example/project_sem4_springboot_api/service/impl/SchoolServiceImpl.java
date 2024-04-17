@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.request.*;
+import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import jakarta.annotation.Nullable;
@@ -30,6 +31,7 @@ public class SchoolServiceImpl {
     private final GradeRepository gradeRepository;
     private final SubjectRepository subjectRepository;
     private final RoomRepository roomRepository;
+    private final StatusRepository statusRepository;
     private final ScheduleRepository scheduleRepository;
     private final RoleRepository roleRepository;
 
@@ -293,12 +295,13 @@ public class SchoolServiceImpl {
      */
     public ResponseEntity<?> getSchoolYearSubjectGrade(
             @Nullable Long id,@Nullable Long schoolYearSubjectId,@Nullable Long gradeId,
-            @Nullable Integer number,@Nullable ESem sem
+            @Nullable Integer number,@Nullable Integer sem
     ){
         if(gradeId!=null){
             if(sem!=null){
+                if(sem>3) throw new ArgumentNotValidException("Sem chỉ có thể là 1,2,3 !!!","sem",sem.toString());
                 return checkListEmptyGetResponse(
-                    schoolYearSubjectGradeRepository.findAllByGrade_IdAndSemIsLike(gradeId,sem),
+                    schoolYearSubjectGradeRepository.findAllByGrade_IdAndSemIsLike(gradeId,sem==1?ESem.HOC_KI_1:sem==2?ESem.HOC_KI_2:ESem.CA_NAM),
                     "Không tìm thấy SchoolYearSubjectGrade với gradeId: "+gradeId+" và sem: "+sem+" !!!"
                 );
             }
@@ -329,6 +332,9 @@ public class SchoolServiceImpl {
 
     public ResponseEntity<?> getRooms(){
         return ResponseEntity.ok(roomRepository.findAll());
+    }
+    public ResponseEntity<?> getStatuses(){
+        return ResponseEntity.ok(statusRepository.findAll());
     }
 
     /**

@@ -1,31 +1,49 @@
 package com.example.project_sem4_springboot_api.dto;
 
+import com.example.project_sem4_springboot_api.entities.Student;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Date;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class StudentDto {
 
-    private Long id;
+    @NotNull(message = "Giới tính không được để trống!!!")
     private boolean gender;
-    @Size(min = 3, message = "FIRSTNAME_INVALID")
+
+    @NotBlank(message = "Tên không được để trống!!!")
+    @Size(min = 2, max = 50, message = "Tên phải từ 2 đến 50 ký tự!!!")
     private String firstName;
-    @Size(min = 3, message = "LASTNAME_INVALID")
+
+    @NotBlank(message = "Họ không được để trống!!!")
+    @Size(min = 2, max = 50, message = "Tên phải từ 2 đến 50 ký tự!!!")
     private String lastName;
-    private String email;
+
+    @NotNull(message = "Ngày sinh không được để trống!!!")
     private Date birthday;
+
     private String address;
-    private int status;
+
+    @NotBlank(message = "Mã sinh viên không được để trống!!!")
+    @Size(min = 2, max = 50, message = "Mã sinh viên phải từ 2 đến 50 ký tự!!!")
     private String studentCode;
 
+    @NotNull(message = "Id Lớp không được để trống!!!")
+    private Long schoolYearClassId;
+
+
+    @JsonIgnore
+    public Student toStudent(){
+        return Student.builder().gender(gender).firstName(firstName).lastName(lastName).birthday(birthday).address(address)
+                .studentCode(studentCode).createdAt(new Date(System.currentTimeMillis())).build();
+    }
 }

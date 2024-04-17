@@ -18,10 +18,9 @@ public class TestPoint {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     private float point;
-
+    private int sem;
     @ManyToOne
     @JoinColumn(name = "testPoints")
     @JsonManagedReference

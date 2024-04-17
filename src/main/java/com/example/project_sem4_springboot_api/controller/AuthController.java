@@ -5,6 +5,8 @@ import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import com.example.project_sem4_springboot_api.service.impl.AuthService;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +25,7 @@ import java.io.IOException;
 public class AuthController {
     private final AuthService authService;
     @PostMapping("/login")
-    public ResponseEntity<?> login (@Valid @RequestBody LoginRequest request){
+    public ResponseEntity<?> login (@Valid @RequestBody LoginRequest request) throws JwtException {
         return authService.login(request);
     }
 

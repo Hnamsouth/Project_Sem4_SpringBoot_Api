@@ -10,10 +10,4 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
-    List<Student> findAllByFirstNameContaining(String firstName);
-
-    List<Student> findByStudentYearInfosSchoolYearClassId(Long classId);
-
-    Optional<Student> findByEmail(String email);
-//    List<Student> findByStudentYearInfosSchoolYearClassId(Long schoolYearClassId);
 }
