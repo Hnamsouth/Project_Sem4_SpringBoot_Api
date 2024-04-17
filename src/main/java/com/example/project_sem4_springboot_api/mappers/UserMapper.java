@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserMapper {
 
-
     UserMapper MAPPER = Mappers.getMapper(UserMapper.class);
     /**
      * To response user response.

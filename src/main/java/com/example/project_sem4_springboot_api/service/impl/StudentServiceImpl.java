@@ -6,6 +6,7 @@ import com.example.project_sem4_springboot_api.entities.StudentStatus;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
 import com.example.project_sem4_springboot_api.entities.enums.EStudentStatus;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
+import com.example.project_sem4_springboot_api.mappers.UserMapper;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -66,6 +67,11 @@ public class StudentServiceImpl  {
             }).toList();
         }
         return ResponseEntity.ok(rs);
+    }
+
+    public ResponseEntity<?> updateStudentInfo(Student data) {
+        if(!studentRepository.existsById(data.getId())) throw new NullPointerException("Không tìm thấy học sinh!!!");
+        return ResponseEntity.ok(studentRepository.save(data));
     }
 
     public ResponseEntity<?> createAttendance(Map<String, Object> data) {

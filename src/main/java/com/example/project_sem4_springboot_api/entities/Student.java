@@ -38,9 +38,9 @@ public class Student {
     @JoinTable(
             name = "student_parent",
             joinColumns = @JoinColumn(name="student_id"),
-            inverseJoinColumns = @JoinColumn(name="parent_id")
+            inverseJoinColumns = @JoinColumn(name="user_id")
     )
-    private List<Parent> parents;
+    private List<User> parents;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude

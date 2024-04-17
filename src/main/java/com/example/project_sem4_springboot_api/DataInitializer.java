@@ -41,7 +41,6 @@ public class DataInitializer {
     private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
-    private final ParentRepository parentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;
@@ -372,27 +371,18 @@ public class DataInitializer {
         int initStudent = 15;
         List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
         if(userRepository.findAllByUsernameContains("parent").isEmpty()){
-            createUser("parent",((classes.size()*initStudent)/2 + 1));
+            createUser("parent",((classes.size()*initStudent)/2 + 2));
         }
         if(studentRepository.findAll().isEmpty()){
             List<User> userParents = userRepository.findAllByUsernameContains("parent");
             Faker faker = new Faker();
             int studentNum = 1;
             int parentUser = 0;
-            Parent parentS = new Parent();
             var status = statusRepository.findByCode(EStudentStatus.STUDENT_DANG_HOC.name());
             for(int i=1 ; i <= classes.size();i++){
                 Name student = faker.name();
                 for(int J=1;J<=initStudent;J++){
                     if(studentNum%2!=0){
-                        parentS = parentRepository.save(Parent.builder()
-                                .fullName(faker.name().fullName())
-                                .phone(faker.phoneNumber().toString())
-                                .address(faker.address().fullAddress())
-                                .email(faker.internet().emailAddress())
-                                .gender(parentUser%2==0)
-                                .user(userParents.get(parentUser))
-                                .build());
                         parentUser++;
                     }
                     Student std =  Student.builder()
@@ -402,7 +392,7 @@ public class DataInitializer {
                             .birthday(faker.date().birthday())
                             .address(faker.address().fullAddress())
                             .studentCode("HS"+classes.get(i-1).getClassCode()+J)
-                            .parents(List.of(parentS))
+                            .parents(List.of(userParents.get(parentUser)))
                             .build();
                     var newStudent = studentRepository.save(std);
                     // create StudentStatus

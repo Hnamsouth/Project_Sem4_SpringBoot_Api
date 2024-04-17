@@ -1,7 +1,9 @@
 package com.example.project_sem4_springboot_api.controller.student;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -17,11 +19,11 @@ public class StudentController {
     private final StudentServiceImpl studentService;
 
     @PostMapping
-    public ResponseEntity<?> create_Student(@RequestBody @Valid StudentDto data){
+    public ResponseEntity<?> create_Student(@Valid @RequestBody StudentDto data){
        return studentService.createStudent(data);
     }
 
-    @GetMapping("/getAllInfoBy")
+    @GetMapping("/get-student-year-info-by")
     public ResponseEntity<?> get_StudentInfoBy(
             @RequestParam @Nullable Long bySchoolYearClassId,
             @RequestParam @Nullable Long bySchoolYearId,
@@ -32,12 +34,11 @@ public class StudentController {
         return studentService.getStudentInfoBy(bySchoolYearClassId,bySchoolYearId,byStatusId,byNameOrCode,pagination);
     }
 
-//    @PutMapping("/update/{id}")
-//    public ApiResponse<Student> updateStudent(@RequestBody StudentDto studentDto, @PathVariable Long id){
-//        ApiResponse apiResponse = new ApiResponse<>();
-//        apiResponse.setResult(studentService.updateStudent(id, studentDto));
-//        return apiResponse;
-//    }
+
+    @PutMapping("/update-student-info")
+    public ResponseEntity<?> updateStudentInfo(@Valid @RequestBody Student data){
+        return studentService.updateStudentInfo(data);
+    }
 //
 //    @GetMapping("/{id}")
 //    public Student getStudentById(@PathVariable Long id){

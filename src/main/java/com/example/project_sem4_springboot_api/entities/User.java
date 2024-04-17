@@ -57,11 +57,6 @@ public class User {
     @JsonBackReference
     private Teacher teacher ;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private Parent parent;
 
     @JsonIgnore
     public UserDto getDto(){
