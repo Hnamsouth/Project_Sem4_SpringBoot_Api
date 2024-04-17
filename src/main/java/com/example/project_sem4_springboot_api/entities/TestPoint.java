@@ -22,7 +22,7 @@ public class TestPoint {
     private float point;
     private int sem;
     @ManyToOne
-    @JoinColumn(name = "testPoints")
+    @JoinColumn(name = "student_year_info_id")
     @JsonManagedReference
     private StudentYearInfo studentYearInfo;
 

@@ -1,6 +1,5 @@
 package com.example.project_sem4_springboot_api.controller.school;
 
-import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.service.impl.SchoolServiceImpl;
 import jakarta.annotation.Nullable;

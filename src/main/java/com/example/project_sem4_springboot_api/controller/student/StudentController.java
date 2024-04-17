@@ -1,21 +1,13 @@
 package com.example.project_sem4_springboot_api.controller.student;
 
-import com.example.project_sem4_springboot_api.dto.ApiResponse;
 import com.example.project_sem4_springboot_api.dto.StudentDto;
-import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.entities.enums.EStudentStatus;
-import com.example.project_sem4_springboot_api.service.StudentService;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/student")

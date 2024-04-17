@@ -4,21 +4,15 @@ import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.StudentStatus;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
-import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.enums.EStudentStatus;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
-import com.example.project_sem4_springboot_api.service.StudentService;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 @Service

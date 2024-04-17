@@ -42,8 +42,6 @@ public class Student {
     )
     private List<Parent> parents;
 
-
-
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
