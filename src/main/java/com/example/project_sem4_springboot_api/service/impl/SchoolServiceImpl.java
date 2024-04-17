@@ -199,10 +199,6 @@ public class SchoolServiceImpl {
         if(id!=null) return ResponseEntity.ok(subjectRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy Môn học  id: "+id+" !!!")));
         return ResponseEntity.ok(subjectRepository.findAll());
     }
-    public ResponseEntity<?> getTeacher(@Nullable Long id){
-        if(id !=null) return ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy giáo viên id = "+id+"!!!")));
-        return ResponseEntity.ok(teacherRepository.findAll());
-    }
     public ResponseEntity<?> getSchoolYear(@Nullable Long id){
         if(id!=null){
             return ResponseEntity.ok(schoolYearRepository.findById(id)
@@ -337,7 +333,7 @@ public class SchoolServiceImpl {
         return ResponseEntity.ok(statusRepository.findAll());
     }
 
-    /**
+        /**
      * @description Kiểm tra số tiết học trong 1 năm học khi phân phối chương trình học
      * @return true - nếu số tiết học trong 1 năm học đã đủ
      * */

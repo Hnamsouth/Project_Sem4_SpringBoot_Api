@@ -39,12 +39,15 @@ public class DataInitializer {
     private final RoomRepository   roomRepository;
     private final GradeRepository   gradeRepository;
     private final TeacherSchoolYearRepository   teacherSchoolYearRepository;
+    private final TeacherSchoolYearClassSubjectRepository   teacherSchoolYearClassSubjectRepository;
     private final UserDetailRepository userDetailRepository;
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentStatusRepository studentStatusRepository;
+    private final CalendarReleaseRepository calendarReleaseRepository;
     private final StatusRepository statusRepository;
+    private final ScheduleRepository scheduleRepository;
 
 //    @Getter
     private final List<EStatus> studentStatus = Arrays.stream(EStatus.values()).toList();
@@ -55,6 +58,7 @@ public class DataInitializer {
         createRolePermission();
         createSchoolInfo();
         createStudents();
+        createSchedule();
         createUser("bdht2207a",2);
         studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
 //        createRoleAccount();
@@ -234,6 +238,7 @@ public class DataInitializer {
          * @var charName: A-E
          */
         if(schoolYearClassRepository.findAll().isEmpty()){
+            var teachers = teacherSchoolYearRepository.findAll();
             int classes = 15;
             int grade = 1;
             int charName = 0;
@@ -244,7 +249,7 @@ public class DataInitializer {
                         SchoolYearClass.builder()
                             .className("Lớp " + grade + var[charName])
                             .classCode("L"+grade + var[charName] )
-//                            .teacherSchoolYear()
+                            .teacherSchoolYear(teachers.get(i-1))
                             .grade(gradeRepository.findByName(EGrade.values()[grade-1]))
                             .room(roomRepository.findById((long) i).orElseThrow())
                             .schoolYear(schoolYear)
@@ -362,7 +367,12 @@ public class DataInitializer {
      * @var parent: 1 phụ huynh/2 học sinh
      */
     private void createStudents(){
+
         if(statusRepository.findAll().isEmpty()){
+            var colorErr = List.of(EStatus.NGUNG_HOAT_DONG,EStatus.STUDENT_BO_HOC,EStatus.STUDENT_THOI_HOC,EStatus.STUDENT_CHUYEN_TRUONG);
+            var colorWarm =  List.of(EStatus.NGHI_TAM_THOI,EStatus.STUDENT_BAO_LUU);
+            var colorSuccess = List.of(EStatus.STUDENT_DANG_HOC,EStatus.HOAT_DONG);
+            var colorPrimary = List.of(EStatus.STUDENT_CHUYEN_LOP,EStatus.STUDENT_TOT_NGHIEP);
             statusRepository.saveAll(
                 studentStatus.stream().map((status)->Status.builder()
                     .name(status.getName())
@@ -411,61 +421,132 @@ public class DataInitializer {
         }
     }
     private void createSchedule (){
-        /* create schedule
-        * 1 lop 1 tuan 1 tkb
-        * 1 tuan 5 ngay hoc
-        * 1 ngay 2 buoi hoc. sang 4 - chieu 3
-        * gán bộ môn dạy của thầy cho lớp học cụ thể : vd. thầy A dạy toán cho lớp 1a,2b,3c...
-        * giáo viên từ cấp trung học cơ sở trở lên chỉ dạy từ 1-2 môn  học.
-        * Nhưng, giáo viên tiểu học chỉ trừ có môn
-        * Âm nhạc, Mĩ Thuật, tiếng Anh và Thể dục là không dạy còn lại sẽ “ôm hết”.
-        * --> gv chủ nhiệm sẽ dạy các môn chinh trừ : nhạc, mĩ thuật, anh , thể dục
-        * --> các môn khác có thể trùng tiết học
-        * -->
-        * */
-
         /*
-        * create : teacher-schoolyear-subject-class
-        *   get: schoolyear-subject
-        *   get: shoolyear subject grade
-        * */
+         *  create teacherSchoolYearClassSubjectRepository
+         *  15 lop => 15 gv chu nhiem && 5 gv bo mon,
+         *  moi khoi 3 lop,
+         *  moi gv cn se giay 1/3 mon hoc bb cua khoi
+         *  20 gv:
+         *  gv chu nhiem se day cac mon chinh tru nhac, my thuat, anh, the duc
+         *  gv bo mon se day cac mon con lai
+         * khoi hoc : 5 , mon hojc cua khoi: ?, lop cua khoi: 3
+         *
+         * */
+        var sySubjectGrade = schoolYearSubjectGradeRepository.findAll();
+        var teachers = teacherSchoolYearRepository.findAll();
+        var classes = schoolYearClassRepository.findAll();
 
-//        if()
+        if(teacherSchoolYearClassSubjectRepository.findAll().isEmpty()){
+            // khoi hoc
+            Random rand = new Random();
+            for( int grade = 1 ; grade <= 5; grade++){
+                final int finalGrade = grade;
+                // lop cua khoi
+                var classGrade = classes.stream().filter(c->c.getGrade().getId().intValue() == finalGrade).toList();
+                System.out.println("Grade "+finalGrade+" : "+classGrade.size());
+                for(int cgI = 1;cgI <= classGrade.size(); cgI++){
+                    // mon hoc cua khoi
+                    var subjectGrade =   sySubjectGrade.stream().filter(e->e.getGrade().getId().intValue() == finalGrade).toList();
+                    System.out.println("Class "+cgI+" : "+subjectGrade.size());
+                    // mon chinh
+                    var mainSb = subjectGrade.stream().filter(msb->msb.getSchoolYearSubject().getSubject().getType().equals(ESubjectType.BAT_BUOC)).toList();
+                    System.out.println("Main subject: "+mainSb.size());
+                    // mon phu
+                    var electiveSb = subjectGrade.stream().filter(msb->msb.getSchoolYearSubject().getSubject().getType().equals(ESubjectType.TU_CHON)).toList();
+                    System.out.println("elective subject: "+electiveSb.size());
+                    List<TeacherSchoolYearClassSubject> mtsycs = new ArrayList<>();
+                    int moc = (mainSb.size()+1)/3;
+                    for(int mSgI = 1;mSgI <= mainSb.size(); mSgI++){
+                        //  moi gv cn se giay 1/3 mon hoc bb cua khoi.
+                        var gvcn =  classGrade.get(cgI-1).getTeacherSchoolYear();
+                        if(mSgI%moc==0){
+                            int t = rand.nextInt(0,18);
+                            gvcn =  teachers.get(t).equals(gvcn) ? teachers.get(t+1) : teachers.get(t);
+                        }
+                        if(mSgI <= moc){
+                            gvcn =  classGrade.get(cgI-1).getTeacherSchoolYear();
+                        }
+                        mtsycs.add(TeacherSchoolYearClassSubject.builder()
+                                .schoolYearClass(classGrade.get(cgI-1))
+                                .schoolYearSubject(mainSb.get(mSgI-1).getSchoolYearSubject())
+                                .teacherSchoolYear(gvcn)
+                                .build());
+                    }
+                    if(electiveSb.size()>0){
+                        for(int eSgI = 1; eSgI <= electiveSb.size(); eSgI++){
+                            mtsycs.add(TeacherSchoolYearClassSubject.builder()
+                                    .schoolYearClass(classGrade.get(cgI-1))
+                                    .schoolYearSubject(electiveSb.get(eSgI-1).getSchoolYearSubject())
+                                    .teacherSchoolYear(teachers.get(15+eSgI))
+                                    .build());
+                        }
+                    }
+                    teacherSchoolYearClassSubjectRepository.saveAll(mtsycs);
+                }
+            }
+            System.out.println("Created teacherSchoolYearClassSubject data");
+        }
 
-//        var classes = schoolYearClassRepository.findAll();
-//        var teachers = teacherRepository.findAll();
-//        // assign teacher to class
-//        if(classes.get(1).getTeacher()==null){
-//            classes.forEach(c->{
-//                c.setTeacher(teachers.get(classes.indexOf(c)));
-//                schoolYearClassRepository.save(c);
-//            });
-//        }
-//
-//        var subjects = subjectRepository.findAll();
-//        var rooms = roomRepository.findAll();
-//
-//        int ngayhoc = 5;
-//        int tiethoc = 7;
-//        int buoihoc = 2;
-//
-//        for(int nh=1;nh<=ngayhoc;nh++){
-//            for(int i=1;i<=classes.size();i++){
-//                for(int j=1;j<=buoihoc;j++){
-//                    for(int k=1;k<=tiethoc;k++){
-//                        Schedule schedule = Schedule.builder()
-//                                .day(nh)
-//                                .time(k)
-//                                .schoolYearClass(classes.get(i-1))
-//                                .room(rooms.get(i-1))
-//                                .subject(subjects.get(i-1))
-//                                .teacher(teachers.get(i-1))
-//                                .build();
-//                        // save schedule
-//                    }
-//                }
-//            }
-//        }
+        if(calendarReleaseRepository.findAll().isEmpty()){
+            java.util.Date date = new java.util.Date(System.currentTimeMillis());
+            calendarReleaseRepository.save(CalendarRelease.builder()
+                    .releaseAt(date)
+                    .title("Tkb ap dung ngay "+date)
+                    .schoolYear(teachers.get(0).getSchoolYear())
+                    .build());
+        }
+
+        if(scheduleRepository.findAll().isEmpty()){
+            // tao tkb
+            // sang 20 tiet , chieu upto 20
+            var teacherSchoolYearCLassSubject = teacherSchoolYearClassSubjectRepository.findAll();
+            int tuanhoc = 35;
+            int ngayhoc = 5;
+            int tiethoc=8;
+            var calendar = calendarReleaseRepository.findAll().get(0);
+            var dows = Arrays.stream(DayOfWeek.values()).toList();
+            List<Schedule> schedules = new ArrayList<>();
+            for (int cl=1;cl<=classes.size();cl++){
+                int gradeId = classes.get(cl-1).getGrade().getId().intValue();
+                // mon hoc cua khoi
+                var subjectGrade =   sySubjectGrade.stream().filter(e->e.getGrade().getId().intValue()==gradeId).toList();
+                // trung binh tiet hoc / tuan cua mon hoc
+                var subjectIndex = 0;
+                var subjectAdded = 0;
+
+                for(int tiet = 1;tiet <= tiethoc ;tiet++){
+                    for(int nh = 1 ; nh <= ngayhoc ; nh++){
+                        var absSubjectOfWeek = subjectGrade.get(subjectIndex).getNumber()/tuanhoc;
+                        if(subjectAdded == absSubjectOfWeek){
+                            subjectIndex++;
+                            subjectAdded = 0;
+                        }
+                        if(subjectIndex == subjectGrade.size()) {
+                            subjectIndex--;
+                            break;
+                        }
+                        var subject = subjectGrade.get(subjectIndex).getSchoolYearSubject();
+                        var classs = classes.get(cl-1);
+                        var teacher = teacherSchoolYearCLassSubject.stream().filter(t->
+                                t.getSchoolYearClass().equals(classs) && t.getSchoolYearSubject().equals(subject)).toList().get(0).getTeacherSchoolYear();
+                        schedules.add(Schedule.builder()
+                                .calendarRelease(calendar)
+                                .studyTime(tiet>4?StudyTime.CHIEU:StudyTime.SANG)
+                                .indexLesson(tiet)
+                                .dayOfWeek(dows.get(nh-1))
+                                .schoolYearClass(classs)
+                                .teacherSchoolYear(teacher)
+                                .schoolYearSubject(subject)
+                                .build());
+                        subjectAdded++;
+
+                    }
+                }
+            }
+            scheduleRepository.saveAll(schedules);
+            System.out.println("Created schedule data");
+        }
+
     }
 
     public void createRoleAccount(){

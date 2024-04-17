@@ -88,10 +88,6 @@ public class SchoolController {
     public ResponseEntity<?> get_Subject( @RequestParam @Nullable Long id){
         return schoolService.getSubject(id);
     }
-    @GetMapping("/teacher")
-    public ResponseEntity<?> get_Teacher( @RequestParam @Nullable Long id){
-        return schoolService.getTeacher(id);
-    }
 
     /**
      * Get school year
