@@ -48,22 +48,21 @@ public class StudentServiceImpl  {
             Long bySchoolYearClassId,
             Long bySchoolYearId,
             Long statusId,
-            String name,
-            String studentCode,
+            String byNameOrCode,
             Integer pagination
     ) {
         if((bySchoolYearClassId!=null && bySchoolYearId!=null) || (bySchoolYearClassId==null && bySchoolYearId==null))  throw new ArgumentNotValidException("Yêu cầu 1 trong 2 tham số bySchoolYearClassId hoặc bySchoolYearId","","");
         PageRequest pageRequest = PageRequest.of(0, pagination, Sort.by("createdAt").descending());
-        var studentInfo = studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_IdOrStudents_StudentCode(bySchoolYearClassId, bySchoolYearId,studentCode,pageRequest).toList();
+        var studentInfo = studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId,pageRequest).toList();
         if(studentInfo.isEmpty()) throw new NullPointerException("Không tìm thấy thông tin học sinh.");
-        var rs = studentInfo.stream().map(e->{   e.setStudents(e.getStudents().toResInfo()); return e;   }).toList();
+        var rs = studentInfo.stream().map(e->{ e.setStudents(e.getStudents().toResInfo()); return e;   }).toList();
         if(statusId!=null){
             rs = rs.stream().filter(e->e.getStudents().getStudentStatuses().get(0).getStatus().getId().equals(statusId)).toList();
         }
-        if(name!=null){
+        if(byNameOrCode!=null){
             rs = rs.stream().filter(e->{
-                var fullname = e.getStudents().getFirstName()+" "+e.getStudents().getLastName().toLowerCase();
-                return fullname.contains(name.toLowerCase());
+                var fullname = e.getStudents().getFirstName()+e.getStudents().getLastName() ;
+                return fullname.toLowerCase().trim().contains(byNameOrCode.toLowerCase()) || e.getStudents().getStudentCode().equals(byNameOrCode);
             }).toList();
         }
         return ResponseEntity.ok(rs);

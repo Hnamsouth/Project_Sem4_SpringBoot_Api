@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface StudentYearInfoRepository extends JpaRepository<StudentYearInfo, Long> {
 
-    Page<StudentYearInfo> findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_IdOrStudents_StudentCode(
-            Long schoolYearClass_id, Long schoolYearClass_schoolYear_id, String students_studentCode,Pageable pageable
+    Page<StudentYearInfo> findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(
+            Long schoolYearClass_id, Long schoolYearClass_schoolYear_id,Pageable pageable
     );
 }

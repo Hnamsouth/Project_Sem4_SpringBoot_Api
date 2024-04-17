@@ -26,11 +26,10 @@ public class StudentController {
             @RequestParam @Nullable Long bySchoolYearClassId,
             @RequestParam @Nullable Long bySchoolYearId,
             @RequestParam @Nullable Long byStatusId,
-            @RequestParam @Nullable String name,
-            @RequestParam @Nullable String studentCode,
+            @RequestParam @Nullable String byNameOrCode,
             @RequestParam Integer pagination
     ){
-        return studentService.getStudentInfoBy(bySchoolYearClassId,bySchoolYearId,byStatusId,name,studentCode,pagination);
+        return studentService.getStudentInfoBy(bySchoolYearClassId,bySchoolYearId,byStatusId,byNameOrCode,pagination);
     }
 
 //    @PutMapping("/update/{id}")
