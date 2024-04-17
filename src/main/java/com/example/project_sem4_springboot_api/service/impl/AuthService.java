@@ -1,7 +1,9 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.config.JwtService;
+import com.example.project_sem4_springboot_api.constants.StatusData;
 import com.example.project_sem4_springboot_api.entities.Role;
+import com.example.project_sem4_springboot_api.entities.Status;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
@@ -11,6 +13,7 @@ import com.example.project_sem4_springboot_api.entities.response.LoginResponse;
 import com.example.project_sem4_springboot_api.exception.AuthException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.RoleRepository;
+import com.example.project_sem4_springboot_api.repositories.StatusRepository;
 import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
@@ -42,12 +45,14 @@ public class AuthService {
     private final RoleRepository roleRepo;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final StatusRepository statusRepository;
 
     public ResponseEntity<?> register (RegisterRequest request)  {
         if(userRepository.existsByUsername(request.getUsername())) throw new DataExistedException("Username is already taken !!!");
         Set<Role> roles = roleRepo.findByIdIn(request.getRole());
         if(roles.isEmpty()) throw  new NullPointerException("Role not found !!!");
-        var user = request.toUser(roles,passwordEncoder.encode(request.getPassword()));
+        Status sts = statusRepository.findByCode(StatusData.CREATE_NEW_USER);
+        var user = request.toUser(roles,passwordEncoder.encode(request.getPassword()),sts);
         var saveUser = userRepository.save(user);
         // save user detail info
         var userDetail = request.toUserDetail(saveUser);
@@ -96,7 +101,8 @@ public class AuthService {
         var resp = AuthResponse.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
         if(type.equals(LOGIN_TOKEN) || type.equals(REGISTER)){
             return ResponseEntity.ok(
-                LoginResponse.builder().id(user.getId()).username(user.getUsername()).authResponse(resp)
+                LoginResponse.builder().id(user.getId()).username(user.getUsername())
+                        .status(user.getStatus()).authResponse(resp)
                     .roles(user.getRoles()).userDetail(user.getUserDetail().get(0).getDto(false))
                     .permissions(user.getRoles().stream().toList().get(0).getPermission()).build());
         }else{

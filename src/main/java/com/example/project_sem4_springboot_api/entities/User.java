@@ -33,9 +33,11 @@ public class User {
     private String token;
     @Column(name = "create_at")
     private Date createdAt;
-    @Column(nullable = false)
-    private Integer status;
 
+    @ManyToOne
+    @JoinColumn(name = "status_id")
+    @JsonBackReference
+    private Status status;
 
     @JsonBackReference
     @ManyToMany(fetch = FetchType.EAGER)
@@ -68,7 +70,7 @@ public class User {
     @JsonIgnore
     public UserDto getDto(){
         return UserDto.builder()
-            .id(this.id).username(this.username).password(this.realPassword).roles(this.roles)
+            .id(this.id).username(this.username).password(this.realPassword).roles(this.roles).status(this.status)
             .userDetail(userDetail.get(0).getDto(false)).build();
     }
 }

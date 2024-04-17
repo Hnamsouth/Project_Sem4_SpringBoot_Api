@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.entities.Role;
+import com.example.project_sem4_springboot_api.entities.Status;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -71,8 +72,10 @@ public class RegisterRequest  implements Serializable {
             .email(email).nation(nation).citizen_id(citizen_id).user(user).build();
     }
     @JsonIgnore
-    public  User toUser(Set<Role> roles,String pwEncode){
+    public  User toUser(Set<Role> roles, String pwEncode, Status status){
         return User.builder().username(username).password(pwEncode).realPassword(password)
-            .roles(roles).status(1).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
+            .roles(roles)
+            .status(status)
+            .createdAt(new java.sql.Date(System.currentTimeMillis())).build();
     }
 }

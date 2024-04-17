@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public enum EStudentStatus {
+public enum EStatus {
     STUDENT_DANG_HOC("Đang học"),
     STUDENT_BO_HOC("Bỏ học"),
     STUDENT_THOI_HOC("Thôi học"), // nghỉ học vĩnh viễn
@@ -12,7 +12,9 @@ public enum EStudentStatus {
     STUDENT_BAO_LUU("Bảo lưu"),
     STUDENT_CHUYEN_TRUONG("Chuyển trường"),
     STUDENT_CHUYEN_LOP("Chuyển lớp"),
-    STUDENT_NGHI_HOC_TAM_THOI("Nghỉ học tạm thời"),
+    NGHI_TAM_THOI("Nghỉ tạm thời"),
+    HOAT_DONG("Hoạt động"),
+    NGUNG_HOAT_DONG("Ngừng hoạt động"),
     ;
     @Getter
     private final String name;

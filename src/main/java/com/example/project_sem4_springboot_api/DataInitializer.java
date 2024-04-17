@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api;
 
+import com.example.project_sem4_springboot_api.constants.StatusData;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.*;
 import com.example.project_sem4_springboot_api.repositories.*;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.sql.Date;
-import static com.example.project_sem4_springboot_api.seedding.dataSeeding.*;
+import static com.example.project_sem4_springboot_api.constants.dataSeeding.*;
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +47,7 @@ public class DataInitializer {
     private final StatusRepository statusRepository;
 
 //    @Getter
-    private final List<EStudentStatus> studentStatus = Arrays.stream(EStudentStatus.values()).toList();
+    private final List<EStatus> studentStatus = Arrays.stream(EStatus.values()).toList();
     private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
 
     @PostConstruct
@@ -55,7 +56,7 @@ public class DataInitializer {
         createSchoolInfo();
         createStudents();
         createUser("bdht2207a",2);
-//        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
+        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
 //        createRoleAccount();
     }
     private void createRolePermission(){
@@ -307,6 +308,7 @@ public class DataInitializer {
         ERole rolename = ERole.ROLE_DEV;
         int inituser = number;
         String pw ="123456";
+        Status sts = statusRepository.findByCode(StatusData.CREATE_NEW_USER);
         switch (role){
             case "teacher" -> rolename = ERole.ROLE_GV;
             case "parent" -> rolename = ERole.ROLE_PH;
@@ -323,7 +325,7 @@ public class DataInitializer {
                     .password(passwordEncoder.encode(pw))
                     .realPassword(pw)
                     .roles(roleRepository.findAllByNameIn(List.of(rolename)))
-                    .status(1)
+                    .status(sts)
                     .createdAt(new Date(System.currentTimeMillis()))
                     .build();
             userRepository.save(user);
@@ -378,7 +380,7 @@ public class DataInitializer {
             Faker faker = new Faker();
             int studentNum = 1;
             int parentUser = 0;
-            var status = statusRepository.findByCode(EStudentStatus.STUDENT_DANG_HOC.name());
+            var status = statusRepository.findByCode(EStatus.STUDENT_DANG_HOC.name());
             for(int i=1 ; i <= classes.size();i++){
                 Name student = faker.name();
                 for(int J=1;J<=initStudent;J++){

@@ -4,9 +4,8 @@ import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.StudentStatus;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
-import com.example.project_sem4_springboot_api.entities.enums.EStudentStatus;
+import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
-import com.example.project_sem4_springboot_api.mappers.UserMapper;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StudentServiceImpl  {
 
-    private final String STUDENT_STATUS_CREATE=EStudentStatus.STUDENT_DANG_HOC.name();
+    private final String STUDENT_STATUS_CREATE= EStatus.STUDENT_DANG_HOC.name();
     private final StudentRepository studentRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;

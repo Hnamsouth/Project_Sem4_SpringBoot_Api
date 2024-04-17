@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
+import com.example.project_sem4_springboot_api.constants.StatusData;
 import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
@@ -25,15 +26,17 @@ public class TeacherServiceImpl {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final StatusRepository statusRepository;
+
 
     public ResponseEntity<?> createTeacher(TeacherDetailsDto data) {
 
         Set<Role> roles = roleRepository.findByIdIn(data.getRole());
         if(roles.isEmpty()) throw new NullPointerException("Role không tồn tại !!!");
         if(userRepository.existsByUsername(data.getUsername())) throw new DataExistedException("Username đã tồn tại!!!");
-
+        Status sts = statusRepository.findByCode(StatusData.CREATE_NEW_USER);
         var user = User.builder().username(data.getUsername()).password(passwordEncoder.encode(data.getPassword()))
-        .realPassword(data.getPassword()).roles(roles).status(1).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
+        .realPassword(data.getPassword()).roles(roles).status(sts).createdAt(new java.sql.Date(System.currentTimeMillis())).build();
 
         var newUser = userRepository.save(user);
         var userDetail = userDetailRepository.save(data.toUserDetail(newUser));

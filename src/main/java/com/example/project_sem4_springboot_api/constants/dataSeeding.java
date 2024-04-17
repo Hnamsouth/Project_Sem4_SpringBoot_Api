@@ -1,10 +1,8 @@
-package com.example.project_sem4_springboot_api.seedding;
+package com.example.project_sem4_springboot_api.constants;
 
 import com.example.project_sem4_springboot_api.entities.enums.EGrade;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
