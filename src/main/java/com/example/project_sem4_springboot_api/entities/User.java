@@ -57,6 +57,13 @@ public class User {
     @JsonBackReference
     private Teacher teacher ;
 
+    @JsonBackReference
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "student_parent",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private List<Student> students;
 
     @JsonIgnore
     public UserDto getDto(){

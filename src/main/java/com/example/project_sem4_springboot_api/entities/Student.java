@@ -34,12 +34,7 @@ public class Student {
     private Date createdAt;
 
     @JsonBackReference
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "student_parent",
-            joinColumns = @JoinColumn(name="student_id"),
-            inverseJoinColumns = @JoinColumn(name="user_id")
-    )
+    @ManyToMany(mappedBy = "students")
     private List<User> parents;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)
@@ -54,6 +49,7 @@ public class Student {
     @JsonManagedReference
     @JsonIgnoreProperties("student")
     private List<StudentStatus> studentStatuses;
+
 
 
     @JsonIgnore
