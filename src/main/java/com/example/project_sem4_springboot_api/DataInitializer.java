@@ -60,8 +60,7 @@ public class DataInitializer {
         createStudents();
         createSchedule();
         createUser("bdht2207a",2);
-        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
-//        createRoleAccount();
+//        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
     }
     private void createRolePermission(){
         // Create Permission
@@ -420,18 +419,19 @@ public class DataInitializer {
             }
         }
     }
+    /**
+     *  create teacherSchoolYearClassSubjectRepository
+     *  15 lop => 15 gv chu nhiem && 5 gv bo mon,
+     *  moi khoi 3 lop,
+     *  moi gv cn se giay 1/3 mon hoc bb cua khoi
+     *  20 gv:
+     *  gv chu nhiem se day cac mon chinh tru nhac, my thuat, anh, the duc
+     *  gv bo mon se day cac mon con lai
+     * khoi hoc : 5 , mon hojc cua khoi: ?, lop cua khoi: 3
+     *
+     * */
     private void createSchedule (){
-        /*
-         *  create teacherSchoolYearClassSubjectRepository
-         *  15 lop => 15 gv chu nhiem && 5 gv bo mon,
-         *  moi khoi 3 lop,
-         *  moi gv cn se giay 1/3 mon hoc bb cua khoi
-         *  20 gv:
-         *  gv chu nhiem se day cac mon chinh tru nhac, my thuat, anh, the duc
-         *  gv bo mon se day cac mon con lai
-         * khoi hoc : 5 , mon hojc cua khoi: ?, lop cua khoi: 3
-         *
-         * */
+
         var sySubjectGrade = schoolYearSubjectGradeRepository.findAll();
         var teachers = teacherSchoolYearRepository.findAll();
         var classes = schoolYearClassRepository.findAll();
@@ -546,10 +546,6 @@ public class DataInitializer {
             scheduleRepository.saveAll(schedules);
             System.out.println("Created schedule data");
         }
-
-    }
-
-    public void createRoleAccount(){
 
     }
 
