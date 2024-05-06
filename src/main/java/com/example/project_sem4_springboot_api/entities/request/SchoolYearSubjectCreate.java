@@ -23,9 +23,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SchoolYearSubjectCreate {
-    private Long subjectId;
+    @NotNull(message = "Id Môn học không được để trống!!!")
     private List<Long> subjectIds;
-    @NotNull(message = "SchoolYear is required")
-    @Min(value = 1, message = "SchoolYear must be greater than 0")
+    @NotNull(message = "Id Năm học không được để trống!!!")
     private Long schoolYearId;
 }

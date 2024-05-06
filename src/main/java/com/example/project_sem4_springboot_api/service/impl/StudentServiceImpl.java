@@ -5,6 +5,7 @@ import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.StudentStatus;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,11 +50,12 @@ public class StudentServiceImpl  {
             Long bySchoolYearId,
             Long statusId,
             String byNameOrCode,
-            Integer pagination
+            Integer limit
     ) {
         if((bySchoolYearClassId!=null && bySchoolYearId!=null) || (bySchoolYearClassId==null && bySchoolYearId==null))  throw new ArgumentNotValidException("Yêu cầu 1 trong 2 tham số bySchoolYearClassId hoặc bySchoolYearId","","");
-        PageRequest pageRequest = PageRequest.of(0, pagination, Sort.by("createdAt").descending());
-        var studentInfo = studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId,pageRequest).toList();
+        var studentInfo = limit != null ?  studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId,
+                PageRequest.of(0, limit, Sort.by("createdAt").descending())).toList()
+                : studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId);
         if(studentInfo.isEmpty()) throw new NullPointerException("Không tìm thấy thông tin học sinh.");
         var rs = studentInfo.stream().map(e->{ e.setStudents(e.getStudents().toResInfo()); return e;   }).toList();
         if(statusId!=null){
@@ -73,14 +75,8 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(studentRepository.save(data));
     }
 
-    public ResponseEntity<?> createAttendance(Map<String, Object> data) {
-        return null;
-    }
-
-    public ResponseEntity<?> deleteStudent(Long id) {
-        if (!studentRepository.existsById(id)) throw new NullPointerException("Không tìm thấy học sinh!!!");
-        studentRepository.deleteById(id);
-        return ResponseEntity.ok("Đã xóa học sinh.");
+    public ResponseEntity<?> createAttendance( List<AttendanceCreate> data) {
+        return ResponseEntity.ok(data);
     }
 
 

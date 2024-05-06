@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 
 @Entity
 @Data
@@ -19,17 +21,13 @@ public class Attendance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private boolean status;
     private String note;
+    private Date createdAt;
     @ManyToOne
     @JoinColumn(name = "student_year_info_id")
     @JsonManagedReference
     private StudentYearInfo studentYearInfo;
 
-    @ManyToOne
-    @JoinColumn(name = "schedule_id")
-    @JsonManagedReference
-    private Schedule schedule;
 
 }
