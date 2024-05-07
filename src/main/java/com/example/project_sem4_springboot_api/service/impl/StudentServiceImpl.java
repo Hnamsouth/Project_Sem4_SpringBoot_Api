@@ -38,7 +38,8 @@ public class StudentServiceImpl  {
         .createdAt(newDate).description("Bắt đầu nhập học.").build();
         studentStatusRepository.save(sts);
         // add student_year_info
-        StudentYearInfo studentYearInfo = StudentYearInfo.builder().students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
+        StudentYearInfo studentYearInfo = StudentYearInfo.builder()
+                .students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
         studentYearInfoRepository.save(studentYearInfo);
 
         return ResponseEntity.ok(newStudent);

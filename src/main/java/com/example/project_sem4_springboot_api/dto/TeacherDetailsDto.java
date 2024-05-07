@@ -27,6 +27,12 @@ public class TeacherDetailsDto extends RegisterRequest {
     private String sortName;
     @JsonIgnore
     public Teacher toTeacher(User user){
-        return Teacher.builder().active(true).officerNumber(officerNumber).sortName(sortName).joiningDate(joiningDate).user(user).build();
+        return Teacher.builder()
+                .active(true)
+                .officerNumber(officerNumber)
+                .sortName(sortName)
+                .joiningDate(joiningDate)
+                .user(user)
+                .build();
     }
 }

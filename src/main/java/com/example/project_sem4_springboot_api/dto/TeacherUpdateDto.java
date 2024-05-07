@@ -13,8 +13,16 @@ public class TeacherUpdateDto extends TeacherDetailsDto {
     @NotNull(message = "Id không được để trống!!!")
     private Long id;
     private boolean active;
+
     @Override
     public Teacher toTeacher(User user) {
-        return Teacher.builder().id(id).active(isActive()).sortName(getSortName()).officerNumber(getOfficerNumber()).joiningDate(getJoiningDate()).user(user).build();
+        return Teacher.builder()
+                .id(id)
+                .active(isActive())
+                .sortName(getSortName())
+                .officerNumber(getOfficerNumber())
+                .joiningDate(getJoiningDate())
+                .user(user)
+                .build();
     }
 }

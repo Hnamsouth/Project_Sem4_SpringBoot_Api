@@ -10,4 +10,6 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long> {
 
+    List<Student> findAllByIdIn(List<Long> id);
+
 }
