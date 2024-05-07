@@ -5,6 +5,7 @@ import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.example.project_sem4_springboot_api.entities.*;
+import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import jakarta.annotation.Nullable;
@@ -45,13 +46,11 @@ public class TeacherServiceImpl {
 
         return new ResponseEntity<>(newTeacher.toResponse(), HttpStatus.CREATED);
     }
-
     public ResponseEntity<?> getTeacher(@Nullable  boolean status,@Nullable Long id) {
         if(id!=null) return ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Giáo viên không tồn tại!!!")).toResponse());
         if(status) return ResponseEntity.ok(teacherRepository.findAllByActive(false).stream().map(Teacher::toResponse).toList());
         return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::toResponse).toList());
     }
-
     public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
         try{
             Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new NullPointerException("Không tìm thấy Giáo viên với id: " + data.getId()));
@@ -80,13 +79,14 @@ public class TeacherServiceImpl {
             throw new NullPointerException("Lỗi cập nhật thông tin giáo viên: "+e.getMessage());
         }
     }
-
     public ResponseEntity<?> deleteTeacher(Long id){
         Teacher teacher = teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Gíao viên không tồn tại!!!"));
-        teacherRepository.deleteById(id);
+        User uT = teacher.getUser();
+        var stsUpdate = statusRepository.findByCode(EStatus.NGUNG_HOAT_DONG.name());
+        uT.setStatus(stsUpdate);
+        userRepository.save(uT);
         return ResponseEntity.ok("Xóa thành công giáo viên: "+teacher.getSortName());
     }
-
     /**
      * get tất cả gv dạy của lớp theo schoolYearClassId
      **/

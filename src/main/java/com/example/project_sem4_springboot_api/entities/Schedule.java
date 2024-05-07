@@ -51,13 +51,6 @@ public class Schedule {
     @JsonManagedReference
     private CalendarRelease calendarRelease;
     // foreign key
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private List<Attendance> attendances;
-
-    // equals and hashcode
 
     @JsonIgnore
     public ScheduleResponse toScheduleResponse(){

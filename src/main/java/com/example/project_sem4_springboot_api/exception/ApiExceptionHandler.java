@@ -41,9 +41,9 @@ public class ApiExceptionHandler {
      *
      * @description: nằm ngoài phạm vi của mảng
      */
-    @ExceptionHandler({IndexOutOfBoundsException.class,})
+    @ExceptionHandler(IndexOutOfBoundsException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public ResponseErr TodoException(IndexOutOfBoundsException ex,  HttpServletRequest request,RuntimeException exRun) {
+    public ResponseErr TodoException(IndexOutOfBoundsException ex,  HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
                 HttpStatus.BAD_REQUEST.value(),

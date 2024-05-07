@@ -32,7 +32,6 @@ public class SchoolServiceImpl {
     private final SubjectRepository subjectRepository;
     private final RoomRepository roomRepository;
     private final StatusRepository statusRepository;
-    private final ScheduleRepository scheduleRepository;
     private final RoleRepository roleRepository;
 
     /*
@@ -59,64 +58,36 @@ public class SchoolServiceImpl {
     }
     public ResponseEntity<?> createSchoolYearSubject(SchoolYearSubjectCreate data){
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
-                ()->new NullPointerException("Not Found School Year !!!")
+                ()->new NullPointerException("Không tìm thấy Năm học !!!"));
+        if(data.getSubjectIds().isEmpty())throw new NullPointerException("Không tìm thấy Môn học !!!");
+        var subjects = subjectRepository.findAllById(data.getSubjectIds());
+        if(!subjects.isEmpty())throw new NullPointerException("Không tìm thấy danh sách môn học !!! Kiểm tra lại subjectIds");
+        if(schoolYearSubjectRepository.existsBySubject_IdIn(data.getSubjectIds()))
+            throw new DataExistedException("Một số môn học đã tồn tại !!! Vui lòng kiểm tra lại");
+        var createdData =  schoolYearSubjectRepository.saveAll(
+            subjects.stream().map((s)-> SchoolYearSubject.builder().subject(s).schoolYear(schoolYear).build()).toList()
         );
-        if(data.getSubjectId() != null){
-            if(schoolYearSubjectRepository.existsBySubject_Id(data.getSubjectId()))
-                throw new DataExistedException("Môn học đã tồn tại !!!");
-            var subject = subjectRepository.findById(data.getSubjectId()).orElseThrow(
-                    ()->new NullPointerException("Subject Invalid !!!")
-            );
-            var createdData = schoolYearSubjectRepository.save(
-                    SchoolYearSubject.builder().subject(subject).schoolYear(schoolYear).build());
-            return new ResponseEntity<>(createdData,HttpStatus.CREATED);
-        }
-        if(!data.getSubjectIds().isEmpty()){
-            var subjects = subjectRepository.findAllById(data.getSubjectIds());
-            if(!subjects.isEmpty()){
-                if(schoolYearSubjectRepository.existsBySubject_IdIn(data.getSubjectIds()))
-                    throw new DataExistedException("Một số môn học đã tồn tại. Vui lòng kiểm tra lại");
-                var createdData =  schoolYearSubjectRepository.saveAll(
-                    subjects.stream().map((s)-> SchoolYearSubject.builder().subject(s).schoolYear(schoolYear).build()).toList()
-                );
-                return new ResponseEntity<>(createdData,HttpStatus.CREATED);
-            }
-            throw new NullPointerException("Không tìm thấy danh sách môn học !!. Kiểm tra lại subjectIds");
-        }
-        throw new NullPointerException("Yêu cầu subjectId hoặc subjectIds !!!");
+        return new ResponseEntity<>(createdData,HttpStatus.CREATED);
+
     }
     public ResponseEntity<?> createTeacherSchoolYear(TeacherSchoolYearCreate data){
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
-                ()->new NullPointerException("Không tìm thấy năm học!!!")
+                ()->new NullPointerException("Không tìm thấy năm học!!!"));
+        if(data.getTeacherIds().isEmpty()) throw new NullPointerException("Yêu cầu teacherId hoặc teacherIds !!!");
+
+        var teachers = teacherRepository.findAllById(data.getTeacherIds());
+        if(!teachers.isEmpty())throw new NullPointerException("Không tìm thấy danh sách giáo viên !!!");
+
+        if(teacherSchoolYearRepository.existsByTeacher_IdInAndSchoolYear_Id(data.getTeacherIds(),data.getSchoolYearId()))
+            throw new DataExistedException("Một số Giáo viên đã tồn tại trong năm học!. Vui lòng kiểm tra lại");
+        var createdData =  teacherSchoolYearRepository.saveAll(
+                teachers.stream().map((t)-> TeacherSchoolYear.builder().teacher(t).schoolYear(schoolYear).build()).toList()
         );
-        if(data.getTeacherId() != null ){
-            if(teacherSchoolYearRepository.existsByTeacher_IdAndSchoolYear_Id(data.getTeacherId(),data.getSchoolYearId()))
-                throw new DataExistedException("Giáo viên đã tồn tại trong năm học !!!");
-            var teacher = teacherRepository.findById(data.getTeacherId()).orElseThrow(
-                    ()->new NullPointerException("Không tìm thấy giáo viên !!!")
-            );
-            var createdData = teacherSchoolYearRepository.save(
-                    TeacherSchoolYear.builder().teacher(teacher).schoolYear(schoolYear).build());
-            return new ResponseEntity<>(createdData,HttpStatus.CREATED);
-        }
-        if(!data.getTeacherIds().isEmpty()){
-            var teachers = teacherRepository.findAllById(data.getTeacherIds());
-            if(!teachers.isEmpty()){
-                if(teacherSchoolYearRepository.existsByTeacher_IdInAndSchoolYear_Id(data.getTeacherIds(),data.getSchoolYearId()))
-                    throw new DataExistedException("Một số Giáo viên đã tồn tại trong năm học!. Vui lòng kiểm tra lại");
-                var createdData =  teacherSchoolYearRepository.saveAll(
-                        teachers.stream().map((t)-> TeacherSchoolYear.builder().teacher(t).schoolYear(schoolYear).build()).toList()
-                );
-                return new ResponseEntity<>(createdData,HttpStatus.CREATED);
-            }
-            throw new NullPointerException("Không tìm thấy danh sách giáo viên !!!");
-        }
-        throw new NullPointerException("Yêu cầu teacherId hoặc teacherIds !!!");
+        return new ResponseEntity<>(createdData,HttpStatus.CREATED);
     }
     public ResponseEntity<?> createSchoolYearClass(SchoolYearClassCreate data){
         var schoolYear = schoolYearRepository.findById(data.getSchoolYear()).orElseThrow(
-                ()->new NullPointerException("Không tìm thấy năm học !!!")
-        );
+                ()->new NullPointerException("Không tìm thấy năm học !!!"));
         // check class name exist
         if(schoolYearClassRepository.existsByClassNameAndSchoolYear_Id(data.getClassName(),data.getSchoolYear()))
             throw new DataExistedException("Tên Lớp đã được sử dụng!!");
@@ -127,14 +98,11 @@ public class SchoolServiceImpl {
                 SchoolYearClass.builder()
                         .className(data.getClassName()).classCode(data.getClassCode())
                         .teacherSchoolYear(teacherSchoolYearRepository.findById(data.getTeacherSchoolYear()).orElseThrow(
-                                ()->new NullPointerException("Không tìm thấy Giáo viên !!!")
-                        ))
+                                ()->new NullPointerException("Không tìm thấy Giáo viên !!!")))
                         .grade(gradeRepository.findById(data.getGradeId()).orElseThrow(
-                                ()->new NullPointerException("Không tìm thấy Khối học !!!")
-                        ))
+                                ()->new NullPointerException("Không tìm thấy Khối học !!!")))
                         .room(roomRepository.findById(data.getRoomId()).orElseThrow(
-                                ()->new NullPointerException("Không tìm thấy Phòng học !!!")
-                        ))
+                                ()->new NullPointerException("Không tìm thấy Phòng học !!!")))
                         .schoolYear(schoolYear).build()
         );
         return new ResponseEntity<>(createdData,HttpStatus.CREATED);
@@ -142,8 +110,7 @@ public class SchoolServiceImpl {
     public ResponseEntity<?> createSchoolYearSubjectGrade(SchoolYearSubjectGradeCreate data){
         // check subject exist
         var schoolYearSubject = schoolYearSubjectRepository.findById(data.getSchoolYearSubjectId()).orElseThrow(
-                ()->new NullPointerException("Không tìm thấy Môn học !!!")
-        );
+                ()->new NullPointerException("Không tìm thấy Môn học !!!"));
         // check period of year
         if(checkPeriod(schoolYearSubject.getSchoolYear(),data.getNumber()))
             throw new RuntimeException("Số tiết học đã đầy!!!");
@@ -166,7 +133,6 @@ public class SchoolServiceImpl {
             var schoolYearSubject = schoolYearSubjectRepository.findById(e.getSchoolYearSubjectId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy Môn học với Id: "+e.getSchoolYearSubjectId()+" !!!"));
             List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects = new ArrayList<>();
-
             e.getSchoolYearClassId().forEach(c->{
                 // check subject exist
                 var schoolYearClass =  schoolYearClassRepository.findById(c).orElseThrow(
@@ -280,7 +246,6 @@ public class SchoolServiceImpl {
         if(result.size() > 0) throw new NullPointerException("Không tìm thấy SchoolYearClass !!!");
         return ResponseEntity.ok(result);
     }
-
     /**
      * @get subject by id
      * @get list subject by grade
@@ -317,15 +282,12 @@ public class SchoolServiceImpl {
         if(result.size() > 0) throw new NullPointerException("Không tìm thấy SchoolYearSubjectGrade !!!");
         return  ResponseEntity.ok(result);
     }
-
-
     public ResponseEntity<?> getGrade(){
         return ResponseEntity.ok(gradeRepository.findAll());
     }
     public ResponseEntity<?> getRole(){
         return ResponseEntity.ok(roleRepository.findAll());
     }
-
     public ResponseEntity<?> getRooms(){
         return ResponseEntity.ok(roomRepository.findAll());
     }
