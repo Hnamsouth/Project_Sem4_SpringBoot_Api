@@ -29,6 +29,12 @@ public class AuthController {
         return authService.login(request);
     }
 
+
+    @GetMapping("/auto-login")
+    public ResponseEntity<?> autoLogin() {
+        return authService.autoLogin();
+    }
+
     @PostMapping("/login-token")
     public ResponseEntity<?> login (@Valid @RequestBody TokenRequest token) throws IOException {
         return authService.refreshToken(token, AuthService.LOGIN_TOKEN);

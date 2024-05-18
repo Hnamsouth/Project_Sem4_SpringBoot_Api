@@ -58,6 +58,9 @@ public class SchoolYearClass {
     @JsonBackReference
     private List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects;
 
+    public SchoolYearClass toRes() {
+        return SchoolYearClass.builder().id(id).classCode(classCode).className(className).grade(grade).build();
+    }
 
     // equals and hashcode
     @Override

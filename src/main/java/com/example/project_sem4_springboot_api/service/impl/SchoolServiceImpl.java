@@ -2,6 +2,8 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.request.*;
+import com.example.project_sem4_springboot_api.entities.response.SubjectClassRes;
+import com.example.project_sem4_springboot_api.entities.response.TSYCSResponse;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
@@ -13,9 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -209,6 +209,67 @@ public class SchoolServiceImpl {
             );
         }else {
             throw new RuntimeException("Cần ít nhất 1 trong các tham số sau [ id , teacherId , schoolYearId ] !!!");
+        }
+    }
+    public ResponseEntity<?> getTeacherSchoolYearClassSubject(@Nullable Long id,@Nullable Long teacherSchoolYearId,@Nullable Long schoolYearClassId, @Nullable Long schoolYearId){
+        if(schoolYearId!=null){
+            List<TeacherSchoolYearClassSubject> rs = teacherSchoolYearClassSubjectRepository.findAllByTeacherSchoolYear_SchoolYear_Id(schoolYearId);
+            List<TSYCSResponse> resp1 = new LinkedList<>();
+
+            rs.forEach(e->{
+                // check teacher exist
+                List<TSYCSResponse> checkTc = resp1.stream().filter(a->a.teacherSchoolYear.getId().equals(e.getTeacherSchoolYear().getId())).toList();
+                if(checkTc.isEmpty()) {
+                    // add new
+                    var newrs1 =  TSYCSResponse.builder().teacherSchoolYear(e.getTeacherSchoolYear().toRes()).build();
+                    newrs1.setSubjectClassResList(
+                            List.of(SubjectClassRes.builder().schoolYearSubject(e.getSchoolYearSubject().toRes())
+                                    .schoolYearClassList(List.of(e.getSchoolYearClass().toRes())).build()));
+                    resp1.add(newrs1);
+                }else{
+                    TSYCSResponse resp = checkTc.get(0);
+                    List<SubjectClassRes> subjectClassResList = new ArrayList<>(resp.getSubjectClassResList());
+                    var checkSubjectExist=  resp.getSubjectClassResList().stream()
+                            .filter(b->b.getSchoolYearSubject().getId().equals(e.getSchoolYearSubject().getId())).toList();
+                    if(checkSubjectExist.isEmpty()){
+                        // if subject not exist add new subject
+                        subjectClassResList.add(SubjectClassRes.builder().schoolYearSubject(e.getSchoolYearSubject().toRes())
+                                .schoolYearClassList(List.of(e.getSchoolYearClass().toRes())).build());
+                        resp.setSubjectClassResList(subjectClassResList);
+                    }else {
+                        // if subject exist add class to list
+                        SubjectClassRes resp2 = checkSubjectExist.get(0);
+                        List<SchoolYearClass> schoolYearClassList = new ArrayList<>(checkSubjectExist.get(0).getSchoolYearClassList());
+                        schoolYearClassList.add(e.getSchoolYearClass().toRes());
+                        resp2.setSchoolYearClassList(schoolYearClassList);
+                        subjectClassResList.set(subjectClassResList.indexOf(checkSubjectExist.get(0)),resp2);
+                    }
+                    resp1.set(resp1.indexOf(checkTc.get(0)),resp);
+                }
+            });
+            return checkListEmptyGetResponse(
+                    resp1,
+                    "Không tìm thấy data với schoolYearId: "+schoolYearId+" !!!"
+            );
+
+        }
+        if(id!=null){
+            return ResponseEntity.ok(teacherSchoolYearClassSubjectRepository.findById(id)
+                    .orElseThrow(()->new NullPointerException("Không tìm thấy data với ID = "+id+" !!!")));
+        }
+        if(teacherSchoolYearId!=null && schoolYearClassId !=null){
+            return checkListEmptyGetResponse(
+                    teacherSchoolYearClassSubjectRepository.findAllByTeacherSchoolYear_IdAndSchoolYearClass_Id(teacherSchoolYearId,schoolYearClassId),
+                    "Không tìm thấy data với teacherSchoolYearId: "+teacherSchoolYearId+" Và schoolYearClassId: "+schoolYearClassId+" !!!"
+            );
+        }
+        if(teacherSchoolYearId!=null || schoolYearClassId !=null){
+            return checkListEmptyGetResponse(
+                    teacherSchoolYearClassSubjectRepository.findAllByTeacherSchoolYear_IdOrSchoolYearClass_Id(teacherSchoolYearId,schoolYearClassId),
+                    "Không tìm thấy data với teacherSchoolYearId: "+teacherSchoolYearId+" Hoặc schoolYearClassId: "+schoolYearClassId+" !!!"
+            );
+        }else {
+            throw new RuntimeException("Cần ít nhất 1 trong các tham số sau [ id , teacherSchoolYearId , schoolYearClassId ] !!!");
         }
     }
 

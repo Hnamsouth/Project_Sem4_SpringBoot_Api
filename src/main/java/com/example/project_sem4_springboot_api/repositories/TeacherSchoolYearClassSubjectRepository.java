@@ -10,4 +10,8 @@ public interface TeacherSchoolYearClassSubjectRepository extends JpaRepository<T
     List<TeacherSchoolYearClassSubject> findAllBySchoolYearClass_Id(Long schoolYearClass_id);
     boolean findByTeacherSchoolYear_IdAndSchoolYearClass_IdAndSchoolYearSubject_Id(Long teacherSchoolYear_id, Long schoolYearClass_id, Long schoolYearSujecjt_id);
     Optional<TeacherSchoolYearClassSubject> findBySchoolYearClass_IdAndSchoolYearSubject_Id(Long schoolYearClass_id, Long schoolYearSubject_id);
+
+    List<TeacherSchoolYearClassSubject> findAllByTeacherSchoolYear_IdAndSchoolYearClass_Id(Long teacherSchoolYear_id, Long schoolYearClass_id);
+    List<TeacherSchoolYearClassSubject> findAllByTeacherSchoolYear_IdOrSchoolYearClass_Id(Long teacherSchoolYear_id, Long schoolYearClass_id);
+    List<TeacherSchoolYearClassSubject> findAllByTeacherSchoolYear_SchoolYear_Id(Long schoolYear_id);
 }

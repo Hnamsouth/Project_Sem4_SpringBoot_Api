@@ -443,17 +443,13 @@ public class DataInitializer {
                 final int finalGrade = grade;
                 // lop cua khoi
                 var classGrade = classes.stream().filter(c->c.getGrade().getId().intValue() == finalGrade).toList();
-                System.out.println("Grade "+finalGrade+" : "+classGrade.size());
                 for(int cgI = 1;cgI <= classGrade.size(); cgI++){
                     // mon hoc cua khoi
                     var subjectGrade =   sySubjectGrade.stream().filter(e->e.getGrade().getId().intValue() == finalGrade).toList();
-                    System.out.println("Class "+cgI+" : "+subjectGrade.size());
                     // mon chinh
                     var mainSb = subjectGrade.stream().filter(msb->msb.getSchoolYearSubject().getSubject().getType().equals(ESubjectType.BAT_BUOC)).toList();
-                    System.out.println("Main subject: "+mainSb.size());
                     // mon phu
                     var electiveSb = subjectGrade.stream().filter(msb->msb.getSchoolYearSubject().getSubject().getType().equals(ESubjectType.TU_CHON)).toList();
-                    System.out.println("elective subject: "+electiveSb.size());
                     List<TeacherSchoolYearClassSubject> mtsycs = new ArrayList<>();
                     int moc = (mainSb.size()+1)/3;
                     for(int mSgI = 1;mSgI <= mainSb.size(); mSgI++){
