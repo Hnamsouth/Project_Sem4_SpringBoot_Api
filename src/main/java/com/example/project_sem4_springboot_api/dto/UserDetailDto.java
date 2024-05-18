@@ -1,6 +1,9 @@
 package com.example.project_sem4_springboot_api.dto;
 
+import com.example.project_sem4_springboot_api.entities.Teacher;
+import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.UserDetail;
+import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,10 +13,9 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDetailDto {
+public class UserDetailDto extends RegisterRequest {
     private Long id;
     private String firstname;
     private String lastname;
@@ -25,6 +27,5 @@ public class UserDetailDto {
     private String citizen_id;
     private String nation;
     private String avatar;
-
 
 }

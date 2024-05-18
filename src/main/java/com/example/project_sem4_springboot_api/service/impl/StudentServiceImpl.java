@@ -40,7 +40,8 @@ public class StudentServiceImpl  {
         .createdAt(newDate).description("Bắt đầu nhập học.").build();
         studentStatusRepository.save(sts);
         // add student_year_info
-        StudentYearInfo studentYearInfo = StudentYearInfo.builder().students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
+        StudentYearInfo studentYearInfo = StudentYearInfo.builder()
+                .students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
         studentYearInfoRepository.save(studentYearInfo);
 
         return ResponseEntity.ok(newStudent);
@@ -52,7 +53,8 @@ public class StudentServiceImpl  {
             Long byParentId,
             Long statusId,
             String byNameOrCode,
-            Integer limit
+            Integer limit,
+            Long parentId
     ) {
         if(byParentId!=null){
             var listStudent = userRepository.findById(byParentId).orElseThrow(()->new NullPointerException("Phụ huynh không tồn tại.!!!")).getStudents();
@@ -92,6 +94,8 @@ public class StudentServiceImpl  {
     }
 
     public ResponseEntity<?> createAttendance( List<AttendanceCreate> data) {
+        var listStudentClass = studentYearInfoRepository.findAll();
+
         return ResponseEntity.ok(data);
     }
 
