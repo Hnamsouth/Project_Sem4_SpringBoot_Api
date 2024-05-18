@@ -53,8 +53,7 @@ public class StudentServiceImpl  {
             Long byParentId,
             Long statusId,
             String byNameOrCode,
-            Integer limit,
-            Long parentId
+            Integer limit
     ) {
         if(byParentId!=null){
             var listStudent = userRepository.findById(byParentId).orElseThrow(()->new NullPointerException("Phụ huynh không tồn tại.!!!")).getStudents();
