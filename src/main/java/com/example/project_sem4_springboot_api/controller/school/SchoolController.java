@@ -154,12 +154,9 @@ public class SchoolController {
 
     @GetMapping("/teacher-school-year-class-subject")
     public ResponseEntity<?> get_TeacherSchoolYearClassSubject(
-            @Nullable @RequestParam Long id,
-            @Nullable @RequestParam Long teacherSchoolYearId,
-            @Nullable @RequestParam Long schoolYearClassId,
             @Nullable @RequestParam Long schoolYearId
     ){
-        return schoolService.getTeacherSchoolYearClassSubject(id, teacherSchoolYearId,schoolYearClassId,schoolYearId);
+        return schoolService.getTeacherSchoolYearClassSubject(schoolYearId);
     }
 
     /**
