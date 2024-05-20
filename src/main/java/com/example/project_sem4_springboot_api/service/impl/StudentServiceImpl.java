@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.StudentStatus;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
@@ -26,6 +27,7 @@ public class StudentServiceImpl  {
     private final StatusRepository statusRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
+    private final AttendanceRepository attendanceRepository;
 
     public ResponseEntity<?> createStudent(StudentDto data) {
         Date newDate = new Date(System.currentTimeMillis());
@@ -77,11 +79,25 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(studentRepository.save(data));
     }
 
-    public ResponseEntity<?> createAttendance( List<AttendanceCreate> data) {
-        var listStudentClass = studentYearInfoRepository.findAll();
+    public Attendance markAttendance(Long studentYearInfoId, boolean status, String note) {
+        StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearInfoId)
+                .orElseThrow(() -> new RuntimeException("StudentYearInfo not found"));
 
-        return ResponseEntity.ok(data);
+        Attendance attendance = Attendance.builder()
+                .studentYearInfo(studentYearInfo)
+                .status(status)
+                .note(note)
+                .createdAt(new Date())
+                .build();
+
+        return attendanceRepository.save(attendance);
     }
 
+//    public ResponseEntity<?> createAttendance( List<AttendanceCreate> data) {
+//        var listStudentClass = studentYearInfoRepository.findAll();
+//        //add attendance
+//
+//        return ResponseEntity.ok(data);
+//    }
 
 }

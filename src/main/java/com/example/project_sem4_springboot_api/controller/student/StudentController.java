@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.controller.student;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
+import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
@@ -42,14 +43,23 @@ public class StudentController {
         return studentService.updateStudentInfo(data);
     }
 
-
-    @PostMapping("/create-attendance")
-    public ResponseEntity<?> createAttendance(
-        @Validated @RequestBody
-        @NotEmpty(message = "Danh sách điểm danh không được để trống!!!")
-        List<AttendanceCreate> data
-    ){
-        return studentService.createAttendance(data);
+    @PostMapping("/mark")
+    public ResponseEntity<Attendance> markAttendance(
+            @RequestParam Long studentYearInfoId,
+            @RequestParam boolean status,
+            @RequestParam(required = false) String note) {
+        Attendance attendance = studentService.markAttendance(studentYearInfoId, status, note);
+        return ResponseEntity.ok(attendance);
     }
+
+
+//    @PostMapping("/create-attendance")
+//    public ResponseEntity<?> createAttendance(
+//        @Validated @RequestBody
+//        @NotEmpty(message = "Danh sách điểm danh không được để trống!!!")
+//        List<AttendanceCreate> data
+//    ){
+//        return studentService.createAttendance(data);
+//    }
 
 }
