@@ -44,7 +44,7 @@ public class StudentParentServiceImpl {
         Status status = statusRepository.findByCode(StatusData.CREATE_NEW_USER);
 
         var user = data.toUser(roles, passwordEncoder.encode(data.getPassword()), status);
-        user.setStudents(findStudent);
+        user.setStudents(findStudent.stream().toList());
 
         var newParent = userRepository.save(user);
         var parentDetail = userDetailRepository.save(data.toUserDetail(newParent));

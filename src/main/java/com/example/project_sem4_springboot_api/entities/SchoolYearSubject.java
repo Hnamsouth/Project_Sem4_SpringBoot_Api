@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -51,4 +52,12 @@ public class SchoolYearSubject {
     @ToString.Exclude
     @JsonBackReference
     private List<TestPoint> testPoints;
+
+    @JsonIgnore
+    public SchoolYearSubject toRes() {
+        return SchoolYearSubject.builder()
+                .id(this.id)
+                .subject(this.subject)
+                .build();
+    }
 }

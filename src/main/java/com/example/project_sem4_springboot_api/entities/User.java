@@ -3,7 +3,6 @@ package com.example.project_sem4_springboot_api.entities;
 import com.example.project_sem4_springboot_api.dto.UserDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -48,14 +47,6 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
-    @JsonBackReference
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "student_parents",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id")
-    )
-    private Set<Student> students = new HashSet<>();
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -68,14 +59,9 @@ public class User {
     @JsonBackReference
     private Teacher teacher ;
 
-
-//    @JsonBackReference
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(name = "student_parent",
-//            joinColumns = @JoinColumn(name = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "student_id")
-//    )
-//    private List<Student> students;
+    @JsonBackReference
+    @ManyToMany(mappedBy = "parents",fetch = FetchType.EAGER)
+    private List<Student> students;
 
     @JsonIgnore
     public UserDto getDto(){

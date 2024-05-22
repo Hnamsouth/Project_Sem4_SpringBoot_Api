@@ -33,8 +33,13 @@ public class Student {
     private String studentCode;
     private Date createdAt;
 
+
     @JsonBackReference
-    @ManyToMany(mappedBy = "students")
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "student_parent",
+            joinColumns = @JoinColumn(name = "student_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
     private List<User> parents;
 
     @OneToMany(mappedBy = "students", cascade = CascadeType.ALL)

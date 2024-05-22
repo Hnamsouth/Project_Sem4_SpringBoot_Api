@@ -17,6 +17,4 @@ public interface StudentYearInfoRepository extends JpaRepository<StudentYearInfo
     List<StudentYearInfo> findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(
             Long schoolYearClass_id, Long schoolYearClass_schoolYear_id
     );
-
-
 }

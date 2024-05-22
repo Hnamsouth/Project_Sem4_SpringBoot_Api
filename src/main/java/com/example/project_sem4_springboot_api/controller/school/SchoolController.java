@@ -106,7 +106,7 @@ public class SchoolController {
      * @param id nullable
      * @param schoolYearId nullable
      * @param subjectIds nullable
-     * @return {SchoolYearSubject or List<SchoolYearSubject>}
+     * @return {SchoolYearSubjectRes or List<SchoolYearSubjectRes>}
      * */
     @GetMapping("/school-year-subject")
     public ResponseEntity<?> get_SchoolYear(
@@ -150,6 +150,13 @@ public class SchoolController {
             @Nullable @RequestParam Long schoolYearId
     ){
         return schoolService.getTeacherSchoolYear(id,teacherId,schoolYearId);
+    }
+
+    @GetMapping("/teacher-school-year-class-subject")
+    public ResponseEntity<?> get_TeacherSchoolYearClassSubject(
+            @Nullable @RequestParam Long schoolYearId
+    ){
+        return schoolService.getTeacherSchoolYearClassSubject(schoolYearId);
     }
 
     /**

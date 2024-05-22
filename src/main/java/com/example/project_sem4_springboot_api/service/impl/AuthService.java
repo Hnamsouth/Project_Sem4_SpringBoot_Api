@@ -75,6 +75,15 @@ public class AuthService {
         }
     }
 
+    public ResponseEntity<?> autoLogin(){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken("bdht2207a1","123456")
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        var user = userRepository.findByUsername("bdht2207a1").orElseThrow();
+        return returnUserInfo(user,UserDetailsImpl.build(user),LOGIN_TOKEN);
+    }
+
     /**
      * Refresh token
      *

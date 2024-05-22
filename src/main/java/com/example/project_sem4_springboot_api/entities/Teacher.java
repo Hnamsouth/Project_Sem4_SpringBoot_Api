@@ -60,6 +60,16 @@ public class Teacher {
                 .active(this.isActive())
                 .user(user.getDto()).build();
     }
+    @JsonIgnore
+    public Teacher toResWithoutUser(){
+        return Teacher.builder()
+                .id(id)
+                .officerNumber(officerNumber)
+                .sortName(sortName)
+                .joiningDate(joiningDate)
+                .active(this.isActive())
+                .build();
+    }
 
     @JsonIgnore
     public Teacher from(TeacherUpdateDto data){

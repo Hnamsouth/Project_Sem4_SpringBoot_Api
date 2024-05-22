@@ -30,11 +30,12 @@ public class StudentController {
     public ResponseEntity<?> get_StudentInfoBy(
             @RequestParam @Nullable Long bySchoolYearClassId,
             @RequestParam @Nullable Long bySchoolYearId,
+            @RequestParam @Nullable Long byParentId,
             @RequestParam @Nullable Long byStatusId,
             @RequestParam @Nullable String byNameOrCode,
             @RequestParam  @Nullable Integer limit
     ){
-        return studentService.getStudentInfoBy(bySchoolYearClassId,bySchoolYearId,byStatusId,byNameOrCode,limit);
+        return studentService.getStudentInfoBy(bySchoolYearClassId,bySchoolYearId,byParentId,byStatusId,byNameOrCode,limit);
     }
 
 

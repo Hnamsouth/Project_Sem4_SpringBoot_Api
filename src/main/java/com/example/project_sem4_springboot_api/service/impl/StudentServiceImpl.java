@@ -23,6 +23,7 @@ public class StudentServiceImpl  {
 
     private final String STUDENT_STATUS_CREATE= EStatus.STUDENT_DANG_HOC.name();
     private final StudentRepository studentRepository;
+    private final UserRepository userRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
@@ -51,16 +52,31 @@ public class StudentServiceImpl  {
     public ResponseEntity<?> getStudentInfoBy(
             Long bySchoolYearClassId,
             Long bySchoolYearId,
+            Long byParentId,
             Long statusId,
             String byNameOrCode,
             Integer limit
     ) {
+        if(byParentId!=null){
+            var listStudent = userRepository.findById(byParentId).orElseThrow(()->new NullPointerException("Phụ huynh không tồn tại.!!!")).getStudents();
+            if(listStudent.isEmpty()) throw new NullPointerException("Danh sách học sinh rỗng .!!!");
+            // lấy thông tin hs của năm học mới nhất
+            List<StudentYearInfo> rs = listStudent.stream().map(e-> {
+               var a = studentYearInfoRepository.findByStudents_IdOrderByCreatedAtAsc(e.getId());
+               a.setStudents(a.getStudents().toResInfo());
+               return a;
+            }).toList();
+            return ResponseEntity.ok(rs);
+        }
         if((bySchoolYearClassId!=null && bySchoolYearId!=null) || (bySchoolYearClassId==null && bySchoolYearId==null))  throw new ArgumentNotValidException("Yêu cầu 1 trong 2 tham số bySchoolYearClassId hoặc bySchoolYearId","","");
         var studentInfo = limit != null ?  studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId,
                 PageRequest.of(0, limit, Sort.by("createdAt").descending())).toList()
                 : studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId);
         if(studentInfo.isEmpty()) throw new NullPointerException("Không tìm thấy thông tin học sinh.");
-        var rs = studentInfo.stream().map(e->{ e.setStudents(e.getStudents().toResInfo()); return e;   }).toList();
+        var rs = studentInfo.stream().map(e->{
+            e.setStudents(e.getStudents().toResInfo());
+            return e;
+        }).toList();
         if(statusId!=null){
             rs = rs.stream().filter(e->e.getStudents().getStudentStatuses().get(0).getStatus().getId().equals(statusId)).toList();
         }

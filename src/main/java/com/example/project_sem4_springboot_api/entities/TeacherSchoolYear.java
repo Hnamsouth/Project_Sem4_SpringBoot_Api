@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -56,4 +57,13 @@ public class TeacherSchoolYear {
     private List<Department> departments;
 
     // equals and hashcode
+
+    @JsonIgnore
+    public TeacherSchoolYear toRes(){
+        return TeacherSchoolYear.builder()
+                .id(this.id)
+                .teacher(teacher.toResWithoutUser())
+                .schoolYear(this.schoolYear)
+                .build();
+    }
 }
