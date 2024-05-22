@@ -53,8 +53,7 @@ public class StudentServiceImpl  {
             Long bySchoolYearId,
             Long statusId,
             String byNameOrCode,
-            Integer limit,
-            Long parentId
+            Integer limit
     ) {
         if((bySchoolYearClassId!=null && bySchoolYearId!=null) || (bySchoolYearClassId==null && bySchoolYearId==null))  throw new ArgumentNotValidException("Yêu cầu 1 trong 2 tham số bySchoolYearClassId hoặc bySchoolYearId","","");
         var studentInfo = limit != null ?  studentYearInfoRepository.findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(bySchoolYearClassId, bySchoolYearId,
