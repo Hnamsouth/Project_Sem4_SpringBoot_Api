@@ -62,9 +62,9 @@ public class StudentServiceImpl  {
             if(listStudent.isEmpty()) throw new NullPointerException("Danh sách học sinh rỗng .!!!");
             // lấy thông tin hs của năm học mới nhất
             List<StudentYearInfo> rs = listStudent.stream().map(e-> {
-               var a = studentYearInfoRepository.findByStudents_IdOrderByCreatedAtAsc(e.getId());
-               a.setStudents(a.getStudents().toResInfo());
-               return a;
+                var a = studentYearInfoRepository.findByStudents_IdOrderByCreatedAtAsc(e.getId());
+                a.setStudents(a.getStudents().toResInfo());
+                return a;
             }).toList();
             return ResponseEntity.ok(rs);
         }
