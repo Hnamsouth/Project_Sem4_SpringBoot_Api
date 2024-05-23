@@ -7,6 +7,8 @@ import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseC
 import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseUpdate;
 import com.example.project_sem4_springboot_api.entities.request.ScheduleCreate;
 import com.example.project_sem4_springboot_api.entities.request.ScheduleUpdate;
+import com.example.project_sem4_springboot_api.entities.response.ScheduleRes;
+import com.example.project_sem4_springboot_api.entities.response.ScheduleResponse;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
@@ -15,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -72,6 +76,33 @@ public class ScheduleServiceImpl {
         }
         throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
     }
+
+    public ResponseEntity<?> getSchedule2(@Nullable Long classId){
+        if(classId!=null){
+            var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
+
+            var listSchedule = scheduleRepository.findAllBySchoolYearClass(schoolYearClass);
+            List<ScheduleRes> res = new ArrayList<>();
+
+            for(Schedule schedule : listSchedule){
+                var checkDoW = res.stream().filter(e -> e.getDayOfWeek().equals(schedule.getDayOfWeek())).findFirst();
+                if(res.isEmpty() || checkDoW.isEmpty()){
+                    var scheduleRes = ScheduleRes.builder().dayOfWeek(schedule.getDayOfWeek()).scheduleResponse(List.of(schedule.toScheduleResponse())).build();
+                    res.add(scheduleRes);
+                }else{
+                    List<ScheduleResponse> index = new ArrayList<>(res.get(res.indexOf(checkDoW.get())).getScheduleResponse());
+                    index.add(schedule.toScheduleResponse());
+                    res.get(res.indexOf(checkDoW.get())).setScheduleResponse(index);
+                }
+            }
+
+            return checkListEmptyGetResponse(res,
+                    "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
+        }
+        throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
+    }
+
+
     public ResponseEntity<?> getCalendarRelease(Long id,Long schoolYearId){
         if(id!=null) return ResponseEntity.ok(calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy CalendarRelease với id: "+id+" !!!")).toResponse());
         if(schoolYearId!=null) {
