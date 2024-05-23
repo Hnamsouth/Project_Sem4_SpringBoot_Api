@@ -105,7 +105,7 @@ public class ApiExceptionHandler {
                 HttpStatus.NOT_FOUND.value(),
                 ex.getMessage(),
                 request.getRequestURI(),
-                "Not Found"
+                "Not Found Data"
         );
     }
 
@@ -275,7 +275,7 @@ public class ApiExceptionHandler {
                 OffsetDateTime.now(),
                 HttpStatus.NOT_FOUND.value(), ex.getMessage(),
                 request.getRequestURI(),
-                "Not Found"
+                "Not Found Data"
         );
     }
 

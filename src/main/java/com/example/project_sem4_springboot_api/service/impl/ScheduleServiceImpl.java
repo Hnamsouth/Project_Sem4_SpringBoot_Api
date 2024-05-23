@@ -77,25 +77,27 @@ public class ScheduleServiceImpl {
         throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
     }
 
-    public ResponseEntity<?> getSchedule2(@Nullable Long classId){
+    public ResponseEntity<?> getSchedule2(@Nullable Long classId,@Nullable Long teacherSchoolYearId){
         if(classId!=null){
             var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
-
             var listSchedule = scheduleRepository.findAllBySchoolYearClass(schoolYearClass);
             List<ScheduleRes> res = new ArrayList<>();
 
-            for(Schedule schedule : listSchedule){
-                var checkDoW = res.stream().filter(e -> e.getDayOfWeek().equals(schedule.getDayOfWeek())).findFirst();
-                if(res.isEmpty() || checkDoW.isEmpty()){
-                    var scheduleRes = ScheduleRes.builder().dayOfWeek(schedule.getDayOfWeek()).scheduleResponse(List.of(schedule.toScheduleResponse())).build();
-                    res.add(scheduleRes);
-                }else{
-                    List<ScheduleResponse> index = new ArrayList<>(res.get(res.indexOf(checkDoW.get())).getScheduleResponse());
-                    index.add(schedule.toScheduleResponse());
-                    res.get(res.indexOf(checkDoW.get())).setScheduleResponse(index);
-                }
+            for(int tiethoc=1; tiethoc <= 8; tiethoc++){
+                int finalTiethoc = tiethoc;
+                var list = listSchedule.stream().filter(e->e.getIndexLesson()== finalTiethoc).toList();
+                ScheduleRes scheduleRes =  ScheduleRes.builder().build();
+                list.forEach(e->{
+                    switch (e.getDayOfWeek()){
+                        case T2 -> scheduleRes.setT2(e.toScheduleResponse());
+                        case T3 -> scheduleRes.setT3(e.toScheduleResponse());
+                        case T4 -> scheduleRes.setT4(e.toScheduleResponse());
+                        case T5 -> scheduleRes.setT5(e.toScheduleResponse());
+                        case T6 -> scheduleRes.setT6(e.toScheduleResponse());
+                    }
+                });
+                res.add(scheduleRes);
             }
-
             return checkListEmptyGetResponse(res,
                     "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
         }
