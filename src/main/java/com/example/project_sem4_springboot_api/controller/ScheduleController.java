@@ -27,6 +27,13 @@ public class ScheduleController {
             @Nullable @RequestParam Long schoolYearId){
         return scheduleService.getSchedule(classId,teacherSchoolYearId,gradeId,schoolYearId);
     }
+    @GetMapping("/get-schedule-by")
+    public ResponseEntity<?> get_ScheduleBy(
+            @Nullable @RequestParam Long classId,
+            @Nullable @RequestParam Long teacherSchoolYearId
+    ){
+        return scheduleService.getSchedule2(classId,teacherSchoolYearId);
+    }
 
     @GetMapping("/get-calendar-release")
     public  ResponseEntity<?> get_CalendarRelease(@Nullable @RequestParam Long Id, @Nullable @RequestParam Long schoolYearId){
