@@ -60,6 +60,8 @@ public class DataInitializer {
         createStudents();
         createSchedule();
         createUser("bdht2207a",2);
+        createFee();
+//        Arrays.stream(EUnit.values()).forEach(e->System.out.println(e.name()+" : "+e.getUnit()));
 //        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
     }
     private void createRolePermission(){
@@ -543,6 +545,31 @@ public class DataInitializer {
             System.out.println("Created schedule data");
         }
 
+    }
+
+
+    private final UnitRepository unitRepository;
+    private final PaymentTimeRepository paymentTimeRepository;
+    private final ScopeRepository scopeRepository;
+    private void createFee(){
+        if(unitRepository.findAll().isEmpty()){
+            unitRepository.saveAll(
+                Arrays.stream(EUnit.values()).map(Unit::new).toList()
+            );
+            System.out.println("Created unit data");
+        }
+        if(paymentTimeRepository.findAll().isEmpty()){
+            paymentTimeRepository.saveAll(
+                Arrays.stream(EPaymentTime.values()).map(PaymentTime::new).toList()
+            );
+            System.out.println("Created paymentTime data");
+        }
+        if(scopeRepository.findAll().isEmpty()){
+            scopeRepository.saveAll(
+                Arrays.stream(EScope.values()).map(Scope::new).toList()
+            );
+            System.out.println("Created scope data");
+        }
     }
 
 }

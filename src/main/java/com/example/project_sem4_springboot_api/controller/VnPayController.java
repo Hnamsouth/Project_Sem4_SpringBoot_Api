@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
- class VNPayController {
+ class VnPayController {
 
     private final VnPayService vnPayService;
 
-    public VNPayController(VnPayService vnPayService) {
+    public VnPayController(VnPayService vnPayService) {
         this.vnPayService = vnPayService;
     }
 

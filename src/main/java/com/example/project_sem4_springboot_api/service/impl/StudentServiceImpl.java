@@ -1,12 +1,10 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
-import com.example.project_sem4_springboot_api.entities.Attendance;
-import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.entities.StudentStatus;
-import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
+import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.response.StudentTransactionRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +12,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -29,6 +29,9 @@ public class StudentServiceImpl  {
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final AttendanceRepository attendanceRepository;
+    private final FeePeriodRepository feePeriodRepository;
+    private final StudentTransactionRepository studentTransactionRepository;
+    private final TransactionDetailRepository transactionDetailRepository;
 
     public ResponseEntity<?> createStudent(StudentDto data) {
         Date newDate = new Date(System.currentTimeMillis());
@@ -115,4 +118,62 @@ public class StudentServiceImpl  {
 //        return ResponseEntity.ok(data);
 //    }
 
+    public ResponseEntity<?> createStudentTransaction(Long feePeriodId){
+
+    var feePeriod = feePeriodRepository.findById(feePeriodId).orElseThrow(()->new NullPointerException("Không tìm thấy khoản thu với Id: " + feePeriodId));
+    var scope = feePeriod.getFeePeriodScopes().get(0).getScope();
+    List<StudentTransaction> studentTransactionList = new ArrayList<>();
+    switch (scope.getCode()){
+        case GRADE -> {
+            // tạo transaction cho từng học sinh trong khối
+            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_Grade_IdInAndSchoolYearClass_SchoolYear_Id(
+                    feePeriod.getFeePeriodScopes().stream().map(FeePeriodScope::getObjectId).toList(), feePeriod.getSchoolyear().getId());
+        }
+        case CLASS -> {
+            // tạo transaction cho từng học sinh trong lớp
+            // lấy tất cả hs trong các lớp
+            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_IdIn(
+                    feePeriod.getFeePeriodScopes().stream().map(FeePeriodScope::getObjectId).toList()
+            );
+            // tạo transaction cho từng học sinh
+            var stdTransData = studentList.stream().map(s->StudentTransaction.builder()
+                    .status(EStatus.STUDENT_TRANS_UNPAID.getName())
+                    .statusCode(EStatus.STUDENT_TRANS_UNPAID)
+                    .feePeriod(feePeriod)
+                    .studentYearInfo(s)
+                    .build()).toList();
+            var listStuTrans = studentTransactionRepository.saveAll(stdTransData);
+            // tạo transaction detail cho từng khoản thu
+            List<TransactionDetail> StdTransDetails = new ArrayList<>();
+            listStuTrans.forEach(st->{
+                feePeriod.getSchoolYearFeePeriods().forEach(s->{
+                    // lấy giá tiền của khoản thu theo khối của hs hoặc lấy giá tiền mặc định
+                    var price = s.getSchoolyearfee().getFeePrices().stream()
+                            .filter(f->f.getGradeId().equals(st.getStudentYearInfo().getSchoolYearClass().getGrade().getId()))
+                            .findAny()
+                            .orElseGet(()->s.getSchoolyearfee().getFeePrices().get(0)
+                            );
+                    StdTransDetails.add(TransactionDetail.builder()
+                            .title(s.getSchoolyearfee().getTitle())
+                            .price(price.getPrice())
+                            .amount(s.getAmount())
+                            .studentTransaction(st)
+                            .build());
+                });
+            });
+            transactionDetailRepository.saveAll(StdTransDetails);
+        }
+        case SCHOOL -> {
+            // tạo transaction cho tất cả học sinh
+            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_SchoolYear_Id(
+                    feePeriod.getSchoolyear().getId());
+        }
+    }
+    var resCheck = studentTransactionRepository.findAllByFeePeriod_Id(feePeriodId);
+    return ResponseEntity.ok(resCheck);
+}
+    public ResponseEntity<?> getStudentTransaction(Long feePeriodId,Long studentId){
+        var stdTrans = studentTransactionRepository.findByFeePeriod_IdAndStudentYearInfo_Id(feePeriodId,studentId);
+        return ResponseEntity.ok(stdTrans.toResponse());
+    }
 }

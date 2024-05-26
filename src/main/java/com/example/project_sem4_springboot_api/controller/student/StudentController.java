@@ -53,6 +53,15 @@ public class StudentController {
         return ResponseEntity.ok(attendance);
     }
 
+    @GetMapping("/get-student-transactions")
+    public ResponseEntity<?> getStudentTransactions(@RequestParam Long feePeriodId, @RequestParam Long studentYearInfoId){
+        return studentService.getStudentTransaction(feePeriodId,studentYearInfoId);
+    }
+
+    @PostMapping("/create-student-transactions")
+    public ResponseEntity<?> createStudentTransactions(@RequestParam Long feePeriodId){
+        return studentService.createStudentTransaction(feePeriodId);
+    }
 
 //    @PostMapping("/create-attendance")
 //    public ResponseEntity<?> createAttendance(
