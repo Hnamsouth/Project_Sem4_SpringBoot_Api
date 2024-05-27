@@ -149,7 +149,7 @@ public class StudentServiceImpl  {
                 feePeriod.getSchoolYearFeePeriods().forEach(s->{
                     // lấy giá tiền của khoản thu theo khối của hs hoặc lấy giá tiền mặc định
                     var price = s.getSchoolyearfee().getFeePrices().stream()
-                            .filter(f->f.getGradeId().equals(st.getStudentYearInfo().getSchoolYearClass().getGrade().getId()))
+                            .filter(f->f.getGradeId() !=null && f.getGradeId().equals(st.getStudentYearInfo().getSchoolYearClass().getGrade().getId()))
                             .findAny()
                             .orElseGet(()->s.getSchoolyearfee().getFeePrices().get(0)
                             );
