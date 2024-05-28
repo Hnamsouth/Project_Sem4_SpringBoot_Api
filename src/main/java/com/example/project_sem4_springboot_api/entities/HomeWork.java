@@ -1,8 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.entities.response.StudentResponse;
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,27 +13,32 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "student_year_homework")
-public class StudentYearHomeWork {
+@Table(name = "homework")
+public class HomeWork {
     // atb
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String description;
+    private String title;
+    private String content;
     private String url;
-    private Date submitTime;
+    private Date dueDate;
     private boolean status;
     private String statusName;
-    private double point;
     @ManyToOne
-    @JoinColumn(name = "student_year_info_id")
+    @JoinColumn(name = "teacher_schoolyear_id")
     @JsonManagedReference
-    private StudentYearInfo studentYearInfo;
+    private TeacherSchoolYear teacherSchoolYear;
     @ManyToOne
-    @JoinColumn(name = "homework_id")
+    @JoinColumn(name = "schoolyear_subject_id")
     @JsonManagedReference
-    private HomeWork homeWork;
-
+    private SchoolYearSubject schoolYearSubject;
+    @ManyToOne
+    @JoinColumn(name = "schoolyear_class_id")
+    @JsonManagedReference
+    private SchoolYearClass schoolYearClass;
     // foreign key
-
+    @OneToMany(mappedBy = "homeWork", fetch = FetchType.LAZY)
+    @JsonBackReference
+    private List<StudentYearHomeWork> studentYearHomeWorks;
 }
