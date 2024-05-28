@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface StudentTransactionRepository extends JpaRepository<StudentTransaction,Long> {
     List<StudentTransaction> findAllByFeePeriod_Id(Long feePeriodId);
+    List<StudentTransaction> findAllByStudentYearInfo_Id(Long studentYearInfoId);
     StudentTransaction findByFeePeriod_IdAndStudentYearInfo_Id(Long feePeriodId, Long studentYearInfoId);
 }

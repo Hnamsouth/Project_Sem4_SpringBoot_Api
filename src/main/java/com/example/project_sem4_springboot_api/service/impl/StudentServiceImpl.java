@@ -3,6 +3,7 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
+import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -109,13 +111,6 @@ public class StudentServiceImpl  {
         return attendanceRepository.save(attendance);
     }
 
-//    public ResponseEntity<?> createAttendance( List<AttendanceCreate> data) {
-//        var listStudentClass = studentYearInfoRepository.findAll();
-//        //add attendance
-//
-//        return ResponseEntity.ok(data);
-//    }
-
     public ResponseEntity<?> createStudentTransaction(Long feePeriodId){
 
     var feePeriod = feePeriodRepository.findById(feePeriodId).orElseThrow(()->new NullPointerException("Không tìm thấy khoản thu với Id: " + feePeriodId));
@@ -143,7 +138,12 @@ public class StudentServiceImpl  {
             var listStuTrans = studentTransactionRepository.saveAll(stdTransData);
             // tạo transaction detail cho từng khoản thu
             List<TransactionDetail> StdTransDetails = new ArrayList<>();
-            listStuTrans.forEach(st->{
+
+            var stdTrans =  listStuTrans.stream().map(st->{
+                // nếu dùng giá trị  là kiểu dữ liệu nguyên thủy thì phải dùng AtomicReference vì giá trị bên trong không thể thay đổi
+                // nên không thể thay đổi giá trị của biến total
+                // phải cấp phát bộ nhớ mới cho biến total bằng cách dùng AtomicReference
+                AtomicReference<Double> total = new AtomicReference<>(0.0);
                 feePeriod.getSchoolYearFeePeriods().forEach(s->{
                     // lấy giá tiền của khoản thu theo khối của hs hoặc lấy giá tiền mặc định
                     var price = s.getSchoolyearfee().getFeePrices().stream()
@@ -157,8 +157,11 @@ public class StudentServiceImpl  {
                             .amount(s.getAmount())
                             .studentTransaction(st)
                             .build());
+                    total.updateAndGet(v -> (v + price.getPrice() * s.getAmount()));
                 });
-            });
+                return st;
+            }).toList();
+            studentTransactionRepository.saveAll(stdTrans);
             transactionDetailRepository.saveAll(StdTransDetails);
         }
         case SCHOOL -> {
@@ -171,7 +174,26 @@ public class StudentServiceImpl  {
     return ResponseEntity.ok(resCheck);
 }
     public ResponseEntity<?> getStudentTransaction(Long feePeriodId,Long studentId){
-        var stdTrans = studentTransactionRepository.findByFeePeriod_IdAndStudentYearInfo_Id(feePeriodId,studentId);
+        if(feePeriodId!=null){
+            var stdTrans = studentTransactionRepository.findByFeePeriod_IdAndStudentYearInfo_Id(feePeriodId,studentId);
+            return ResponseEntity.ok(stdTrans.toResponse());
+        }
+        var stdTrans = studentTransactionRepository.findAllByStudentYearInfo_Id(studentId);
+        if(stdTrans.isEmpty()) throw new NullPointerException("Không tìm thấy thông tin giao dịch của học sinh.");
+        return ResponseEntity.ok(stdTrans.stream().map(StudentTransaction::toResponse).toList());
+    }
+    public ResponseEntity<?> transferSuccess(Long feePeriodId,String transactionCode){
+        var stdTrans = studentTransactionRepository.findById(feePeriodId).orElseThrow(()->new NullPointerException("Không tìm thấy giao dịch."));
+        // check giao dịch đã thanh toán chưa
+        stdTrans.setPaid(stdTrans.getTotal());
+        stdTrans.setStatus(EStatus.STUDENT_TRANS_PAID.getName());
+        stdTrans.setStatusCode(EStatus.STUDENT_TRANS_PAID);
+        stdTrans.setPaymentMethod(PaymentMethod.CHUYEN_KHOAN);
+
+        studentTransactionRepository.save(stdTrans);
         return ResponseEntity.ok(stdTrans.toResponse());
     }
+
+
+
 }

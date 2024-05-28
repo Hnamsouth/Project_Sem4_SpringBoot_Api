@@ -54,7 +54,7 @@ public class StudentController {
     }
 
     @GetMapping("/get-student-transactions")
-    public ResponseEntity<?> getStudentTransactions(@RequestParam Long feePeriodId, @RequestParam Long studentYearInfoId){
+    public ResponseEntity<?> getStudentTransactions(@RequestParam (required = false) Long feePeriodId, @RequestParam Long studentYearInfoId){
         return studentService.getStudentTransaction(feePeriodId,studentYearInfoId);
     }
 
@@ -63,13 +63,9 @@ public class StudentController {
         return studentService.createStudentTransaction(feePeriodId);
     }
 
-//    @PostMapping("/create-attendance")
-//    public ResponseEntity<?> createAttendance(
-//        @Validated @RequestBody
-//        @NotEmpty(message = "Danh sách điểm danh không được để trống!!!")
-//        List<AttendanceCreate> data
-//    ){
-//        return studentService.createAttendance(data);
-//    }
+    @GetMapping("/student-transfer-success")
+    public ResponseEntity<?> studentTransferSuccess(@RequestParam Long feePeriodId,@RequestParam String transactionCode){
+        return studentService.transferSuccess(feePeriodId,transactionCode);
+    }
 
 }
