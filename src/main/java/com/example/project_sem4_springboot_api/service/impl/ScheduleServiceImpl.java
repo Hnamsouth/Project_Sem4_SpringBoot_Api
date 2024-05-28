@@ -3,12 +3,8 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.DayOfWeek;
 import com.example.project_sem4_springboot_api.entities.enums.StudyTime;
-import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseCreate;
-import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseUpdate;
-import com.example.project_sem4_springboot_api.entities.request.ScheduleCreate;
-import com.example.project_sem4_springboot_api.entities.request.ScheduleUpdate;
+import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.entities.response.ScheduleRes;
-import com.example.project_sem4_springboot_api.entities.response.ScheduleResponse;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
@@ -29,6 +25,7 @@ import static com.example.project_sem4_springboot_api.service.impl.SchoolService
 public class ScheduleServiceImpl {
 
     private final TeacherSchoolYearRepository teacherSchoolYearRepository;
+    private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final SchoolYearSubjectRepository schoolYearSubjectRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final SchoolYearRepository schoolYearRepository;
@@ -36,19 +33,43 @@ public class ScheduleServiceImpl {
     private final CalendarReleaseRepository calendarReleaseRepository;
 
 
+    public ResponseEntity<?> getTeacherSubjectClass(Long classId){
+        var res = teacherSchoolYearClassSubjectRepository.findAllBySchoolYearClass_Id(classId);
+        return ResponseEntity.ok(res.stream().map(TeacherSchoolYearClassSubject::toRes).toList());
+    }
+
     public ResponseEntity<?> createSchedule(ScheduleCreate data) {
-        TeacherSchoolYear teacher = (TeacherSchoolYear) checkData(data.getTeacherSchoolYearId(),1);
-        SchoolYearClass classs = (SchoolYearClass) checkData(data.getSchoolYearClassId(),2);
-        SchoolYearSubject subject = (SchoolYearSubject) checkData(data.getSchoolYearSubjectId(),3);
-        CalendarRelease calendarRelease = (CalendarRelease) checkData(data.getCalendarReleaseId(),5);
-        //  ktra tiết học đã tồn tại chưa
-        checkLessonExist(data.getDayOfWeek(),data.getStudyTime(),data.getIndexLesson(),data.getSchoolYearClassId());
+        var tcs = teacherSchoolYearClassSubjectRepository.findAllByIdIn(
+                data.getScheduleDetailCreate().stream().map(ScheduleDetailCreate::getTeacherSchoolYearClassSubjectId).toList()
+        );
+        if(tcs.isEmpty()) throw new NullPointerException("Id Phân công giảng dạy không hợp lệ !!!");
+        CalendarRelease calendarRelease = calendarReleaseRepository.findById(data.getCalendarReleaseId()).orElseThrow(
+                ()->new NullPointerException("Không tìm thấy Đợt áp dụng với id: "+data.getCalendarReleaseId()+" !!!")
+        );
+        var schoolYearClass = schoolYearClassRepository.findById(data.getClassId()).orElseThrow(
+                ()->new NullPointerException("Không tìm thấy Lớp học với id: "+data.getClassId()+" !!!")
+        );
+        var scheduleList = data.getScheduleDetailCreate().stream().map(e->{
+            //  ktra tiết học đã tồn tại chưa
+            checkLessonExist(e.getDayOfWeek(),e.getStudyTime(),e.getIndexLesson(),schoolYearClass.getId());
+            var t =tcs.stream().filter(c->c.getId().equals(e.getTeacherSchoolYearClassSubjectId())).findAny().orElseThrow();
+            return Schedule.builder()
+                    .schoolYearSubject(t.getSchoolYearSubject())
+                    .teacherSchoolYear(t.getTeacherSchoolYear())
+                    .schoolYearClass(t.getSchoolYearClass())
+                    .calendarRelease(calendarRelease)
+                    .dayOfWeek(e.getDayOfWeek())
+                    .studyTime(e.getStudyTime())
+                    .indexLesson(e.getIndexLesson())
+                    .note(e.getNote())
+                    .build();
+        }).toList();
 
         // check releaseAt after startSem1 and before endSem2
-        var createdData =  scheduleRepository.save(Schedule.builder().schoolYearSubject(subject).teacherSchoolYear(teacher).calendarRelease(calendarRelease)
-                .schoolYearClass(classs).dayOfWeek(data.getDayOfWeek()).studyTime(data.getStudyTime())
-                .indexLesson(data.getIndexLesson()).note(data.getNote()).build());
-        return new ResponseEntity<>(createdData.toScheduleResponse(), HttpStatus.CREATED);
+        checkReleaseAt(calendarRelease.getReleaseAt(),calendarRelease.getSchoolYear());
+        var createdData =  scheduleRepository.saveAll(scheduleList);
+
+        return new ResponseEntity<>(toScheduleRes(createdData), HttpStatus.CREATED);
     }
     public ResponseEntity<?> createCalendarRelease(CalendarReleaseCreate data) {
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(()->new NullPointerException("Không tìm thấy Năm học với id: "+data.getSchoolYearId()+" !!!"));
@@ -81,30 +102,11 @@ public class ScheduleServiceImpl {
         if(classId!=null){
             var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
             var listSchedule = scheduleRepository.findAllBySchoolYearClass(schoolYearClass);
-            List<ScheduleRes> res = new ArrayList<>();
-
-            for(int tiethoc=1; tiethoc <= 8; tiethoc++){
-                int finalTiethoc = tiethoc;
-                var list = listSchedule.stream().filter(e->e.getIndexLesson()== finalTiethoc).toList();
-                ScheduleRes scheduleRes =  ScheduleRes.builder().build();
-                list.forEach(e->{
-                    switch (e.getDayOfWeek()){
-                        case T2 -> scheduleRes.setT2(e.toScheduleResponse());
-                        case T3 -> scheduleRes.setT3(e.toScheduleResponse());
-                        case T4 -> scheduleRes.setT4(e.toScheduleResponse());
-                        case T5 -> scheduleRes.setT5(e.toScheduleResponse());
-                        case T6 -> scheduleRes.setT6(e.toScheduleResponse());
-                    }
-                });
-                res.add(scheduleRes);
-            }
-            return checkListEmptyGetResponse(res,
+            return checkListEmptyGetResponse(toScheduleRes(listSchedule),
                     "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
         }
         throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
     }
-
-
     public ResponseEntity<?> getCalendarRelease(Long id,Long schoolYearId){
         if(id!=null) return ResponseEntity.ok(calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy CalendarRelease với id: "+id+" !!!")).toResponse());
         if(schoolYearId!=null) {
@@ -149,6 +151,26 @@ public class ScheduleServiceImpl {
         var deleteData = calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy Đợt áp dụng TKB với id: "+id+" !!!"));
         calendarReleaseRepository.delete(deleteData);
         return ResponseEntity.ok("Xóa Thành công !!!");
+    }
+
+    private List<ScheduleRes> toScheduleRes(List<Schedule> data){
+        List<ScheduleRes> res = new ArrayList<>();
+        for(int tiethoc=1; tiethoc <= 8; tiethoc++){
+            int finalTiethoc = tiethoc;
+            var list = data.stream().filter(e->e.getIndexLesson()== finalTiethoc).toList();
+            ScheduleRes scheduleRes =  ScheduleRes.builder().build();
+            list.forEach(e->{
+                switch (e.getDayOfWeek()){
+                    case T2 -> scheduleRes.setT2(e.toScheduleResponse());
+                    case T3 -> scheduleRes.setT3(e.toScheduleResponse());
+                    case T4 -> scheduleRes.setT4(e.toScheduleResponse());
+                    case T5 -> scheduleRes.setT5(e.toScheduleResponse());
+                    case T6 -> scheduleRes.setT6(e.toScheduleResponse());
+                }
+            });
+            res.add(scheduleRes);
+        }
+        return res;
     }
     private Object checkData(Long id,int index) throws NullPointerException,DataExistedException {
         if(index==1){

@@ -159,6 +159,7 @@ public class StudentServiceImpl  {
                             .build());
                     total.updateAndGet(v -> (v + price.getPrice() * s.getAmount()));
                 });
+                st.setTotal(total.get());
                 return st;
             }).toList();
             studentTransactionRepository.saveAll(stdTrans);

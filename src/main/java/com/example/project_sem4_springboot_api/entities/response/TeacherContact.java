@@ -7,8 +7,9 @@ import lombok.Data;
 @Builder
 public class TeacherContact {
     private Long id;
-    private String sortName;
+    private String shortName;
     private String name;
-    private String phone;
+    private boolean gender;
     private String email;
+    private String phone;
 }
