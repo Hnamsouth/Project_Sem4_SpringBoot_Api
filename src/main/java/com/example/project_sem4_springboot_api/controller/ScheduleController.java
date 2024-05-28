@@ -1,8 +1,5 @@
 package com.example.project_sem4_springboot_api.controller;
-import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseCreate;
-import com.example.project_sem4_springboot_api.entities.request.CalendarReleaseUpdate;
-import com.example.project_sem4_springboot_api.entities.request.ScheduleDetailCreate;
-import com.example.project_sem4_springboot_api.entities.request.ScheduleUpdate;
+import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.service.impl.ScheduleServiceImpl;
 import jakarta.annotation.Nullable;
@@ -44,7 +41,7 @@ public class ScheduleController {
         return scheduleService.getTeacherSubjectClass(classId);
     }
     @PostMapping("/create-schedule")
-    public ResponseEntity<?> createSchedule (@Valid @RequestBody ScheduleDetailCreate data){
+    public ResponseEntity<?> createSchedule (@Valid @RequestBody ScheduleCreate data){
         return scheduleService.createSchedule(data);
     }
 
