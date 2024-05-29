@@ -64,8 +64,8 @@ public class StudentController {
     }
 
     @GetMapping("/student-transfer-success")
-    public ResponseEntity<?> studentTransferSuccess(@RequestParam Long feePeriodId,@RequestParam String transactionCode){
-        return studentService.transferSuccess(feePeriodId,transactionCode);
+    public ResponseEntity<?> studentTransferSuccess(@RequestParam Long studentTransactionId,@RequestParam String transactionCode){
+        return studentService.transferSuccess(studentTransactionId,transactionCode);
     }
 
 }
