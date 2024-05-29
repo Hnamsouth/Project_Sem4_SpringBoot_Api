@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.controller;
 
+import com.example.project_sem4_springboot_api.entities.request.VnPayRequest;
 import com.example.project_sem4_springboot_api.service.impl.VNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,10 @@ class VNPayController {
 
 
     @PostMapping("/submitOrder")
-    public String submidOrder(@RequestParam("amount") int orderTotal,
-                              @RequestParam("orderInfo") String orderInfo,
+    public String submidOrder(@RequestBody VnPayRequest data,
                               HttpServletRequest request) {
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
-        return vnPayService.createOrder(orderTotal, orderInfo, baseUrl);
+        return vnPayService.createOrder(data.getTotal(), data.getOrderInfo(), baseUrl);
     }
 
     @GetMapping("/vnpay-payment")
