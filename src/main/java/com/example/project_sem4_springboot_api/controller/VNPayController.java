@@ -49,7 +49,87 @@ class VNPayController {
             model.addAttribute("totalPrice", request.getParameter("vnp_Amount"));
             model.addAttribute("paymentTime", request.getParameter("vnp_PayDate"));
             model.addAttribute("transactionId", request.getParameter("vnp_TransactionNo"));
-            return ResponseEntity.ok("Thanh toán thành công");
+            return ResponseEntity.ok("""
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>Transaction Success</title>
+                        <link rel="stylesheet" href="styles.css">
+                        <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f4f4f4;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            height: 100vh;
+                            margin: 0;
+                        }
+                        
+                        .container {
+                            background: #fff;
+                            padding: 20px;
+                            border-radius: 10px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                            text-align: center;
+                            max-width: 90%;
+                        }
+                        
+                        .success-icon {
+                            margin-bottom: 20px;
+                        }
+                        
+                        h1 {
+                            color: #28a745;
+                            font-size: 24px;
+                            margin-bottom: 10px;
+                        }
+                        
+                        p {
+                            font-size: 16px;
+                            color: #555;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .button {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            color: #fff;
+                            background-color: #28a745;
+                            border: none;
+                            border-radius: 5px;
+                            text-decoration: none;
+                        }
+                        
+                        .button:hover {
+                            background-color: #218838;
+                        }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <div class="success-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" fill="green" class="bi bi-check-circle-fill" viewBox="0 0 16 16">
+                                    <path d="M16 8a8 8 0 1 0-16 0 8 8 0 0 0 16 0zM6.904 10.803a.25.25 0 0 1-.348-.01L4.146 8.264a.25.25 0 1 1 .348-.35l2.096 2.097 4.657-4.657a.25.25 0 0 1 .348.35l-5 5a.25.25 0 0 1-.348.01z"/>
+                                </svg>
+                            </div>
+                            <h1>Transaction Successful</h1>
+                            <p>Your transaction has been completed successfully.</p>
+                            <a href="#" class="button">Return to Home</a>
+                        </div>
+                    </body>
+                    </html>
+                                        
+                    """);
         }
         return ResponseEntity.ok("Giao dịch thất bại");
     }
