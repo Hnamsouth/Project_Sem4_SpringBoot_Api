@@ -23,8 +23,10 @@ class VNPayController {
     private final StudentTransactionRepository studentTransactionRepository;
 
     @PostMapping("/submitOrder")
-    public String submidOrder(@RequestBody VnPayRequest data,
-                              HttpServletRequest request) {
+    public String submidOrder(
+            @RequestBody VnPayRequest data,
+            HttpServletRequest request
+    ){
         String baseUrl = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort();
         return vnPayService.createOrder(data.getTotal(), data.getOrderInfo(), baseUrl);
     }
@@ -33,7 +35,7 @@ class VNPayController {
     public ResponseEntity<?> GetMapping(HttpServletRequest request, Model model) {
         int paymentStatus = vnPayService.orderReturn(request);
         String orderId = request.getParameter("vnp_OrderInfo");
-        if(paymentStatus ==1 ){
+        if(paymentStatus == 1 ){
             // thanh toán thành công
             var stdTrans = studentTransactionRepository.findById(Long.parseLong(orderId));
             if(stdTrans.isPresent()){

@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -19,6 +20,9 @@ public class FeePeriodCreate {
     public String conent;
     @NotNull(message = "Năm học không được để trống")
     public Long schoolYearId;
+
+    @NotNull(message = "Thời hạn thu không được để trống")
+    public Date endDate;
 
     @NotNull(message = "Danh sách phạm vi thu không được để trống")
     public FeePeriodScopeCreate feePeriodScope;
@@ -35,6 +39,7 @@ public class FeePeriodCreate {
                 .statusCode(EStatus.HOAT_DONG.getName())
                 .schoolyear(schoolYear)
                 .createdAt(new java.util.Date())
+                .endDate(endDate)
                 .build();
     }
 

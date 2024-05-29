@@ -184,7 +184,7 @@ public class StudentServiceImpl  {
         if(stdTrans.isEmpty()) throw new NullPointerException("Không tìm thấy thông tin giao dịch của học sinh.");
         return ResponseEntity.ok(stdTrans.stream().map(StudentTransaction::toResponse).toList());
     }
-    public ResponseEntity<?> transferSuccess(Long studentTransactionId,String transactionCode){
+    public ResponseEntity<?> transferSuccess(Long studentTransactionId , String transactionCode){
         var stdTrans = studentTransactionRepository.findById(studentTransactionId).orElseThrow(()->new NullPointerException("Không tìm thấy giao dịch."));
         // check giao dịch đã thanh toán chưa
         stdTrans.setPaid(stdTrans.getTotal());

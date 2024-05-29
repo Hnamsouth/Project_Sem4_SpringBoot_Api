@@ -22,6 +22,8 @@ public class FeePeriod {
     private String content;
     private boolean status;
     private String statusCode;
+
+    private Date endDate;
     private Date createdAt;
     @JsonManagedReference
     @ManyToOne
