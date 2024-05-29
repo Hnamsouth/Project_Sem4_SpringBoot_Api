@@ -56,7 +56,6 @@ class VNPayController {
                         <meta charset="UTF-8">
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>Transaction Success</title>
-                        <link rel="stylesheet" href="styles.css">
                         <style>
                         * {
                             margin: 0;
@@ -122,9 +121,8 @@ class VNPayController {
                                     <path d="M16 8a8 8 0 1 0-16 0 8 8 0 0 0 16 0zM6.904 10.803a.25.25 0 0 1-.348-.01L4.146 8.264a.25.25 0 1 1 .348-.35l2.096 2.097 4.657-4.657a.25.25 0 0 1 .348.35l-5 5a.25.25 0 0 1-.348.01z"/>
                                 </svg>
                             </div>
-                            <h1>Transaction Successful</h1>
-                            <p>Your transaction has been completed successfully.</p>
-                            <a href="#" class="button">Return to Home</a>
+                            <h1>Thanh toán thành công </h1>
+                            <p>Giao dịch của bạn đã hoàn tất.</p>
                         </div>
                     </body>
                     </html>
