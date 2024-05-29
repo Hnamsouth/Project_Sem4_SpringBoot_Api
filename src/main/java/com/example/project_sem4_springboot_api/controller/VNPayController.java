@@ -22,7 +22,6 @@ class VNPayController {
 
     private final StudentTransactionRepository studentTransactionRepository;
 
-
     @PostMapping("/submitOrder")
     public String submidOrder(@RequestBody VnPayRequest data,
                               HttpServletRequest request) {
@@ -38,8 +37,9 @@ class VNPayController {
             // thanh toán thành công
             var stdTrans = studentTransactionRepository.findById(Long.parseLong(orderId));
             if(stdTrans.isPresent()){
+                var paid = Double.parseDouble(request.getParameter("vnp_Amount"));
                 var std = stdTrans.get();
-                std.setPaid(Double.parseDouble(request.getParameter("vnp_Amount")));
+                std.setPaid(paid/100);
                 std.setStatus(EStatus.STUDENT_TRANS_PAID.getName());
                 std.setStatusCode(EStatus.STUDENT_TRANS_PAID);
                 std.setPaymentMethod(PaymentMethod.CHUYEN_KHOAN);
