@@ -162,6 +162,7 @@ public class StudentServiceImpl  {
                 st.setTotal(total.get());
                 return st;
             }).toList();
+            assert(stdTrans.size() == listStuTrans.size());
             studentTransactionRepository.saveAll(stdTrans);
             transactionDetailRepository.saveAll(StdTransDetails);
         }
