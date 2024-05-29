@@ -60,6 +60,7 @@ public class FeePeriod {
                 .status(this.status)
                 .statusCode(this.statusCode)
                 .createdAt(this.createdAt)
+                .endDate(this.endDate)
                 .build();
     }
 
