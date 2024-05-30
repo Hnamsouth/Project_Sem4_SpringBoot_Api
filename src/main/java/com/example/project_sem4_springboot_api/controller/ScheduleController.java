@@ -1,4 +1,5 @@
 package com.example.project_sem4_springboot_api.controller;
+import com.example.project_sem4_springboot_api.entities.enums.DayOfWeek;
 import com.example.project_sem4_springboot_api.entities.request.*;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.service.impl.ScheduleServiceImpl;
@@ -69,5 +70,14 @@ public class ScheduleController {
     @DeleteMapping("/delete-calendar-release")
     private  ResponseEntity<?> delete_CalendarRelease(@Nullable @RequestParam Long Id){
         return scheduleService.deleteCalendarRelease(Id);
+    }
+
+    @GetMapping("/check-lesson-exist")
+    public ResponseEntity<?> getScheduleByTeacher(
+            @RequestParam Long teacherSchoolYearId,
+            @RequestParam DayOfWeek dow,
+            @RequestParam int indexLesson
+    ){
+        return scheduleService.checkLessonExist(teacherSchoolYearId,dow,indexLesson);
     }
 }

@@ -4,6 +4,7 @@ import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
+import com.example.project_sem4_springboot_api.entities.request.XinNghi;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -110,6 +113,10 @@ public class StudentServiceImpl  {
 
         return attendanceRepository.save(attendance);
     }
+    public ResponseEntity<?> getAttendance(Long studentYearInfoId){
+        var attendance = attendanceRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
+        return ResponseEntity.ok(attendance);
+    }
 
     public ResponseEntity<?> createStudentTransaction(Long feePeriodId){
 
@@ -196,6 +203,43 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(stdTrans.toResponse());
     }
 
+    public ResponseEntity<?> xinNghi(XinNghi data){
+        var student = studentYearInfoRepository.findById(data.getStudentYearInfoId()).orElseThrow(()->new NullPointerException("Không tìm thấy thông tin học sinh."));
+        var currentDate = LocalDate.now();
+        if(data.getStartDate().compareTo(currentDate) < 0 || data.getEndDate().compareTo(currentDate) < 0){
+            throw new ArgumentNotValidException("Ngày bắt đầu và ngày kết thúc không hợp lệ","","");
+        }
+        var days= Period.between(data.getStartDate(),data.getEndDate()).getDays();
+        if(days > 0){
+            List<Attendance> attendanceList = new LinkedList<>();
+            for(int i=0;i<=days;i++) {
+                var attendance = Attendance.builder()
+                        .studentYearInfo(student)
+                        .status(true)
+                        .statusName(EStatus.STUDENT_NGHI_CO_PHEP.getName())
+                        .note(data.getNote())
+                        .createdAt(localDateToDate(data.getStartDate().plusDays(i)))
+                        .build();
+                attendanceList.add(attendance);
+            }
+            var ListAttendance = attendanceRepository.saveAll(attendanceList);
+        }
+        var attendance = Attendance.builder()
+                .studentYearInfo(student)
+                .status(true)
+                .statusName(EStatus.STUDENT_NGHI_CO_PHEP.getName())
+                .note(data.getNote())
+                .createdAt(localDateToDate(data.getStartDate()))
+                .build();
+        var Attendance = attendanceRepository.save(attendance);
 
+        // gửi thông báo cho phụ huynh
+        return ResponseEntity.ok("Oke");
+    }
+
+
+    private Date localDateToDate(LocalDate date){
+        return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
 
 }

@@ -153,6 +153,11 @@ public class ScheduleServiceImpl {
         return ResponseEntity.ok("Xóa Thành công !!!");
     }
 
+    public ResponseEntity<?> checkLessonExist(Long teacherId,DayOfWeek dow, int indexLesson){
+        var check = scheduleRepository.existsByDayOfWeekAndIndexLessonAndTeacherSchoolYear_Id(dow,indexLesson,teacherId);
+        return ResponseEntity.ok(check);
+    }
+
     private List<ScheduleRes> toScheduleRes(List<Schedule> data){
         List<ScheduleRes> res = new ArrayList<>();
         for(int tiethoc=1; tiethoc <= 8; tiethoc++){

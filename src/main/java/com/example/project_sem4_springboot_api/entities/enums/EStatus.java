@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 public enum EStatus {
     STUDENT_DANG_HOC("Đang học"),
     STUDENT_BO_HOC("Bỏ học"),
+    STUDENT_NGHI_CO_PHEP("Nghỉ có phép"),
+    STUDENT_NGHI_KHONG_PHEP("Nghỉ không phép"),
     STUDENT_THOI_HOC("Thôi học"), // nghỉ học vĩnh viễn
     STUDENT_TOT_NGHIEP("Tốt nghiệp"),
     STUDENT_BAO_LUU("Bảo lưu"),

@@ -4,6 +4,7 @@ import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.request.XinNghi;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
@@ -51,6 +52,15 @@ public class StudentController {
             @RequestParam(required = false) String note) {
         Attendance attendance = studentService.markAttendance(studentYearInfoId, status, note);
         return ResponseEntity.ok(attendance);
+    }
+
+    @GetMapping("/get-attendance")
+    public ResponseEntity<?> getAttendance(@RequestParam Long studentYearInfoId){
+        return studentService.getAttendance(studentYearInfoId);
+    }
+    @PostMapping("/xin-nghi")
+    public ResponseEntity<?> xinNghi(@Valid @RequestBody XinNghi data) {
+        return ResponseEntity.ok(studentService.xinNghi(data));
     }
 
     @GetMapping("/get-student-transactions")
