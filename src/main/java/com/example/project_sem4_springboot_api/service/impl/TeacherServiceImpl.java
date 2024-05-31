@@ -6,11 +6,15 @@ import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,11 +50,26 @@ public class TeacherServiceImpl {
 
         return new ResponseEntity<>(newTeacher.toResponse(), HttpStatus.CREATED);
     }
+
     public ResponseEntity<?> getTeacher(@Nullable  boolean status,@Nullable Long id) {
         if(id!=null) return ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Giáo viên không tồn tại!!!")).toResponse());
         if(status) return ResponseEntity.ok(teacherRepository.findAllByActive(false).stream().map(Teacher::toResponse).toList());
         return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::toResponse).toList());
     }
+
+    public ResultPaginationDto getAllTeacher(Specification<Teacher> specification, Pageable pageable) {
+        Page<Teacher> teachers = teacherRepository.findAll(specification, pageable);
+        ResultPaginationDto rs = new ResultPaginationDto();
+        Meta meta = new Meta();
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(teachers.getTotalPages());
+        meta.setTotal(teachers.getTotalElements());
+        rs.setMeta(meta);
+        rs.setResult(teachers.getContent());
+        return rs;
+    }
+
     public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
         try{
             Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new NullPointerException("Không tìm thấy Giáo viên với id: " + data.getId()));

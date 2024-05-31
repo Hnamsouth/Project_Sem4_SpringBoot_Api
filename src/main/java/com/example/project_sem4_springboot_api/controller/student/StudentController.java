@@ -4,14 +4,20 @@ import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateOrUpdate;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/student")
@@ -70,6 +76,11 @@ public class StudentController {
     public ResponseEntity<?> createStudentTransactions(@RequestParam Long feePeriodId){
         return studentService.createStudentTransaction(feePeriodId);
     }
+    @GetMapping("/students")
+    public ResponseEntity<ResultPaginationDto> getAllStudent(@Filter Specification<Student> specification, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.getAllStudent(specification, pageable));
+    }
+
 
     @GetMapping("/student-transfer-success")
     public ResponseEntity<?> studentTransferSuccess(@RequestParam Long studentTransactionId,@RequestParam String transactionCode){

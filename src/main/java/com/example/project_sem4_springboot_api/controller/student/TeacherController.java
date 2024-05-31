@@ -2,9 +2,14 @@ package com.example.project_sem4_springboot_api.controller.student;
 
 import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
+import com.example.project_sem4_springboot_api.entities.Teacher;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.service.impl.TeacherServiceImpl;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +27,11 @@ public class TeacherController {
     @PostMapping()
     public ResponseEntity<?> createTeacher(@RequestBody TeacherDetailsDto teacherDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(teacherService.createTeacher(teacherDto));
+    }
+
+    @GetMapping("/teachers")
+    public ResponseEntity<ResultPaginationDto> getAllTeacher(@Filter Specification<Teacher> specification, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(teacherService.getAllTeacher(specification, pageable));
     }
 
 
