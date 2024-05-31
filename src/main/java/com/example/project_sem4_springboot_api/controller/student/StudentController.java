@@ -3,12 +3,18 @@ package com.example.project_sem4_springboot_api.controller.student;
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
+import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
+import com.turkraft.springfilter.boot.Filter;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +57,11 @@ public class StudentController {
             @RequestParam(required = false) String note) {
         Attendance attendance = studentService.markAttendance(studentYearInfoId, status, note);
         return ResponseEntity.ok(attendance);
+    }
+
+    @GetMapping("/students")
+    public ResponseEntity<ResultPaginationDto> getAllStudent(@Filter Specification<Student> specification, Pageable pageable){
+        return ResponseEntity.status(HttpStatus.OK).body(studentService.getAllStudent(specification, pageable));
     }
 
 

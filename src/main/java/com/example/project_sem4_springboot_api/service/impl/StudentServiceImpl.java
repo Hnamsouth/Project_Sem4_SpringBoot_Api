@@ -1,17 +1,18 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
-import com.example.project_sem4_springboot_api.entities.Attendance;
-import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.entities.StudentStatus;
-import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
+import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Date;
@@ -87,6 +88,20 @@ public class StudentServiceImpl  {
             }).toList();
         }
         return ResponseEntity.ok(rs);
+    }
+
+    public ResultPaginationDto getAllStudent(Specification<Student> specification, Pageable pageable){
+        Page<Student> studentPage = studentRepository.findAll(specification, pageable);
+        ResultPaginationDto rs = new ResultPaginationDto();
+        Meta meta = new Meta();
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(studentPage.getTotalPages());
+        meta.setTotal(studentPage.getTotalElements());
+
+        rs.setMeta(meta);
+        rs.setResult(studentPage.getContent());
+        return rs;
     }
 
     public ResponseEntity<?> updateStudentInfo(Student data) {
