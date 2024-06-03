@@ -120,6 +120,7 @@ public class StudentServiceImpl  {
                     .attendanceStatusName(st.getStatus().getName())
                     .notificationStatus(EStatus.CHUA_THONG_BAO.getName())
                     .createdAt(data.dayOff)
+                    .note(st.getNote())
                     .build());
         });
         var res =attendanceRepository.saveAll(attendanceList);

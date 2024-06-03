@@ -11,4 +11,5 @@ public class AttendanceCreateBody {
     private Long studentYearInfoId;
     @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
+    private String note;
 }
