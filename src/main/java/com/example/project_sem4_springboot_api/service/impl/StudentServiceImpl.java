@@ -2,9 +2,13 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
+import com.example.project_sem4_springboot_api.entities.enums.AttendanceStatus;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
+import com.example.project_sem4_springboot_api.entities.enums.HandleStatus;
 import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
-import com.example.project_sem4_springboot_api.entities.request.XinNghi;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateBody;
+import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,7 @@ public class StudentServiceImpl  {
     private final FeePeriodRepository feePeriodRepository;
     private final StudentTransactionRepository studentTransactionRepository;
     private final TransactionDetailRepository transactionDetailRepository;
+    private final TakeLeaveRepository takeLeaveRepository;
 
     public ResponseEntity<?> createStudent(StudentDto data) {
         Date newDate = new Date(System.currentTimeMillis());
@@ -100,22 +105,29 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(studentRepository.save(data));
     }
 
-    public Attendance markAttendance(Long studentYearInfoId, boolean status, String note) {
-        StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearInfoId)
-                .orElseThrow(() -> new RuntimeException("StudentYearInfo not found"));
+    public ResponseEntity<?> markAttendance(AttendanceCreate data) {
+        var classInfo = schoolYearClassRepository.findById(data.getClassId()).orElseThrow(()-> new NullPointerException("Không tìm thấy thông tin lớp học."));
+        var students = studentYearInfoRepository.findAllByIdIn(data.getListStudent().stream().map(AttendanceCreateBody::getStudentYearInfoId).toList());
 
-        Attendance attendance = Attendance.builder()
-                .studentYearInfo(studentYearInfo)
-                .status(status)
-                .note(note)
-                .createdAt(new Date())
-                .build();
+        if(students.isEmpty()) throw new NullPointerException("Danh sách học sinh không hợp lệ.");
+        if(students.stream().anyMatch(e->!e.getSchoolYearClass().equals(classInfo))) throw new ArgumentNotValidException("Danh sách học sinh không thuộc lớp học này.","","");
 
-        return attendanceRepository.save(attendance);
+        var attendanceList = new LinkedList<Attendance>();
+        data.getListStudent().forEach(st->{
+            attendanceList.add(Attendance.builder()
+                    .studentYearInfo(students.stream().filter(e->e.getId().equals(st.getStudentYearInfoId())).findAny().orElseThrow())
+                    .attendanceStatus(st.getStatus())
+                    .attendanceStatusName(st.getStatus().getName())
+                    .notificationStatus(EStatus.CHUA_THONG_BAO.getName())
+                    .createdAt(data.dayOff)
+                    .build());
+        });
+        var res =attendanceRepository.saveAll(attendanceList);
+        return ResponseEntity.ok(res);
     }
-    public ResponseEntity<?> getAttendance(Long studentYearInfoId){
-        var attendance = attendanceRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
-        return ResponseEntity.ok(attendance);
+    public ResponseEntity<?> getAttendanceBy(Long studentYearInfoId,Long schoolYearClassId){
+        var attendance = attendanceRepository.findAllByStudentYearInfo_IdOrStudentYearInfo_SchoolYearClass_Id(studentYearInfoId,schoolYearClassId);
+        return ResponseEntity.ok(attendance.stream().map(Attendance::toRes).toList());
     }
 
     public ResponseEntity<?> createStudentTransaction(Long feePeriodId){
@@ -203,9 +215,24 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(stdTrans.toResponse());
     }
 
-    public ResponseEntity<?> xinNghi(XinNghi data){
+    public ResponseEntity<?> takeLeave(TakeLeaveRequest data){
+        // khi phu huynh xin nghi hoc cho hs thi se tao ra danh sach nghi hoc cho hs va luu lai don xin nghỉ
+        // va gui thong bao cho phu huynh
         var student = studentYearInfoRepository.findById(data.getStudentYearInfoId()).orElseThrow(()->new NullPointerException("Không tìm thấy thông tin học sinh."));
+        var parent = student.getStudents().getParents().stream().filter(e->e.getId().equals(data.getUserId())).findAny().orElseThrow(()->new NullPointerException("Không tìm thấy thông tin người gửi."));
         var currentDate = LocalDate.now();
+
+        var takeLeave = TakeLeave.builder()
+                .startDate(data.getStartDate())
+                .endDate(data.getEndDate())
+                .status(HandleStatus.CHO_XAC_NHAN)
+                .content(data.getNote())
+                .createdAt(currentDate)
+                .studentYearInfo(student)
+                .parent(parent)
+                .build();
+        var res = takeLeaveRepository.save(takeLeave);
+        // check ngày bắt đầu và ngày kết thúc
         if(data.getStartDate().compareTo(currentDate) < 0 || data.getEndDate().compareTo(currentDate) < 0){
             throw new ArgumentNotValidException("Ngày bắt đầu và ngày kết thúc không hợp lệ","","");
         }
@@ -215,8 +242,9 @@ public class StudentServiceImpl  {
             for(int i=0;i<=days;i++) {
                 var attendance = Attendance.builder()
                         .studentYearInfo(student)
-                        .status(true)
-                        .statusName(EStatus.STUDENT_NGHI_CO_PHEP.getName())
+                        .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
+                        .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
+                        .notificationStatus(EStatus.DA_THONG_BAO.getName())
                         .note(data.getNote())
                         .createdAt(localDateToDate(data.getStartDate().plusDays(i)))
                         .build();
@@ -226,15 +254,16 @@ public class StudentServiceImpl  {
         }
         var attendance = Attendance.builder()
                 .studentYearInfo(student)
-                .status(true)
-                .statusName(EStatus.STUDENT_NGHI_CO_PHEP.getName())
+                .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
+                .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
+                .notificationStatus(EStatus.DA_THONG_BAO.getName())
                 .note(data.getNote())
                 .createdAt(localDateToDate(data.getStartDate()))
                 .build();
         var Attendance = attendanceRepository.save(attendance);
+        // gửi thông báo cho giáo viên chủ nhiệm
 
-        // gửi thông báo cho phụ huynh
-        return ResponseEntity.ok("Oke");
+        return ResponseEntity.ok(res);
     }
 
 

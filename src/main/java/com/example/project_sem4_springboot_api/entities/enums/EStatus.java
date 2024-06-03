@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 public enum EStatus {
     STUDENT_DANG_HOC("Đang học"),
     STUDENT_BO_HOC("Bỏ học"),
-    STUDENT_NGHI_CO_PHEP("Nghỉ có phép"),
-    STUDENT_NGHI_KHONG_PHEP("Nghỉ không phép"),
+
     STUDENT_THOI_HOC("Thôi học"), // nghỉ học vĩnh viễn
     STUDENT_TOT_NGHIEP("Tốt nghiệp"),
     STUDENT_BAO_LUU("Bảo lưu"),
@@ -19,6 +18,8 @@ public enum EStatus {
     NGHI_TAM_THOI("Nghỉ tạm thời"),
     HOAT_DONG("Hoạt động"),
     NGUNG_HOAT_DONG("Ngừng hoạt động"),
+    DA_THONG_BAO("Đã thông báo"),
+    CHUA_THONG_BAO("Chưa thông báo"),
     ;
     @Getter
     private final String name;

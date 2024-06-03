@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface SchoolYearClassRepository extends JpaRepository<SchoolYearClass, Long> {
 
     List<SchoolYearClass> findByIdIn(List<Long> ids);
+    SchoolYearClass findByTeacherSchoolYear_Id(Long ids);
 
     List<SchoolYearClass> findAllByIdOrClassNameOrClassCodeOrTeacherSchoolYear_IdOrSchoolYear_IdOrGrade_IdOrRoom_Id(
             Long id, String className, String classCode,

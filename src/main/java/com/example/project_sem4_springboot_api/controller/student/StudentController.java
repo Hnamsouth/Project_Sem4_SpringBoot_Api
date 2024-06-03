@@ -1,19 +1,15 @@
 package com.example.project_sem4_springboot_api.controller.student;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
-import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
-import com.example.project_sem4_springboot_api.entities.request.XinNghi;
+import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
 import jakarta.annotation.Nullable;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/student")
@@ -46,21 +42,17 @@ public class StudentController {
     }
 
     @PostMapping("/mark")
-    public ResponseEntity<Attendance> markAttendance(
-            @RequestParam Long studentYearInfoId,
-            @RequestParam boolean status,
-            @RequestParam(required = false) String note) {
-        Attendance attendance = studentService.markAttendance(studentYearInfoId, status, note);
-        return ResponseEntity.ok(attendance);
+    public ResponseEntity<?> markAttendance(@RequestBody AttendanceCreate data) {
+        return ResponseEntity.ok(studentService.markAttendance(data));
     }
 
     @GetMapping("/get-attendance")
-    public ResponseEntity<?> getAttendance(@RequestParam Long studentYearInfoId){
-        return studentService.getAttendance(studentYearInfoId);
+    public ResponseEntity<?> getAttendance(@RequestParam Long studentYearInfoId , @RequestParam Long schoolYearClassId){
+        return studentService.getAttendanceBy(studentYearInfoId,schoolYearClassId);
     }
-    @PostMapping("/xin-nghi")
-    public ResponseEntity<?> xinNghi(@Valid @RequestBody XinNghi data) {
-        return ResponseEntity.ok(studentService.xinNghi(data));
+    @PostMapping("/take-leave")
+    public ResponseEntity<?> takeLeave(@Valid @RequestBody TakeLeaveRequest data) {
+        return ResponseEntity.ok(studentService.takeLeave(data));
     }
 
     @GetMapping("/get-student-transactions")
