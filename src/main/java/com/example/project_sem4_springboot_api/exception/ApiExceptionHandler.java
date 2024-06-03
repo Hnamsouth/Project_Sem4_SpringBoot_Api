@@ -102,10 +102,10 @@ public class ApiExceptionHandler {
     public ResponseErr handleNullPointerException(NullPointerException ex, HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
+                2000,
                 ex.getMessage(),
                 request.getRequestURI(),
-                "Not Found Data"
+                "Mảng rỗng"
         );
     }
 
