@@ -222,46 +222,47 @@ public class StudentServiceImpl  {
         var student = studentYearInfoRepository.findById(data.getStudentYearInfoId()).orElseThrow(()->new NullPointerException("Không tìm thấy thông tin học sinh."));
         var parent = student.getStudents().getParents().stream().filter(e->e.getId().equals(data.getUserId())).findAny().orElseThrow(()->new NullPointerException("Không tìm thấy thông tin người gửi."));
         var currentDate = LocalDate.now();
-
+        // check ngày bắt đầu và ngày kết thúc
+        if(data.getStartDate().compareTo(currentDate) < 0 || data.getEndDate().compareTo(currentDate) < 0){
+            throw new ArgumentNotValidException("Ngày bắt đầu và ngày kết thúc không hợp lệ","","");
+        }
         var takeLeave = TakeLeave.builder()
                 .startDate(data.getStartDate())
                 .endDate(data.getEndDate())
                 .status(HandleStatus.CHO_XAC_NHAN)
+                .statusName(HandleStatus.CHO_XAC_NHAN.getName())
                 .content(data.getNote())
                 .createdAt(currentDate)
                 .studentYearInfo(student)
                 .parent(parent)
                 .build();
         var res = takeLeaveRepository.save(takeLeave);
-        // check ngày bắt đầu và ngày kết thúc
-        if(data.getStartDate().compareTo(currentDate) < 0 || data.getEndDate().compareTo(currentDate) < 0){
-            throw new ArgumentNotValidException("Ngày bắt đầu và ngày kết thúc không hợp lệ","","");
-        }
-        var days= Period.between(data.getStartDate(),data.getEndDate()).getDays();
-        if(days > 0){
-            List<Attendance> attendanceList = new LinkedList<>();
-            for(int i=0;i<=days;i++) {
-                var attendance = Attendance.builder()
-                        .studentYearInfo(student)
-                        .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
-                        .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
-                        .notificationStatus(EStatus.DA_THONG_BAO.getName())
-                        .note(data.getNote())
-                        .createdAt(localDateToDate(data.getStartDate().plusDays(i)))
-                        .build();
-                attendanceList.add(attendance);
-            }
-            var ListAttendance = attendanceRepository.saveAll(attendanceList);
-        }
-        var attendance = Attendance.builder()
-                .studentYearInfo(student)
-                .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
-                .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
-                .notificationStatus(EStatus.DA_THONG_BAO.getName())
-                .note(data.getNote())
-                .createdAt(localDateToDate(data.getStartDate()))
-                .build();
-        var Attendance = attendanceRepository.save(attendance);
+
+//        var days= Period.between(data.getStartDate(),data.getEndDate()).getDays();
+//        if(days > 0){
+//            List<Attendance> attendanceList = new LinkedList<>();
+//            for(int i=0;i<=days;i++) {
+//                var attendance = Attendance.builder()
+//                        .studentYearInfo(student)
+//                        .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
+//                        .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
+//                        .notificationStatus(EStatus.DA_THONG_BAO.getName())
+//                        .note(data.getNote())
+//                        .createdAt(localDateToDate(data.getStartDate().plusDays(i)))
+//                        .build();
+//                attendanceList.add(attendance);
+//            }
+//            var ListAttendance = attendanceRepository.saveAll(attendanceList);
+//        }
+//        var attendance = Attendance.builder()
+//                .studentYearInfo(student)
+//                .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
+//                .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
+//                .notificationStatus(EStatus.DA_THONG_BAO.getName())
+//                .note(data.getNote())
+//                .createdAt(localDateToDate(data.getStartDate()))
+//                .build();
+//        var Attendance = attendanceRepository.save(attendance);
         // gửi thông báo cho giáo viên chủ nhiệm
 
         return ResponseEntity.ok(res);

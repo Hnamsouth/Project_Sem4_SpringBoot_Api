@@ -28,6 +28,7 @@ public class TakeLeave {
 
     @Enumerated(EnumType.STRING)
     private HandleStatus status;
+    private String statusName;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
