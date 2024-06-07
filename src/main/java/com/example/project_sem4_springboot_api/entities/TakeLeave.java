@@ -1,6 +1,8 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.entities.enums.HandleStatus;
+import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,4 +42,17 @@ public class TakeLeave {
     @JsonManagedReference
     private StudentYearInfo studentYearInfo;
 
+    @JsonIgnore
+    public TakeLeaveRes toResParent(){
+        var res = new TakeLeaveRes();
+        res.setId(this.getId());
+        res.setContent(this.getContent());
+        res.setStartDate(this.getStartDate());
+        res.setEndDate(this.getEndDate());
+        res.setCreatedAt(this.getCreatedAt());
+        res.setStatus(this.getStatus());
+        res.setStatusName(this.getStatusName());
+        res.setStudentInfo(this.getStudentYearInfo().toStudentResponse());
+        return res;
+    }
 }

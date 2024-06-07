@@ -268,6 +268,10 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(res);
     }
 
+    public ResponseEntity<?> getTakeLeave(Long parentId){
+        return ResponseEntity.ok(takeLeaveRepository.findAllByParent_Id(parentId).stream().map(TakeLeave::toResParent).toList());
+    }
+
 
     private Date localDateToDate(LocalDate date){
         return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
