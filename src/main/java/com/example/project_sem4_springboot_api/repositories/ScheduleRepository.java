@@ -18,4 +18,5 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
     List<Schedule> findAllBySchoolYearClass_Grade_IdOrSchoolYearClass_SchoolYear_IdOrTeacherSchoolYear_Id(
              Long grade_id, Long schoolYear_id, Long teacherSchoolYear_id);
     List<Schedule> findAllBySchoolYearClass(SchoolYearClass schoolYearClass);
+    List<Schedule> findAllBySchoolYearClassAndCalendarRelease_Id(SchoolYearClass schoolYearClass, Long calendarRelease_id);
 }

@@ -27,10 +27,11 @@ public class ScheduleController {
     }
     @GetMapping("/get-schedule-by")
     public ResponseEntity<?> get_ScheduleBy(
+            @RequestParam Long calendarId,
             @Nullable @RequestParam Long classId,
             @Nullable @RequestParam Long teacherSchoolYearId
     ){
-        return scheduleService.getSchedule2(classId,teacherSchoolYearId);
+        return scheduleService.getSchedule2(calendarId,classId,teacherSchoolYearId);
     }
 
     @GetMapping("/get-calendar-release")
@@ -58,6 +59,12 @@ public class ScheduleController {
         }
         throw new ArgumentNotValidException("Id Tkb không được để trống!!!","Id","null");
     }
+
+    @PutMapping("/apply-calendar-release")
+    public ResponseEntity<?> apply_CalendarRelease (@RequestParam Long calendarId){
+        return scheduleService.updateCalendarRelease(calendarId);
+    }
+
     @PutMapping("/update-calendar-release")
     public ResponseEntity<?> update_CalendarRelease (@Valid @RequestBody CalendarReleaseUpdate data){
         return scheduleService.updateCalendarRelease(data);

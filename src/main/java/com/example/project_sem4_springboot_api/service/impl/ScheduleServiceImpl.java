@@ -74,7 +74,15 @@ public class ScheduleServiceImpl {
     public ResponseEntity<?> createCalendarRelease(CalendarReleaseCreate data) {
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(()->new NullPointerException("Không tìm thấy Năm học với id: "+data.getSchoolYearId()+" !!!"));
         checkReleaseAt(data.getReleaseAt(),schoolYear);
-        var createData = calendarReleaseRepository.save(CalendarRelease.builder().title(data.getTitle()).releaseAt(data.getReleaseAt()).schoolYear(schoolYear).build());
+        var createData = calendarReleaseRepository.save(
+                CalendarRelease.builder()
+                        .title(data.getTitle())
+                        .releaseAt(data.getReleaseAt())
+                        .schoolYear(schoolYear)
+                        .status(false)
+                        .statusName("Chưa áp dụng")
+                        .build()
+        );
         return new ResponseEntity<>(createData,HttpStatus.CREATED);
     }
     /**
@@ -98,10 +106,10 @@ public class ScheduleServiceImpl {
         throw new RuntimeException("Yêu cầu cần Id của Lớp || Giáo viên || Khối || Năm học ");
     }
 
-    public ResponseEntity<?> getSchedule2(@Nullable Long classId,@Nullable Long teacherSchoolYearId){
+    public ResponseEntity<?> getSchedule2(Long calendarId,@Nullable Long classId,@Nullable Long teacherSchoolYearId){
         if(classId!=null){
             var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
-            var listSchedule = scheduleRepository.findAllBySchoolYearClass(schoolYearClass);
+            var listSchedule = scheduleRepository.findAllBySchoolYearClassAndCalendarRelease_Id(schoolYearClass,calendarId);
             return checkListEmptyGetResponse(toScheduleRes(listSchedule),
                     "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
         }
@@ -135,6 +143,29 @@ public class ScheduleServiceImpl {
         var updateData = scheduleRepository.save(oldData);
         return ResponseEntity.ok(updateData.toScheduleResponse());
     }
+    public ResponseEntity<?> updateCalendarRelease(Long calendarReleaseId){
+        var calendarRelease = calendarReleaseRepository.findById(calendarReleaseId)
+                .orElseThrow(()->new NullPointerException("Không tìm thấy Đợt áp dụng TKB với id: "+calendarReleaseId+" !!!"));
+        if(calendarRelease.isStatus()) return ResponseEntity.ok("Đợt áp dụng này đã được áp dụng !!!");
+        calendarRelease.setStatus(true);
+        calendarRelease.setStatusName("Đã áp dụng");
+        var setF =  calendarReleaseRepository.findAllBySchoolYear_Id(calendarRelease.getSchoolYear().getId());
+        var result = new ArrayList<>(setF.stream().map(e -> {
+            if (!e.getId().equals(calendarReleaseId)) {
+                e.setStatus(false);
+                e.setStatusName("Chưa áp dụng");
+            }
+            return e;
+        }).toList());
+        result.add(calendarRelease);
+        var updateData = calendarReleaseRepository.saveAll(result);
+        // thong bao cho phu huynh hs vaf giao vien
+
+
+        return ResponseEntity.ok("Áp dụng Thành công !!!");
+    }
+
+
     public ResponseEntity<?> updateCalendarRelease(CalendarReleaseUpdate data){
         var calendarRelease = calendarReleaseRepository.findById(data.getId()).orElseThrow(()->new NullPointerException("Không tìm thấy Đợt áp dụng TKB với id: "+data.getId()+" !!!"));
         checkReleaseAt(data.getReleaseAt(),calendarRelease.getSchoolYear());
