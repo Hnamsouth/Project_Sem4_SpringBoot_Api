@@ -55,8 +55,8 @@ public class StudentController {
         return ResponseEntity.ok(studentService.takeLeave(data));
     }
     @GetMapping("/get-take-leave")
-    public ResponseEntity<?> getTakeLeave(@RequestParam Long userId){
-        return studentService.getTakeLeave(userId);
+    public ResponseEntity<?> getTakeLeave(@RequestParam(required = false) Long userId,@RequestParam(required = false) Long studentId){
+        return studentService.getTakeLeave(userId,studentId);
     }
 
     @GetMapping("/get-student-transactions")

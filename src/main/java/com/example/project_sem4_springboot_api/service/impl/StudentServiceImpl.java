@@ -9,6 +9,7 @@ import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateBody;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
+import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -231,7 +232,7 @@ public class StudentServiceImpl  {
                 .endDate(data.getEndDate())
                 .status(HandleStatus.CHO_XAC_NHAN)
                 .statusName(HandleStatus.CHO_XAC_NHAN.getName())
-                .content(data.getNote())
+                .note(data.getNote())
                 .createdAt(currentDate)
                 .studentYearInfo(student)
                 .parent(parent)
@@ -268,8 +269,8 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(res);
     }
 
-    public ResponseEntity<?> getTakeLeave(Long parentId){
-        return ResponseEntity.ok(takeLeaveRepository.findAllByParent_Id(parentId).stream().map(TakeLeave::toResParent).toList());
+    public ResponseEntity<?> getTakeLeave(Long parentId,Long studentId){
+        return ResponseEntity.ok(takeLeaveRepository.findAllByParent_IdOrStudentYearInfo_Id(parentId,studentId).stream().map(TakeLeaveRes::toResParent).toList());
     }
 
 

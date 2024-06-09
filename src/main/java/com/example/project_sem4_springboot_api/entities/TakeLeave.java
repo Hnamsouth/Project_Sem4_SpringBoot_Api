@@ -23,7 +23,7 @@ public class TakeLeave {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    private String content;
+    private String note;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDate createdAt;
@@ -41,18 +41,4 @@ public class TakeLeave {
     @JoinColumn(name = "student_year_info_id")
     @JsonManagedReference
     private StudentYearInfo studentYearInfo;
-
-    @JsonIgnore
-    public TakeLeaveRes toResParent(){
-        var res = new TakeLeaveRes();
-        res.setId(this.getId());
-        res.setContent(this.getContent());
-        res.setStartDate(this.getStartDate());
-        res.setEndDate(this.getEndDate());
-        res.setCreatedAt(this.getCreatedAt());
-        res.setStatus(this.getStatus());
-        res.setStatusName(this.getStatusName());
-        res.setStudentInfo(this.getStudentYearInfo().toStudentResponse());
-        return res;
-    }
 }
