@@ -2,7 +2,7 @@ package com.example.project_sem4_springboot_api.controller.student;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateOrUpdate;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
 import jakarta.annotation.Nullable;
@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1/student")
@@ -42,13 +44,13 @@ public class StudentController {
     }
 
     @PostMapping("/mark")
-    public ResponseEntity<?> markAttendance(@RequestBody AttendanceCreate data) {
+    public ResponseEntity<?> markAttendance(@RequestBody AttendanceCreateOrUpdate data) {
         return ResponseEntity.ok(studentService.markAttendance(data));
     }
 
     @GetMapping("/get-attendance")
-    public ResponseEntity<?> getAttendance(@RequestParam(required = false) Long studentYearInfoId , @RequestParam (required = false) Long schoolYearClassId){
-        return studentService.getAttendanceBy(studentYearInfoId,schoolYearClassId);
+    public ResponseEntity<?> getAttendance(@RequestParam(required = false) Long studentYearInfoId, @RequestParam Date date, @RequestParam (required = false) Long schoolYearClassId){
+        return studentService.getAttendanceBy(studentYearInfoId,date,schoolYearClassId);
     }
     @PostMapping("/take-leave")
     public ResponseEntity<?> takeLeave(@Valid @RequestBody TakeLeaveRequest data) {

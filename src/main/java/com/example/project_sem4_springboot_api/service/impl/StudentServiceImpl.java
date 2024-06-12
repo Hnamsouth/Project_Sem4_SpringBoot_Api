@@ -2,12 +2,11 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
-import com.example.project_sem4_springboot_api.entities.enums.AttendanceStatus;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.enums.HandleStatus;
 import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
-import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
-import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateBody;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceBody;
+import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateOrUpdate;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
 import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
@@ -18,9 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -106,9 +103,9 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(studentRepository.save(data));
     }
 
-    public ResponseEntity<?> markAttendance(AttendanceCreate data) {
+    public ResponseEntity<?> markAttendance(AttendanceCreateOrUpdate data) {
         var classInfo = schoolYearClassRepository.findById(data.getClassId()).orElseThrow(()-> new NullPointerException("Không tìm thấy thông tin lớp học."));
-        var students = studentYearInfoRepository.findAllByIdIn(data.getListStudent().stream().map(AttendanceCreateBody::getStudentYearInfoId).toList());
+        var students = studentYearInfoRepository.findAllByIdIn(data.getListStudent().stream().map(AttendanceBody::getStudentYearInfoId).toList());
 
         if(students.isEmpty()) throw new NullPointerException("Danh sách học sinh không hợp lệ.");
         if(students.stream().anyMatch(e->!e.getSchoolYearClass().equals(classInfo))) throw new ArgumentNotValidException("Danh sách học sinh không thuộc lớp học này.","","");
@@ -116,6 +113,7 @@ public class StudentServiceImpl  {
         var attendanceList = new LinkedList<Attendance>();
         data.getListStudent().forEach(st->{
             attendanceList.add(Attendance.builder()
+                     .id(st.getId())
                     .studentYearInfo(students.stream().filter(e->e.getId().equals(st.getStudentYearInfoId())).findAny().orElseThrow())
                     .attendanceStatus(st.getStatus())
                     .attendanceStatusName(st.getStatus().getName())
@@ -127,8 +125,13 @@ public class StudentServiceImpl  {
         var res =attendanceRepository.saveAll(attendanceList);
         return ResponseEntity.ok(res);
     }
-    public ResponseEntity<?> getAttendanceBy(Long studentYearInfoId,Long schoolYearClassId){
-        var attendance = attendanceRepository.findAllByStudentYearInfo_IdOrStudentYearInfo_SchoolYearClass_Id(studentYearInfoId,schoolYearClassId);
+    public ResponseEntity<?> getAttendanceBy(Long studentYearInfoId,Date date,Long schoolYearClassId){
+        if(studentYearInfoId==null && schoolYearClassId==null) throw new ArgumentNotValidException("Yêu cầu tham số studentYearInfoId hoặc schoolYearClassId","","");
+        if(schoolYearClassId!=null){
+            var attendance = attendanceRepository.findAllByStudentYearInfo_SchoolYearClass_IdAndCreatedAt(schoolYearClassId,date);
+            return ResponseEntity.ok(attendance.stream().map(Attendance::toRes).toList());
+        }
+        var attendance = attendanceRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
         return ResponseEntity.ok(attendance.stream().map(Attendance::toRes).toList());
     }
 
