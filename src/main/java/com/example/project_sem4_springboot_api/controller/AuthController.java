@@ -52,6 +52,7 @@ public class AuthController {
     public ResponseEntity<?> testAuth (){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
+        currentUser.getId();
         return ResponseEntity.ok(currentUser);
     }
 

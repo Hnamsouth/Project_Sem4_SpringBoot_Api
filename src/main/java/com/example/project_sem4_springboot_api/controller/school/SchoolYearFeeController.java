@@ -19,6 +19,11 @@ public class SchoolYearFeeController {
         return schoolYearFeeService.getSchoolYearFeeBy(schoolYearId);
     }
 
+    @GetMapping("/getUnitScopePaymentMethod")
+    public ResponseEntity<?> getUnitScopePaymentMethod(){
+        return schoolYearFeeService.getUnitScopePaymentMethod();
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createSchoolYearFee(@Valid @RequestBody SchoolYearFeeCreate data){
         return schoolYearFeeService.createSchoolYearFee(data);

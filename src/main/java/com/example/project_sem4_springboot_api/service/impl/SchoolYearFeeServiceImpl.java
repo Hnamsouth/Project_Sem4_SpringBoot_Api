@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.entities.FeePrice;
 import com.example.project_sem4_springboot_api.entities.request.SchoolYearFeeCreate;
+import com.example.project_sem4_springboot_api.entities.response.PreDataFeeCreate;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,7 @@ public class SchoolYearFeeServiceImpl {
     private final SchoolYearFeeRepository schoolYearFeeRepository;
     private final PaymentTimeRepository paymentTimeRepository;
     private final UnitRepository unitRepository;
+    private final ScopeRepository scopeRepository;
     private final FeePriceRepository feePriceRepository;
 
     public ResponseEntity<?> getSchoolYearFeeBy(Long schoolYearId) {
@@ -34,5 +36,14 @@ public class SchoolYearFeeServiceImpl {
         var feePrice = feePriceRepository.saveAll(data.toFeePrice(listUnit, schoolYearFee));
 
         return ResponseEntity.ok(schoolYearFeeRepository.findById(schoolYearFee.getId()));
+    }
+    public  ResponseEntity<?> getUnitScopePaymentMethod(){
+        var res = PreDataFeeCreate.builder()
+                .paymentTimeList(paymentTimeRepository.findAll())
+                .scopeList(scopeRepository.findAll())
+                .unitList(unitRepository.findAll())
+                .build();
+
+        return null;
     }
 }

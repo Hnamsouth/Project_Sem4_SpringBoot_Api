@@ -273,7 +273,8 @@ public class ApiExceptionHandler {
     public ResponseErr handleIllegalArgumentException(IllegalArgumentException ex ,HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
-                HttpStatus.NOT_FOUND.value(), ex.getMessage(),
+                2001,
+                ex.getMessage(),
                 request.getRequestURI(),
                 "Not Found Data"
         );
