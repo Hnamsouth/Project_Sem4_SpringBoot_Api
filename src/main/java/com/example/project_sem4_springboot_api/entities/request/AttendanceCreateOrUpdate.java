@@ -8,8 +8,8 @@ import java.util.List;
 
 @Builder
 @Data
-public class AttendanceCreate {
+public class AttendanceCreateOrUpdate {
     public Date dayOff;
     public Long classId;
-    public List<AttendanceCreateBody> listStudent;
+    public List<AttendanceBody> listStudent;
 }

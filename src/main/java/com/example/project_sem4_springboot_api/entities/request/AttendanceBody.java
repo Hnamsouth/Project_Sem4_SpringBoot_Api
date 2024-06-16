@@ -7,7 +7,8 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AttendanceCreateBody {
+public class AttendanceBody {
+    private Long Id;
     private Long studentYearInfoId;
     @Enumerated(EnumType.STRING)
     private AttendanceStatus status;
