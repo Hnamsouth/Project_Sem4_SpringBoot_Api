@@ -128,7 +128,7 @@ public class StudentServiceImpl  {
     public ResponseEntity<?> getAttendanceBy(Long studentYearInfoId,Date date,Long schoolYearClassId){
         if(studentYearInfoId==null && schoolYearClassId==null) throw new ArgumentNotValidException("Yêu cầu tham số studentYearInfoId hoặc schoolYearClassId","","");
         if(schoolYearClassId!=null){
-            var attendance = attendanceRepository.findAllByStudentYearInfo_SchoolYearClass_IdAndCreatedAt(schoolYearClassId,date);
+            var attendance = attendanceRepository.getAttendanceClassWithDayOff(schoolYearClassId,date);
             return ResponseEntity.ok(attendance.stream().map(Attendance::toRes).toList());
         }
         var attendance = attendanceRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
