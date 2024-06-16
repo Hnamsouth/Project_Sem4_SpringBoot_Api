@@ -71,10 +71,25 @@ public class User {
     @ManyToMany(mappedBy = "parents",fetch = FetchType.EAGER)
     private List<Student> students;
 
+    public User(Long id) {
+        this.id=id;
+    }
+
     @JsonIgnore
     public UserDto getDto(){
         return UserDto.builder()
             .id(this.id).username(this.username).password(this.realPassword).roles(this.roles).status(this.status)
             .userDetail(userDetail.get(0).getDto(false)).build();
     }
+
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Article> articles;
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Like> likes;
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Comment> comments;
 }
