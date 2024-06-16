@@ -49,7 +49,7 @@ public class StudentController {
     }
 
     @GetMapping("/get-attendance")
-    public ResponseEntity<?> getAttendance(@RequestParam(required = false) Long studentYearInfoId, @RequestParam Date date, @RequestParam (required = false) Long schoolYearClassId){
+    public ResponseEntity<?> getAttendance(@RequestParam(required = false) Long studentYearInfoId, @RequestParam(required = false) Date date, @RequestParam (required = false) Long schoolYearClassId){
         return studentService.getAttendanceBy(studentYearInfoId,date,schoolYearClassId);
     }
     @PostMapping("/take-leave")
