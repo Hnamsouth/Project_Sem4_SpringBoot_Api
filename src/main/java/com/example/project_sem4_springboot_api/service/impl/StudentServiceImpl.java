@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
@@ -109,6 +110,13 @@ public class StudentServiceImpl  {
 
         if(students.isEmpty()) throw new NullPointerException("Danh sách học sinh không hợp lệ.");
         if(students.stream().anyMatch(e->!e.getSchoolYearClass().equals(classInfo))) throw new ArgumentNotValidException("Danh sách học sinh không thuộc lớp học này.","","");
+
+        // get day of week from date
+
+        var dayOfWeek =  Calendar.getInstance();
+        dayOfWeek.setTime(data.dayOff);
+        var dow = dayOfWeek.get(Calendar.DAY_OF_WEEK);
+        if(dow == Calendar.SUNDAY || dow == Calendar.SATURDAY) throw new ArgumentNotValidException("Không thể điểm danh vào ngày nghỉ.","","");
 
         var attendanceList = new LinkedList<Attendance>();
         data.getListStudent().forEach(st->{
