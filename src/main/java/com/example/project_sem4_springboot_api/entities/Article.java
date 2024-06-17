@@ -60,7 +60,7 @@ public class Article {
         res.put("title",this.getTitle());
         res.put("content",this.getContent());
         res.put("images",this.getImages());
-        res.put("user",this.getUser().getDto());
+        res.put("userInfo",this.getUser().getUserDetail().get(0).getDto(false));
         return res;
     }
 }
