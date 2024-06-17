@@ -37,6 +37,7 @@ public class WebSecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/test/api",
+            "/api/v1/email",
 //            "/**"
     };
 

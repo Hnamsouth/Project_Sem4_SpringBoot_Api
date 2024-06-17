@@ -29,11 +29,10 @@ public class TeacherController {
         return ResponseEntity.status(HttpStatus.CREATED).body(teacherService.createTeacher(teacherDto));
     }
 
-    @GetMapping("/teachers")
+    //getTeacherAll get teacher and filter phaan trang teacher
     public ResponseEntity<ResultPaginationDto> getAllTeacher(@Filter Specification<Teacher> specification, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(teacherService.getAllTeacher(specification, pageable));
     }
-
 
     @PutMapping()
     public ResponseEntity<?> updateTeacher( @RequestBody TeacherUpdateDto teacher){

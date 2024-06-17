@@ -90,18 +90,18 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(rs);
     }
 
+    //getAllStudent phan trang va filter student
     public ResultPaginationDto getAllStudent(Specification<Student> specification, Pageable pageable){
-        Page<Student> studentPage = studentRepository.findAll(specification, pageable);
-        ResultPaginationDto rs = new ResultPaginationDto();
+        Page<Student> pageStudent = studentRepository.findAll(specification, pageable);
+        ResultPaginationDto resultPaginationDto = new ResultPaginationDto();
         Meta meta = new Meta();
-        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPage(pageable.getPageNumber());
         meta.setPageSize(pageable.getPageSize());
-        meta.setPages(studentPage.getTotalPages());
-        meta.setTotal(studentPage.getTotalElements());
-
-        rs.setMeta(meta);
-        rs.setResult(studentPage.getContent());
-        return rs;
+        meta.setPages(pageStudent.getTotalPages());
+        meta.setTotal(pageStudent.getTotalElements());
+        resultPaginationDto.setMeta(meta);
+        resultPaginationDto.setResult(pageStudent.getContent());
+        return resultPaginationDto;
     }
 
     public ResponseEntity<?> updateStudentInfo(Student data) {

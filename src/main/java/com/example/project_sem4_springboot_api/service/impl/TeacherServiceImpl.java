@@ -57,17 +57,18 @@ public class TeacherServiceImpl {
         return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::toResponse).toList());
     }
 
-    public ResultPaginationDto getAllTeacher(Specification<Teacher> specification, Pageable pageable) {
-        Page<Teacher> teachers = teacherRepository.findAll(specification, pageable);
-        ResultPaginationDto rs = new ResultPaginationDto();
+    //GetAllTeacher and filter phan trang teacher
+    public ResultPaginationDto getAllTeacher(Specification<Teacher> specification, Pageable pageable){
+        Page<Teacher> teacherPage = teacherRepository.findAll(specification, pageable);
+        ResultPaginationDto resultPaginationDto = new ResultPaginationDto();
         Meta meta = new Meta();
         meta.setPage(pageable.getPageNumber());
         meta.setPageSize(pageable.getPageSize());
-        meta.setPages(teachers.getTotalPages());
-        meta.setTotal(teachers.getTotalElements());
-        rs.setMeta(meta);
-        rs.setResult(teachers.getContent());
-        return rs;
+        meta.setPages(teacherPage.getTotalPages());
+        meta.setTotal(teacherPage.getTotalElements());
+        resultPaginationDto.setMeta(meta);
+        resultPaginationDto.setResult(teacherPage.getContent());
+        return resultPaginationDto;
     }
 
     public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
