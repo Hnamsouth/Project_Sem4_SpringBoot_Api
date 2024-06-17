@@ -6,8 +6,12 @@ import com.example.project_sem4_springboot_api.entities.Image;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.repositories.ArticleRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
+import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import com.example.project_sem4_springboot_api.service.impl.ImageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +29,14 @@ public class ArticleService {
 
 
     @Transactional
-    public Article saveArticle(ArticleDto articleDto, Long userId) {
+    public ResponseEntity<?> saveArticle(ArticleDto articleDto) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
         // Upload images and get URLs
         List<String> imageUrls = imageService.upload(articleDto.getImages());
         // Find the user by userId
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findById(currentUser.getId()).orElseThrow(() ->
                 new RuntimeException("User not found"));
-
 
         // Create and save the article
         Article article = Article.builder()
@@ -48,8 +53,8 @@ public class ArticleService {
                 .collect(Collectors.toList());
 
         article.setImages(images);
-
-        return articleRepository.save(article);
+        var res = articleRepository.save(article).toRes();
+        return ResponseEntity.ok(res);
     }
 
 
