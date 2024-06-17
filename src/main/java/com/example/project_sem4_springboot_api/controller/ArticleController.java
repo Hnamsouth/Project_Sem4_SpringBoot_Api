@@ -23,7 +23,7 @@ public class ArticleController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<Article> uploadArticle(
+    public ResponseEntity<?> uploadArticle(
             @RequestPart("article") String articleString,
             @RequestPart("images") List<MultipartFile> images) throws IOException {
 

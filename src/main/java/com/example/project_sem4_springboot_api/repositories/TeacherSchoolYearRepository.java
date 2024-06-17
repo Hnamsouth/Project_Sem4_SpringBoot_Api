@@ -15,6 +15,7 @@ public interface TeacherSchoolYearRepository extends JpaRepository<TeacherSchool
     List<TeacherSchoolYear> findAllByTeacher_IdAndSchoolYear_Id(Long teacherId, Long schoolYearId);
     List<TeacherSchoolYear> findAllByTeacher_IdOrSchoolYear_Id(Long teacherId, Long schoolYearId);
     TeacherSchoolYear findByTeacherId(Long id);
+    TeacherSchoolYear findByTeacher_User_IdAndSchoolYear_Id(Long userId, Long schoolYearId);
 
 
 }

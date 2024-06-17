@@ -11,5 +11,7 @@ public interface SchoolYearSubjectRepository extends JpaRepository<SchoolYearSub
     boolean existsBySubject_Id(Long subjectId);
     boolean existsBySubject_IdIn(List<Long> subjectIds);
     List<SchoolYearSubject> findAllBySchoolYear_IdAndSubject_IdIn(Long schoolYearId, List<Long> subjectIds);
+    List<SchoolYearSubject> findAllBySchoolYear_Id(Long schoolYearId);
     List<SchoolYearSubject> findAllBySchoolYear_IdOrSubject_IdIn(Long schoolYearId, List<Long> subjectIds);
+
 }

@@ -40,19 +40,19 @@ public class SchoolYearClass {
     private SchoolYear schoolYear;
 
     // foreign key
-    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
     private List<StudentYearInfo> studentYearInfos;
 
-    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
     private List<Schedule> schedules;
 
-    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "schoolYearClass", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference

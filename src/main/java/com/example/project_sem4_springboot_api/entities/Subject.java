@@ -1,7 +1,9 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.entities.enums.ESubjectType;
+import com.example.project_sem4_springboot_api.entities.enums.SubjectPointType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +24,12 @@ public class Subject {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private ESubjectType type;
+
+    private boolean isNumberType;
+    @Enumerated(EnumType.STRING)
+    private SubjectPointType subjectPointType;
+    // cách tinh điểm
+    private String description;
     private String name;
     // foreign key
 
@@ -30,5 +38,18 @@ public class Subject {
     @ToString.Exclude
     @JsonBackReference
     private List<SchoolYearSubject> schoolYearSubjects;
+
+    @JsonIgnore
+    public Subject toRes(){
+        return Subject.builder()
+                .id(this.id)
+                .code(this.code)
+                .type(this.type)
+                .isNumberType(this.isNumberType)
+                .subjectPointType(this.subjectPointType)
+                .description(this.description)
+                .name(this.name)
+                .build();
+    }
 
 }

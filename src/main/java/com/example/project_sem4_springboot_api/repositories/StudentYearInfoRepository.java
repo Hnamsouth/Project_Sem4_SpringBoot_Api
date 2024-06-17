@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,8 @@ public interface StudentYearInfoRepository extends JpaRepository<StudentYearInfo
             Long schoolYearClass_id, Long schoolYearClass_schoolYear_id
     );
     StudentYearInfo findByStudents_IdOrderByCreatedAtAsc(Long students_id);
+
+    int countAllBySchoolYearClass_Id(Long schoolYearClass_id);
+    boolean existsAllByIdInAndSchoolYearClass_Id(List<Long> id, Long schoolYearClass_id);
+    List<StudentYearInfo> findAllByIdInAndSchoolYearClass_Id(List<Long> id, Long schoolYearClass_id);
 }
