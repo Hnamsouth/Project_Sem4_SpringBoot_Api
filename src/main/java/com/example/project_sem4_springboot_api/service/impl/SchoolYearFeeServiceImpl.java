@@ -44,6 +44,6 @@ public class SchoolYearFeeServiceImpl {
                 .unitList(unitRepository.findAll())
                 .build();
 
-        return null;
+        return ResponseEntity.ok(res);
     }
 }
