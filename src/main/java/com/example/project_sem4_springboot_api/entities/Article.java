@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +34,7 @@ public class Article {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
-
+    @JsonManagedReference
     private User user;
 
 
