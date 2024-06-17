@@ -10,7 +10,7 @@ public enum EGrade {
     KHOI_2(2),
     KHOI_3(3),
     KHOI_4(4),
-    KHOI_5(5)
+    KHOI_5(5),
     ;
     @Getter
     private final int grade;

@@ -6,12 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Data
 @Builder
@@ -53,6 +49,18 @@ public class User {
     @JsonManagedReference
     private List<UserDetail> userDetail;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<UserNotification> notifications;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<UserDeviceToken> userDeviceTokens;
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -69,10 +77,25 @@ public class User {
     @ManyToMany(mappedBy = "parents",fetch = FetchType.EAGER)
     private List<Student> students;
 
+    public User(Long id) {
+        this.id=id;
+    }
+
     @JsonIgnore
     public UserDto getDto(){
         return UserDto.builder()
             .id(this.id).username(this.username).password(this.realPassword).roles(this.roles).status(this.status)
             .userDetail(userDetail.get(0).getDto(false)).build();
     }
+
+
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Article> articles;
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Like> likes;
+    @JsonBackReference
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true,fetch = FetchType.EAGER)
+    private List<Comment> comments;
 }

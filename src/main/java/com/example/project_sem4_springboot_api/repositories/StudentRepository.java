@@ -11,4 +11,5 @@ import java.util.Optional;
 @Repository
 public interface StudentRepository extends JpaRepository<Student, Long>, JpaSpecificationExecutor<Student> {
     List<Student> findAllByIdIn(List<Long> ids);
+
 }

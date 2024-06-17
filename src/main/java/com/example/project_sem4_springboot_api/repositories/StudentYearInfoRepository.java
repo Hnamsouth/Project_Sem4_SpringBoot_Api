@@ -11,6 +11,12 @@ import java.util.Optional;
 
 public interface StudentYearInfoRepository extends JpaRepository<StudentYearInfo, Long> {
 
+    List<StudentYearInfo> findAllBySchoolYearClass_SchoolYear_Id(Long schoolYear_id);
+    List<StudentYearInfo> findAllBySchoolYearClass_Id(Long schoolYear_id);
+    List<StudentYearInfo> findAllBySchoolYearClass_TeacherSchoolYear_Id(Long schoolYear_id);
+    List<StudentYearInfo> findAllByIdIn(List<Long> ids);
+    List<StudentYearInfo> findAllBySchoolYearClass_IdIn(List<Long> schoolYear_id);
+    List<StudentYearInfo> findAllBySchoolYearClass_Grade_IdInAndSchoolYearClass_SchoolYear_Id(List<Long> grade_id,Long schoolYear_id);
 
     Page<StudentYearInfo> findAllBySchoolYearClass_IdOrSchoolYearClass_SchoolYear_Id(
             Long schoolYearClass_id, Long schoolYearClass_schoolYear_id,Pageable pageable

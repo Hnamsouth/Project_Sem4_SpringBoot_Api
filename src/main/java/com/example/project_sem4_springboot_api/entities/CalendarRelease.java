@@ -20,9 +20,11 @@ public class CalendarRelease {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     private Date releaseAt;
+
+    private boolean status;
+    private String statusName;
 
     @ManyToOne
     @JoinColumn(name = "schoolyear_id")

@@ -2,7 +2,6 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.example.project_sem4_springboot_api.dto.UserDto;
-import com.example.project_sem4_springboot_api.entities.response.TeacherContact;
 import com.example.project_sem4_springboot_api.entities.response.TeacherResponse;
 import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;

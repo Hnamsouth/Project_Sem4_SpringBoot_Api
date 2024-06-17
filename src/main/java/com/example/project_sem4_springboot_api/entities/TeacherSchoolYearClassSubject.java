@@ -2,6 +2,8 @@ package com.example.project_sem4_springboot_api.entities;
 
 import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.entities.enums.TeacherType;
+import com.example.project_sem4_springboot_api.entities.response.SubjectRes;
+import com.example.project_sem4_springboot_api.entities.response.TeacherClassSubject;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -51,6 +53,22 @@ public class TeacherSchoolYearClassSubject {
                 .phone(teacher.getUser().getUserDetail().get(0).getPhone())
                 .subjects(Set.of(this.schoolYearSubject.getSubject().getName()))
                 .teacherType(checkType ? TeacherType.GV_CHU_NHIEM:TeacherType.GV_BO_MON)
+                .build();
+    }
+
+    @JsonIgnore
+    public TeacherClassSubject toRes(){
+        var teacher = this.toContact();
+        teacher.setSubjects(null);
+        return TeacherClassSubject.builder()
+                .id(this.id)
+                .teacher(teacher)
+                .subject(
+                        SubjectRes.builder()
+                                .id(this.getSchoolYearSubject().getId())
+                                .name(this.getSchoolYearSubject().getSubject().getName())
+                                .build()
+                )
                 .build();
     }
 

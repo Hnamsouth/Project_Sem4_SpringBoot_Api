@@ -102,10 +102,10 @@ public class ApiExceptionHandler {
     public ResponseErr handleNullPointerException(NullPointerException ex, HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
-                HttpStatus.NOT_FOUND.value(),
+                2000,
                 ex.getMessage(),
                 request.getRequestURI(),
-                "Not Found"
+                "Mảng rỗng"
         );
     }
 
@@ -273,9 +273,10 @@ public class ApiExceptionHandler {
     public ResponseErr handleIllegalArgumentException(IllegalArgumentException ex ,HttpServletRequest request) {
         return new ResponseErr(
                 OffsetDateTime.now(),
-                HttpStatus.NOT_FOUND.value(), ex.getMessage(),
+                2001,
+                ex.getMessage(),
                 request.getRequestURI(),
-                "Not Found"
+                "Not Found Data"
         );
     }
 
