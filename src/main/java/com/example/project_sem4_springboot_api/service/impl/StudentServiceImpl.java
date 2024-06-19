@@ -105,8 +105,10 @@ public class StudentServiceImpl  {
     }
 
     public ResponseEntity<?> markAttendance(AttendanceCreateOrUpdate data) {
+        var stdIds = data.getListStudent().stream().map(AttendanceBody::getStudentYearInfoId).toList();
+
         var classInfo = schoolYearClassRepository.findById(data.getClassId()).orElseThrow(()-> new NullPointerException("Không tìm thấy thông tin lớp học."));
-        var students = studentYearInfoRepository.findAllByIdIn(data.getListStudent().stream().map(AttendanceBody::getStudentYearInfoId).toList());
+        var students = studentYearInfoRepository.findAllByIdIn(stdIds);
 
         if(students.isEmpty()) throw new NullPointerException("Danh sách học sinh không hợp lệ.");
         if(students.stream().anyMatch(e->!e.getSchoolYearClass().equals(classInfo))) throw new ArgumentNotValidException("Danh sách học sinh không thuộc lớp học này.","","");
@@ -117,6 +119,16 @@ public class StudentServiceImpl  {
         dayOfWeek.setTime(data.dayOff);
         var dow = dayOfWeek.get(Calendar.DAY_OF_WEEK);
         if(dow == Calendar.SUNDAY || dow == Calendar.SATURDAY) throw new ArgumentNotValidException("Không thể điểm danh vào ngày nghỉ.","","");
+
+        var attendance = attendanceRepository.getAttendanceClassWithDayOff(data.getClassId(),data.getDayOff());
+
+        data.getListStudent().forEach(e->{
+            var std = attendance.stream().filter(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())).findAny().orElseThrow();
+            if(e.getId() == null && attendance.stream().anyMatch(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())))
+                throw new ArgumentNotValidException("Học sinh "+e.getStudentYearInfoId()+" đã điểm danh.","","");
+            if(e.getId() != null && !std.getId().equals(e.getId()))
+                throw new ArgumentNotValidException("Id điểm danh "+e.getId()+" không trùng khớp !!!","","");
+        });
 
         var attendanceList = new LinkedList<Attendance>();
         data.getListStudent().forEach(st->{

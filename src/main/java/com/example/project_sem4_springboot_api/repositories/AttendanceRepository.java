@@ -15,4 +15,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findAllByStudentYearInfo_Id(Long studentYearInfoId);
     @Query("select a from Attendance a where a.studentYearInfo.schoolYearClass.id = :schoolYearClass_id and DATE(:dayOff)  = DATE(a.createdAt)")
     List<Attendance> getAttendanceClassWithDayOff(@Param("schoolYearClass_id") Long schoolYearClass_id,@Param("dayOff") Date dayOff);
+
+
 }
