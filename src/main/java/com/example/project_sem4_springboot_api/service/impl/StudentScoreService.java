@@ -96,7 +96,9 @@ public class StudentScoreService {
             var std = studentScoreSubjectRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
             var res = new HashMap<String,List<Map<String,Object>>>();
             Arrays.stream(ESem.values()).toList().forEach(e->{
-                res.put(e.getSem()==3? "Cả năm":"Học kỳ "+e.getSem(),std.stream().map(s->s.toResE(e)).toList());
+                res.put(
+                        e.getSem()==3? "caNam":"hocKy"+e.getSem(),
+                        std.stream().map(s->s.toResE(e)).toList());
             });
             return ResponseEntity.ok(res);
         }
@@ -128,49 +130,53 @@ public class StudentScoreService {
         var checkUniqueScoreStd = studentScoresRepository.findAllBySemesterNameAndStudentScoreSubject_StudentYearInfo_IdInAndStudentScoreSubject_SchoolYearSubject_IdAndPointType_PointTypeIn(
                 data.getSem(),stdIds,subject.getId(),uniquePointType
         );
+        try {
+            var res = new LinkedList<StudentScores>();
+            data.getStudentScoreDetails().forEach(e->{
+                // ds điểm 1 môn học của 1 hs
+                var studentSS = stdSSListAll.stream().filter(ss->ss.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())).findAny().get();
+                // check điểm: chỉ  điểm Kttt mới được tạo hơn 1 lần cho mỗi kì
+                var checkPTdata = e.getScoreDetails().stream().filter(a->uniquePointType.contains(a.getPointType())).toList();
+                // ds điểm "unique cua 1 ki"  môn học của 1 hs
+                var stdUniquePoint =  checkUniqueScoreStd.stream().filter(s->s.getStudentScoreSubject().equals(studentSS)).toList();
+                // check diem
+                // db co id nhung data ko co : false thows exception("diem da ton tai")
+                //  nguoc lai : false thows exception("id ko tồn tại")
+                // ca 2 cung co id giong nhau: true update}{ khac id thows exception
+                // ca 2 deu ko co id: true create
+                uniquePointType.forEach(pt->{
+                    var c1 = stdUniquePoint.stream().filter(s->s.getPointType().getPointType().equals(pt)).toList();
+                    var c2 = checkPTdata.stream().filter(s->s.getPointType().equals(pt)).toList();
+                    if(!c1.isEmpty() && !c2.isEmpty() && c2.get(0).getStudentScoreId()!=null){
+                        if(!c1.get(0).getId().equals(c2.get(0).getStudentScoreId())) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+"không hợp lệ!!!","","");
+                        if(c2.get(0).getStudentScoreId()==null) throw new ArgumentNotValidException("Điểm "+pt.getPointType()+" đã tồn tại!!!","","");
+                    }
+                    if(c1.isEmpty() && !c2.isEmpty() && (c2.get(0).getStudentScoreId()!=null)) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+" không tồn tại!!!","","");
+                });
+                e.getScoreDetails().forEach(s->{
+                    // check điểm: chỉ  điểm Kttt mới được tạo hơn 1 lần cho mỗi kì
+                    // check loại điểm của môn học là điểm số hay chữ: subject.getSubject().isNumberType();
+                    var checkScore = subject.getSubject().isNumberType() ? s.getScore().matches("^[0-9]*$") : Arrays.toString(EAchievement.values()).contains(s.getScore());
+                    if(!checkScore) throw new ArgumentNotValidException("Môn "+subject.getSubject().getName()+" yêu cầu thang điểm "+
+                            (subject.getSubject().isNumberType() ? "số":"chữ")+"!!!","","");
+                    var pointType = pointTypes.stream().filter(p->p.getPointType().equals(s.getPointType())).findAny().get();
+                    res.add(
+                            StudentScores.builder()
+                                    .id(s.getStudentScoreId()!=null ? s.getStudentScoreId():null)
+                                    .score( s.getScore())
+                                    .pointType(pointType)
+                                    .studentScoreSubject(studentSS)
+                                    .semester(data.getSem().getSem())
+                                    .semesterName(data.getSem())
+                                    .build());
+                });
+            });
+            studentScoresRepository.saveAll(res);
+            return ResponseEntity.ok("Thêm điểm thành công!!!");
+        }catch (Exception e){
+            throw new ArgumentNotValidException(e.getMessage(),"","");
+        }
 
-        var res = new LinkedList<StudentScores>();
-        data.getStudentScoreDetails().forEach(e->{
-            // ds điểm 1 môn học của 1 hs
-            var studentSS = stdSSListAll.stream().filter(ss->ss.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())).findAny().get();
-            // check điểm: chỉ  điểm Kttt mới được tạo hơn 1 lần cho mỗi kì
-            var checkPTdata = e.getScoreDetails().stream().filter(a->uniquePointType.contains(a.getPointType())).toList();
-            // ds điểm "unique cua 1 ki"  môn học của 1 hs
-            var stdUniquePoint =  checkUniqueScoreStd.stream().filter(s->s.getStudentScoreSubject().equals(studentSS)).toList();
-            // check diem
-            // db co id nhung data ko co : false thows exception("diem da ton tai")
-            //  nguoc lai : false thows exception("id ko tồn tại")
-            // ca 2 cung co id giong nhau: true update}{ khac id thows exception
-            // ca 2 deu ko co id: true create
-            uniquePointType.forEach(pt->{
-                var c1 = stdUniquePoint.stream().filter(s->s.getPointType().getPointType().equals(pt)).toList();
-                var c2 = checkPTdata.stream().filter(s->s.getPointType().equals(pt)).toList();
-                if(!c1.isEmpty() && !c2.isEmpty()){
-                    if(!c1.get(0).getId().equals(c2.get(0).getStudentScoreId())) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+"không hợp lệ!!!","","");
-                    if(c2.get(0).getStudentScoreId()==null) throw new ArgumentNotValidException("Điểm "+pt.getPointType()+" đã tồn tại!!!","","");
-                }
-                if(c1.isEmpty() && !c2.isEmpty() && c2.get(0).getStudentScoreId()!=null) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+" không tồn tại!!!","","");
-            });
-            e.getScoreDetails().forEach(s->{
-                 // check điểm: chỉ  điểm Kttt mới được tạo hơn 1 lần cho mỗi kì
-                 // check loại điểm của môn học là điểm số hay chữ: subject.getSubject().isNumberType();
-                var checkScore = subject.getSubject().isNumberType() ? s.getScore().matches("^[0-9]*$") : Arrays.toString(EAchievement.values()).contains(s.getScore());
-                if(!checkScore) throw new ArgumentNotValidException("Môn "+subject.getSubject().getName()+" yêu cầu thang điểm "+
-                        (subject.getSubject().isNumberType() ? "số":"chữ")+"!!!","","");
-                var pointType = pointTypes.stream().filter(p->p.getPointType().equals(s.getPointType())).findAny().get();
-                res.add(
-                        StudentScores.builder()
-                                .id(s.getStudentScoreId())
-                                .score( s.getScore())
-                                .pointType(pointType)
-                                .studentScoreSubject(studentSS)
-                                .semester(data.getSem().getSem())
-                                .semesterName(data.getSem())
-                        .build());
-            });
-        });
-        studentScoresRepository.saveAll(res);
-        return ResponseEntity.ok("Thêm điểm thành công!!!");
     }
 
 

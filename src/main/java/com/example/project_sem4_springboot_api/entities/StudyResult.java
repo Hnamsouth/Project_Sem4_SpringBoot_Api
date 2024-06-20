@@ -53,17 +53,21 @@ public class StudyResult {
     @JsonIgnore
     public Map<String,Object> toRes(){
         Map<String,Object> res = new HashMap<>();
-        Arrays.stream(StudyResult.class.getFields()).forEach(f->{
-            try {
-                if(f.getName().equals("studyResultDetails")){
-                    res.put(f.getName(),f.get(this));
-                }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        });
+        res.put("id",this.id);
+        res.put("numOfDayOff",this.numOfDayOff);
+        res.put("createdAt",this.createdAt);
+        res.put("note",this.note);
+        res.put("averageScore",this.averageScore);
+        res.put("semester",this.semester);
+        res.put("semesterName",this.semesterName);
+        res.put("academicPerformance",this.academicPerformance);
+        res.put("conduct",this.conduct);
+        res.put("academicAchievement",this.academicAchievement);
+        res.put("isPassed",this.isPassed);
+        res.put("isFinished",this.isFinished);
+//        res.put("studentYearInfo",this.studentYearInfo.toRes());
         studyResultDetails.forEach(sr->{
-            res.put(sr.getSchoolYearSubject().getSubject().getName(),sr.toRes());
+            res.put(sr.getSchoolYearSubject().getSubject().getCode(),sr.toRes());
         });
         return res;
     }

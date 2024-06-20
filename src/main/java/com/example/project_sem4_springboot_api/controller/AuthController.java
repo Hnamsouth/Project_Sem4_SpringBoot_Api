@@ -63,8 +63,8 @@ public class AuthController {
         return ResponseEntity.ok(currentUser);
     }
     @GetMapping("/test-demo")
-    public ResponseEntity<?> testDemo (RegisterRequest data) throws IOException {
-        return authService.testDemo(data);
+    public ResponseEntity<?> testDemo () throws IOException {
+        return authService.testDemo();
     }
 
 }

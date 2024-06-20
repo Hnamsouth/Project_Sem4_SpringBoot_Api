@@ -31,11 +31,11 @@ public class StudentStudyResultController {
 
     @GetMapping("")
     public ResponseEntity<?> getClassListEntrusted(
-            @RequestParam Long schoolYearId,
+            @RequestParam(required = false) Long schoolYearClassId,
             @RequestParam ESem sem,
-            @RequestParam Long studentYearInfoId
+            @RequestParam(required = false) Long studentYearInfoId
     ){
-        return studyResultService.getStudyResult(sem,schoolYearId,studentYearInfoId);
+        return studyResultService.getStudyResult(sem,schoolYearClassId,studentYearInfoId);
     }
 
     @PostMapping("/create")

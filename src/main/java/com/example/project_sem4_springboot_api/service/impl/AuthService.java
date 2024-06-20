@@ -119,12 +119,14 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity<?> testDemo(RegisterRequest data){
-        try {
-//            var user = userMapper.toEntity(data);
-            return ResponseEntity.ok("asd");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    public ResponseEntity<?> testDemo(){
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken("bdht2207a1","123456")
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        var user = userRepository.findByUsername("bdht2207a1").orElseThrow();
+        var jwtToken = jwtService.generateToken(UserDetailsImpl.build(user));
+
+        return ResponseEntity.ok().body(jwtToken);
     }
 }

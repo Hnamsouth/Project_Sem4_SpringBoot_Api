@@ -67,8 +67,17 @@ public class StudyResultService {
     }
 
     public ResponseEntity<?> getStudyResult(ESem sem , Long schoolYearClassId,Long studentYearInfoId){
-        var res= studyResultRepository.findAllBySemesterAndStudentYearInfo_SchoolYearClass_Id(sem,schoolYearClassId);
-        return ResponseEntity.ok(res.stream().map(StudyResult::toRes).toList());
+        if((schoolYearClassId!=null && studentYearInfoId!=null)||
+                (schoolYearClassId==null && studentYearInfoId==null)
+        ) throw new ArgumentNotValidException("Chỉ có thể lấy dữ liệu của lớp hoặc học sinh!!!","","");
+        if (schoolYearClassId !=null){
+            var std = studentYearInfoRepository.findAllBySchoolYearClass_Id(schoolYearClassId);
+            std.stream().map(StudentYearInfo::getId).toList();
+            return ResponseEntity.ok(std.get(0).getStudentStudyResults());
+        }
+        var res2= studyResultRepository.findAllBySemesterAndStudentYearInfo_Id(sem,studentYearInfoId);
+
+        return ResponseEntity.ok( res2.stream().map(StudyResult::toRes).toList());
     }
 
     public ResponseEntity<?> createStudyResult(StudyResultCU data){

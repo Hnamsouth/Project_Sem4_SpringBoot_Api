@@ -58,12 +58,12 @@ public class DataInitializer {
 
     @PostConstruct
     public void initializeData()  {
-//        createRolePermission();
-//        createSchoolInfo();
-//        createStudents();
-//        createSchedule();
-//        createUser("bdht2207a",2);
-//        createFee();
+        createRolePermission();
+        createSchoolInfo();
+        createStudents();
+        createSchedule();
+        createUser("bdht2207a",2);
+        createFee();
 
 //        var t2 = schoolYearSubjectGradeRepository.findAllBySchoolYearSubject_IdAndGrade_Id((long) 1,(long) 1);
 //        Arrays.stream(EUnit.values()).forEach(e->System.out.println(e.name()+" : "+e.getUnit()));
@@ -198,7 +198,7 @@ public class DataInitializer {
             List<Subject> subjects = new ArrayList<>();
             ListSubject.forEach((name,code)->{
                 var diemChu = new String[]{"HDTT","GDTC","AN","MT","TNXH","NTTC","HDTN"};
-                var pointType = Arrays.stream(diemChu).anyMatch(code::contains);
+                var pointType = Arrays.asList(diemChu).contains(code);
                 subjects.add(
                     Subject.builder()
                         .code(code)

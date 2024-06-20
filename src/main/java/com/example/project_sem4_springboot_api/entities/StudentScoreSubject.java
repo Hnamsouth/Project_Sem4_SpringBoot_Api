@@ -68,8 +68,8 @@ public class StudentScoreSubject {
         var sts = this.getStudentScores().stream().anyMatch(e->e.getPointType().getPointType().equals(EPointType.DTB))? "Đã hoàn tất":"Chưa hoàn tất";
         Map<String,Object> stds = new HashMap<>();
         Arrays.stream(EPointType.values()).forEach(e->{
-            stds.put(e.getPointType(),this.studentScores.stream().filter(s->
-                    s.getSemesterName().equals(semesterName) &&
+            stds.put(e.toString(),
+                    this.studentScores.stream().filter(s->s.getSemesterName().equals(semesterName) &&
                     s.getPointType().getPointType().equals(e)
             ).map(StudentScores::toRes).toList());
         });
