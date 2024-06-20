@@ -97,7 +97,7 @@ public class StudentScoreService {
             var res = new HashMap<String,List<Map<String,Object>>>();
             Arrays.stream(ESem.values()).toList().forEach(e->{
                 res.put(
-                        e.getSem()==3? "caNam":"hocKy"+e.getSem(),
+                        e.getSem()==3? "summary":"semester"+e.getSem(),
                         std.stream().map(s->s.toResE(e)).toList());
             });
             return ResponseEntity.ok(res);
@@ -125,6 +125,7 @@ public class StudentScoreService {
         if(!studentYearInfoRepository.existsAllByIdInAndSchoolYearClass_Id(stdIds,data.getSchoolYearClassId())) throw new ArgumentNotValidException("Id học sinh không tồn tại trong lớp!!!","","");
         // ds điểm 1 môn học của tất cả học sinh lớp
         var stdSSListAll = studentScoreSubjectRepository.findAllByStudentYearInfo_IdInAndSchoolYearSubject_Id(stdIds,data.getSchoolYearSubjectId());
+        if(stdSSListAll.isEmpty()) throw new ArgumentNotValidException("Id học sinh hoặc Id môn học không hợp lệ!!!","","");
         var uniquePointType = List.of(EPointType.DTB,EPointType.KT_CUOI_KY,EPointType.KT_GIUA_KY);
         // ds điểm "unique cua 1 ki"  môn học của tat ca hs trong lop
         var checkUniqueScoreStd = studentScoresRepository.findAllBySemesterNameAndStudentScoreSubject_StudentYearInfo_IdInAndStudentScoreSubject_SchoolYearSubject_IdAndPointType_PointTypeIn(

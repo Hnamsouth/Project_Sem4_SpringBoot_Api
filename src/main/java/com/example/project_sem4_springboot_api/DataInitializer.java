@@ -60,8 +60,8 @@ public class DataInitializer {
     public void initializeData()  {
         createRolePermission();
         createSchoolInfo();
-        createStudents();
         createSchedule();
+        createStudents();
         createUser("bdht2207a",2);
         createFee();
 
