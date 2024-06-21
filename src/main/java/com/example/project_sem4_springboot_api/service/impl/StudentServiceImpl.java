@@ -122,13 +122,16 @@ public class StudentServiceImpl  {
 
         var attendance = attendanceRepository.getAttendanceClassWithDayOff(data.getClassId(),data.getDayOff());
 
-        data.getListStudent().forEach(e->{
-            var std = attendance.stream().filter(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())).findAny().orElseThrow();
-            if(e.getId() == null && attendance.stream().anyMatch(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())))
-                throw new ArgumentNotValidException("Học sinh "+e.getStudentYearInfoId()+" đã điểm danh.","","");
-            if(e.getId() != null && !std.getId().equals(e.getId()))
-                throw new ArgumentNotValidException("Id điểm danh "+e.getId()+" không trùng khớp !!!","","");
-        });
+        if(!attendance.isEmpty()){
+            data.getListStudent().forEach(e->{
+                var std = attendance.stream().filter(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())).findAny().orElseThrow();
+                if(e.getId() == null && attendance.stream().anyMatch(a->a.getStudentYearInfo().getId().equals(e.getStudentYearInfoId())))
+                    throw new ArgumentNotValidException("Học sinh "+e.getStudentYearInfoId()+" đã điểm danh.","","");
+                if(e.getId() != null && !std.getId().equals(e.getId()))
+                    throw new ArgumentNotValidException("Id điểm danh "+e.getId()+" không trùng khớp !!!","","");
+
+            });
+        }
 
         var attendanceList = new LinkedList<Attendance>();
         data.getListStudent().forEach(st->{
