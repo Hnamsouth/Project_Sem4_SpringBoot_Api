@@ -74,12 +74,21 @@ public class StudentScoreService {
         var classInfo = schoolYearClassRepository.findById(schoolYearClassId).orElseThrow();
         var subject = schoolYearSubjectRepository.findById(schoolYearSubjectId).orElseThrow();
         var listStd = classInfo.getStudentYearInfos();
-        List<Map<String,Object>> res = new ArrayList<>();
-
+        List<Map<String,Object>> resBody = new ArrayList<>();
+        var stdSS = StudentScoreSubject.builder().build();
+        if(!listStd.isEmpty()){
+            stdSS = listStd.get(0).getStudentScoreSubjects().stream().filter(ss->ss.getSchoolYearSubject().equals(subject)).toList().get(0);
+        }
+        StudentScoreSubject finalStdSS = stdSS;
         listStd.forEach(s->{
-            var studSS = s.getStudentScoreSubjects().stream().filter(ss->ss.getSchoolYearSubject().equals(subject)).toList();
-            res.add(studSS.get(0).toResE(sem));
+            resBody.add(finalStdSS.toResE(sem));
         });
+
+        Map<String,Object> res = new TreeMap<>();
+        res.put("schoolYearSubject",stdSS.getSchoolYearSubject().toRes());
+        res.put("teacherSchoolYear",stdSS.getTeacherSchoolYear().toRes());
+        res.put("studentScoreSubject",resBody);
+
         return ResponseEntity.ok(res);
     }
 
@@ -90,20 +99,27 @@ public class StudentScoreService {
      * @param schoolYearSubjectId
      * @description: lấy danh điểm các môn học hoặc 1 môn của học sinh theo id hs khi gv thêm điểm
      *
+     *
      * */
     public ResponseEntity<?> getStudentScoreSubjectBy(ESem sem,Long studentYearInfoId, Long schoolYearSubjectId){
+        // neu studentYearInfoId != null && sem,schoolYearSubjectId == null : return ds hs cuar hk1 hk2 va ca nam cua tat ca mon
+        //  sem && studentYearInfoId != null : return ds diem cua hs theo ki cua tat ca mon
+        // rt
+        // lấy ds điểm của tất cả các môn theo học kỳ
         if(sem==null && schoolYearSubjectId == null){
             var std = studentScoreSubjectRepository.findAllByStudentYearInfo_Id(studentYearInfoId);
-            var res = new HashMap<String,List<Map<String,Object>>>();
+            var res = new HashMap<String,Object>();
             Arrays.stream(ESem.values()).toList().forEach(e->{
                 res.put(
                         e.getSem()==3? "summary":"semester"+e.getSem(),
-                        std.stream().map(s->s.toResE(e)).toList());
+                        std.stream().map(s->s.toResForStudent(e)).toList());
+
             });
             return ResponseEntity.ok(res);
+        }else{
+            var std = studentScoreSubjectRepository.findByStudentYearInfo_IdAndSchoolYearSubject_Id(studentYearInfoId, schoolYearSubjectId);
+            return ResponseEntity.ok(std.toResForStudent(sem));
         }
-        var std = studentScoreSubjectRepository.findByStudentYearInfo_IdAndSchoolYearSubject_Id(studentYearInfoId, schoolYearSubjectId);
-        return ResponseEntity.ok(std.toResE(sem));
     }
 
     public ResponseEntity<?> getPointType(){
@@ -148,11 +164,11 @@ public class StudentScoreService {
                 uniquePointType.forEach(pt->{
                     var c1 = stdUniquePoint.stream().filter(s->s.getPointType().getPointType().equals(pt)).toList();
                     var c2 = checkPTdata.stream().filter(s->s.getPointType().equals(pt)).toList();
-                    if(!c1.isEmpty() && !c2.isEmpty() && c2.get(0).getStudentScoreId()!=null){
-                        if(!c1.get(0).getId().equals(c2.get(0).getStudentScoreId())) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+"không hợp lệ!!!","","");
-                        if(c2.get(0).getStudentScoreId()==null) throw new ArgumentNotValidException("Điểm "+pt.getPointType()+" đã tồn tại!!!","","");
+                    if(!c1.isEmpty() && !c2.isEmpty() && c2.get(0).getStudentScoreId()!=null && !c1.get(0).getId().equals(c2.get(0).getStudentScoreId())){
+                        throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+"không hợp lệ!!!","","");
                     }
                     if(c1.isEmpty() && !c2.isEmpty() && (c2.get(0).getStudentScoreId()!=null)) throw new ArgumentNotValidException("Id điểm "+pt.getPointType()+" không tồn tại!!!","","");
+                    if(!c1.isEmpty()  && !c2.isEmpty() && c2.get(0).getStudentScoreId()==null) throw new ArgumentNotValidException("Điểm "+pt.getPointType()+" đã tồn tại!!!","","");
                 });
                 e.getScoreDetails().forEach(s->{
                     // check điểm: chỉ  điểm Kttt mới được tạo hơn 1 lần cho mỗi kì

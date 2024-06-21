@@ -65,7 +65,7 @@ public class StudentScoreSubject {
 
     @JsonIgnore
     public Map<String,Object> toResE(ESem semesterName){
-        var sts = this.getStudentScores().stream().anyMatch(e->e.getPointType().getPointType().equals(EPointType.DTB))? "Đã hoàn tất":"Chưa hoàn tất";
+        var sts = this.getStudentScores().stream().filter(e->e.getPointType().getPointType().equals(EPointType.DTB)).toList();
         Map<String,Object> stds = new HashMap<>();
         Arrays.stream(EPointType.values()).forEach(e->{
             stds.put(e.toString(),
@@ -73,6 +73,7 @@ public class StudentScoreSubject {
                     s.getPointType().getPointType().equals(e)
             ).map(StudentScores::toRes).toList());
         });
+
         Map<String,Object> ss = new TreeMap<>();
         ss.put("id",this.getId());
         ss.put("createdAt",this.getCreatedAt());
@@ -80,11 +81,25 @@ public class StudentScoreSubject {
         ss.put("semesterName",semesterName);
         ss.put("semester",semesterName.getSem()==3? "Cả năm":"Học kỳ "+semesterName.getSem());
         ss.put("studentYearInfo",this.getStudentYearInfo().toStudentResponse());
-        ss.put("schoolYearSubject",this.getSchoolYearSubject().toRes());
-        ss.put("teacherSchoolYear",this.getTeacherSchoolYear().toRes());
-        ss.put("status",sts);
+        ss.put("status",!sts.isEmpty() ? "Đã hoàn tất":"Chưa hoàn tất");
         ss.put("studentScores",stds);
             return ss;
+    }
+
+    @JsonIgnore
+    public Map<String,Object> toResForStudent(ESem semesterName){
+        Map<String,Object> stds = new HashMap<>();
+        Arrays.stream(EPointType.values()).forEach(e->{
+            stds.put(e.toString(),
+                    this.studentScores.stream().filter(s->s.getSemesterName().equals(semesterName) &&
+                            s.getPointType().getPointType().equals(e)
+                    ).map(StudentScores::toRes).toList());
+        });
+
+        Map<String,Object> res = new HashMap<>();
+        res.put("schoolYearSubject",this.getSchoolYearSubject().getSubject().toRes());
+        res.put("studentScores",stds);
+        return res;
     }
 
 }

@@ -45,6 +45,7 @@ public class DataInitializer {
     private final StudentRepository studentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentScoreSubjectRepository studentScoreSubjectRepository;
+    private final StudentScoresRepository studentScoresRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final CalendarReleaseRepository calendarReleaseRepository;
     private final StatusRepository statusRepository;
@@ -601,8 +602,37 @@ public class DataInitializer {
                                 .build()));
                 });
             });
-            studentScoreSubjectRepository.saveAll(data);
+            var rs = studentScoreSubjectRepository.saveAll(data);
             System.out.println("Created studentScoreSubject data");
+
+            var stdClassList = classList.get(0).getStudentYearInfos();
+            var pointType = pointTypeRepository.findAll();
+            // get studentScoreSubjects of class
+            var sss=  rs.stream().filter(e->stdClassList.contains(e.getStudentYearInfo())).toList();
+            List<StudentScores> stdSCores = new ArrayList<>();
+            var scoreChar = new String[]{"T","K","TB","Y"};
+
+            sss.forEach(s->{
+                Arrays.asList(ESem.values()).forEach(sem->{
+                    // tạo ds điểm theo hệ số của từng môn và kì
+                    Arrays.asList(EPointType.values()).forEach(pt->{
+                        var pointT = pointType.stream().filter(e->e.getPointType().equals(pt)).findFirst().orElseThrow();
+                        Faker faker = new Faker();
+                        var scoreNum = faker.number().numberBetween(6,10);
+                        var scoreCharIndex = faker.number().numberBetween(0,3);
+                        stdSCores.add(StudentScores.builder()
+                                        .score(s.getSchoolYearSubject().getSubject().isNumberType()?String.valueOf(scoreNum):scoreChar[scoreCharIndex])
+                                        .semesterName(sem)
+                                        .semester(sem.getSem())
+                                        .pointType(pointT)
+                                        .studentScoreSubject(s)
+                                        .createdAt(newDate)
+                                .build());
+                    });
+                });
+            });
+            studentScoresRepository.saveAll(stdSCores);
+            System.out.println("Created studentScore data");
         }
     }
     private final UnitRepository unitRepository;
