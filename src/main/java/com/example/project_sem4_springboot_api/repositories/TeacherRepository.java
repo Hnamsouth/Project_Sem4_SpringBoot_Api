@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface TeacherRepository extends JpaRepository<Teacher, Long> {
 
     List<Teacher> findAllByActive(boolean active);
-    List<Teacher> findAllByIdIn(Collection<Long> id);
+    List<Teacher> findAllByIdIn(List<Long> id);
 }
