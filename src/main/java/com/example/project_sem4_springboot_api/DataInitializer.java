@@ -620,6 +620,18 @@ public class DataInitializer {
                         Faker faker = new Faker();
                         var scoreNum = faker.number().numberBetween(6,10);
                         var scoreCharIndex = faker.number().numberBetween(0,3);
+                        if(pt.equals(EPointType.KTTX)){
+                            for(int i=1;i<=3;i++){
+                                stdSCores.add(StudentScores.builder()
+                                        .score(s.getSchoolYearSubject().getSubject().isNumberType()?String.valueOf(scoreNum):scoreChar[scoreCharIndex])
+                                        .semesterName(sem)
+                                        .semester(sem.getSem())
+                                        .pointType(pointT)
+                                        .studentScoreSubject(s)
+                                        .createdAt(newDate)
+                                        .build());
+                            }
+                        }
                         stdSCores.add(StudentScores.builder()
                                         .score(s.getSchoolYearSubject().getSubject().isNumberType()?String.valueOf(scoreNum):scoreChar[scoreCharIndex])
                                         .semesterName(sem)
