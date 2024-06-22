@@ -60,7 +60,7 @@ public class SchoolServiceImpl {
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy Năm học !!!"));
         if(data.getSubjectIds().isEmpty())throw new NullPointerException("Không tìm thấy Môn học !!!");
-        var subjects = subjectRepository.findAllById(data.getSubjectIds());
+        var subjects = subjectRepository.findAllByIdIn(data.getSubjectIds());
         if(!subjects.isEmpty())throw new NullPointerException("Không tìm thấy danh sách môn học !!! Kiểm tra lại subjectIds");
         if(schoolYearSubjectRepository.existsBySubject_IdIn(data.getSubjectIds()))
             throw new DataExistedException("Một số môn học đã tồn tại !!! Vui lòng kiểm tra lại");
@@ -75,7 +75,7 @@ public class SchoolServiceImpl {
                 ()->new NullPointerException("Không tìm thấy năm học!!!"));
         if(data.getTeacherIds().isEmpty()) throw new NullPointerException("Yêu cầu teacherId hoặc teacherIds !!!");
 
-        var teachers = teacherRepository.findAllById(data.getTeacherIds());
+        var teachers = teacherRepository.findAllByIdIn(data.getTeacherIds());
         if(!teachers.isEmpty())throw new NullPointerException("Không tìm thấy danh sách giáo viên !!!");
 
         if(teacherSchoolYearRepository.existsByTeacher_IdInAndSchoolYear_Id(data.getTeacherIds(),data.getSchoolYearId()))

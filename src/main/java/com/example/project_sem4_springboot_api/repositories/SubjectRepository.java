@@ -10,6 +10,7 @@ import java.util.List;
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
     @Query("SELECT s FROM Subject s WHERE s.id = :id or s.id = :id-1")
     List<Subject> findAllById(@Param("id") Long id);
+    List<Subject> findAllByIdIn(List<Long> ids);
 
 
     @Query("SELECT s FROM Subject s WHERE s.id in :ids")
