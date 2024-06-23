@@ -59,10 +59,10 @@ public class SchoolServiceImpl {
     public ResponseEntity<?> createSchoolYearSubject(SchoolYearSubjectCreate data){
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy Năm học !!!"));
-        if(data.getSubjectIds().isEmpty())throw new NullPointerException("Không tìm thấy Môn học !!!");
+        if(data.getSubjectIds().isEmpty())throw new NullPointerException("Yêu cầu Id môn học !!!");
         var subjects = subjectRepository.findAllByIdIn(data.getSubjectIds());
         if(subjects.isEmpty())throw new NullPointerException("Không tìm thấy danh sách môn học !!! Kiểm tra lại subjectIds");
-        if(schoolYearSubjectRepository.existsBySubject_IdIn(data.getSubjectIds()))
+        if(!schoolYearSubjectRepository.findAllBySchoolYear_IdAndSubject_IdIn(data.getSchoolYearId(),data.getSubjectIds()).isEmpty())
             throw new DataExistedException("Một số môn học đã tồn tại !!! Vui lòng kiểm tra lại");
         var createdData =  schoolYearSubjectRepository.saveAll(
             subjects.stream().map((s)-> SchoolYearSubject.builder().subject(s).schoolYear(schoolYear).build()).toList()
@@ -73,12 +73,12 @@ public class SchoolServiceImpl {
     public ResponseEntity<?> createTeacherSchoolYear(TeacherSchoolYearCreate data){
         var schoolYear = schoolYearRepository.findById(data.getSchoolYearId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy năm học!!!"));
-        if(data.getTeacherIds().isEmpty()) throw new NullPointerException("Yêu cầu teacherId hoặc teacherIds !!!");
+        if(data.getTeacherIds().isEmpty()) throw new NullPointerException("Yêu cầu Id giáo viên !!!");
 
         var teachers = teacherRepository.findAllByIdIn(data.getTeacherIds());
         if(teachers.isEmpty())throw new NullPointerException("Không tìm thấy danh sách giáo viên !!!");
 
-        if(teacherSchoolYearRepository.existsByTeacher_IdInAndSchoolYear_Id(data.getTeacherIds(),data.getSchoolYearId()))
+        if(!teacherSchoolYearRepository.findAllBySchoolYear_IdAndTeacher_IdIn(data.getSchoolYearId(),data.getTeacherIds()).isEmpty())
             throw new DataExistedException("Một số Giáo viên đã tồn tại trong năm học!. Vui lòng kiểm tra lại");
         var createdData =  teacherSchoolYearRepository.saveAll(
                 teachers.stream().map((t)-> TeacherSchoolYear.builder().teacher(t).schoolYear(schoolYear).build()).toList()

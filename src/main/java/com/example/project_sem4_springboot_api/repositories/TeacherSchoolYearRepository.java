@@ -10,6 +10,7 @@ import java.util.List;
 public interface TeacherSchoolYearRepository extends JpaRepository<TeacherSchoolYear,Long> {
     boolean existsByTeacher_IdAndSchoolYear_Id(Long teacher_id, Long schoolYear_id);
     boolean existsByTeacher_IdInAndSchoolYear_Id(List<Long> teacher_id, Long schoolYear_id);
+    List<TeacherSchoolYear> findAllBySchoolYear_IdAndTeacher_IdIn( Long schoolYear_id,List<Long> teacher_id);
 
 
     List<TeacherSchoolYear> findAllByTeacher_IdAndSchoolYear_Id(Long teacherId, Long schoolYearId);
