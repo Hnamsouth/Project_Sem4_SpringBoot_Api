@@ -37,8 +37,11 @@ public class WebSecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/test/api",
-            "/api/v1/vn-pay/**",
-            //            "/**"
+            "/api/v1/email",
+            "/api/v1/uploadToGoogleDrive",
+            "/api/v1/upload",
+            "/api/v1/{fileName}",
+//            "/**"
     };
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;

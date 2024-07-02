@@ -50,7 +50,6 @@ public class TeacherServiceImpl {
 
         return new ResponseEntity<>(newTeacher.toResponse(), HttpStatus.CREATED);
     }
-
     public ResponseEntity<?> getTeacher(@Nullable  boolean status,@Nullable Long id) {
         if(id!=null) return ResponseEntity.ok(teacherRepository.findById(id).orElseThrow(()->new NullPointerException("Id Giáo viên không tồn tại!!!")).toResponse());
         if(status) return ResponseEntity.ok(teacherRepository.findAllByActive(false).stream().map(Teacher::toResponse).toList());

@@ -67,6 +67,12 @@ public class User {
     @JsonBackReference
     private Teacher teacher ;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private Employee employee;
+
     @JsonBackReference
     @ManyToMany(mappedBy = "parents",fetch = FetchType.EAGER)
     private List<Student> students;
