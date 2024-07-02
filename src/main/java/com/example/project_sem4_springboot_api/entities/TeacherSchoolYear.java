@@ -46,6 +46,12 @@ public class TeacherSchoolYear {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
+    private List<StudentScoreSubject> studentScoreSubjects;
+
+    @OneToMany(mappedBy = "teacherSchoolYear", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private List<TeacherSchoolYearClassSubject> teacherSchoolYearClassSubjects;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

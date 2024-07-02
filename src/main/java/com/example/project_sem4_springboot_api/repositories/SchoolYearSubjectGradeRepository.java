@@ -15,6 +15,7 @@ public interface SchoolYearSubjectGradeRepository extends JpaRepository<SchoolYe
     List<SchoolYearSubjectGrade> findAllByGrade_Id(Long gradeId);
 
     List<SchoolYearSubjectGrade> findAllByIdOrSchoolYearSubject_Id(Long id, Long schoolYearSubjectId);
+    List<SchoolYearSubjectGrade> findAllBySchoolYearSubject_IdAndGrade_Id(Long schoolYearSubject_id, Long grade_id);
     //get all Period of year and grade
     @Query("SELECT sum(s.number) FROM SchoolYearSubjectGrade s WHERE s.grade.id = :gradeId AND s.schoolYearSubject.schoolYear.id = :schoolYearId")
     int getPeriodOfSchoolYearAndGrade(@Param("gradeId") Long gradeId,@Param("schoolYearId") Long schoolYearId);

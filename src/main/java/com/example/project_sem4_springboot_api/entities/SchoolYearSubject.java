@@ -51,13 +51,19 @@ public class SchoolYearSubject {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
-    private List<TestPoint> testPoints;
+    private List<StudentScoreSubject> studentScoreSubjects;
+
+    @OneToMany(mappedBy = "schoolYearSubject", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<StudyResultDetail> studyResultDetails;
 
     @JsonIgnore
     public SchoolYearSubject toRes() {
         return SchoolYearSubject.builder()
                 .id(this.id)
-                .subject(this.subject)
+                .subject(this.subject.toRes())
                 .build();
     }
 }

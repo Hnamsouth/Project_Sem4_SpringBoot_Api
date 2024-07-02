@@ -1,6 +1,5 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.response.StudentResponse;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,11 +38,6 @@ public class StudentYearInfo {
     @JsonBackReference
     private List<StudentFee> studentFee;
 
-    @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    @JsonBackReference
-    private List<TestPoint> testPoints;
 
     @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
@@ -51,6 +45,17 @@ public class StudentYearInfo {
     @JsonBackReference
     private List<Attendance> attendances;
 
+    @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<StudentScoreSubject> studentScoreSubjects;
+
+    @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<StudyResult> studentStudyResults;
     @JsonIgnore
     public StudentResponse toStudentResponse() {
         return StudentResponse.builder()
@@ -62,6 +67,16 @@ public class StudentYearInfo {
                 .className(this.schoolYearClass.getClassName())
                 .build();
 
+    }
+
+    @JsonIgnore
+    public StudentYearInfo toRes(){
+        return StudentYearInfo.builder()
+                .id(this.id)
+                .createdAt(this.createdAt)
+                .students(this.students.toResInfo())
+                .schoolYearClass(this.schoolYearClass.toRes())
+                .build();
     }
 
 }

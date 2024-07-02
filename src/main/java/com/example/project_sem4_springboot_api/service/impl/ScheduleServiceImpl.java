@@ -221,7 +221,7 @@ public class ScheduleServiceImpl {
         return null;
     }
     private void checkReleaseAt(Date releaseAt,SchoolYear schoolYear )throws ArgumentNotValidException {
-        if(releaseAt.after(schoolYear.getStartSem1()) || releaseAt.before(schoolYear.getEnd()))
+        if(releaseAt.before(schoolYear.getStartSem1()) || releaseAt.after(schoolYear.getEnd()))
             throw new ArgumentNotValidException("Ngày Áp dụng phải sau ngày bắt đầu học kỳ 1 và trước ngày kết thúc học kỳ 2 !!!","releaseAt",releaseAt.toString());
     }
     private void checkLessonExist(DayOfWeek dow, StudyTime st, int indexLesson,Long schoolYearCLassId)throws DataExistedException{

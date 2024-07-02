@@ -44,10 +44,14 @@ public class DataInitializer {
     private final PasswordEncoder passwordEncoder;
     private final StudentRepository studentRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
+    private final StudentScoreSubjectRepository studentScoreSubjectRepository;
+    private final StudentScoresRepository studentScoresRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final CalendarReleaseRepository calendarReleaseRepository;
     private final StatusRepository statusRepository;
     private final ScheduleRepository scheduleRepository;
+    private final PointTypeRepository pointTypeRepository;
+
 
 //    @Getter
     private final List<EStatus> studentStatus = Arrays.stream(EStatus.values()).toList();
@@ -57,10 +61,12 @@ public class DataInitializer {
     public void initializeData()  {
         createRolePermission();
         createSchoolInfo();
-        createStudents();
         createSchedule();
+        createStudents();
         createUser("bdht2207a",2);
         createFee();
+
+//        var t2 = schoolYearSubjectGradeRepository.findAllBySchoolYearSubject_IdAndGrade_Id((long) 1,(long) 1);
 //        Arrays.stream(EUnit.values()).forEach(e->System.out.println(e.name()+" : "+e.getUnit()));
 //        studentStatus.forEach(e->System.out.println(e.name()+" : "+e.getName()));
     }
@@ -168,14 +174,38 @@ public class DataInitializer {
             );
             System.out.println("Created schoolYear data");
         }
+        // create point type
+        if(pointTypeRepository.findAll().isEmpty()){
+            pointTypeRepository.saveAll(
+                Arrays.stream(EPointType.values()).map((e)->{
+                    var coefficient =  0;
+                    switch (e){
+                        case KTTX,DTB -> coefficient = 1;
+                        case KT_GIUA_KY -> coefficient = 2;
+                        case KT_CUOI_KY -> coefficient = 3;
+                    }
+                    return PointType.builder()
+                            .name(e.getPointType())
+                            .pointType(e)
+                            .coefficient(coefficient)
+                            .build();
+                }).toList()
+            );
+            System.out.println("Created pointType data");
+        }
+
         //  create subject
         if (subjectRepository.findAll().isEmpty()){
             List<Subject> subjects = new ArrayList<>();
             ListSubject.forEach((name,code)->{
+                var diemChu = new String[]{"HDTT","GDTC","AN","MT","TNXH","NTTC","HDTN"};
+                var pointType = Arrays.asList(diemChu).contains(code);
                 subjects.add(
                     Subject.builder()
                         .code(code)
                         .name(name.substring(3))
+                        .isNumberType(!pointType)
+                        .subjectPointType(!pointType ? SubjectPointType.DIEM_SO : SubjectPointType.DIEM_CHU)
                         .type(name.substring(0,2).contains("BB") ? ESubjectType.BAT_BUOC: ESubjectType.TU_CHON)
                         .build()
                 );
@@ -361,66 +391,7 @@ public class DataInitializer {
 
     }
 
-    /**
-     * creat student-schoolyear & parent
-     *
-     * @var initStudent: 15 học sinh/lớp
-     * @var parent: 1 phụ huynh/2 học sinh
-     */
-    private void createStudents(){
 
-        if(statusRepository.findAll().isEmpty()){
-            var colorErr = List.of(EStatus.NGUNG_HOAT_DONG,EStatus.STUDENT_BO_HOC,EStatus.STUDENT_THOI_HOC,EStatus.STUDENT_CHUYEN_TRUONG);
-            var colorWarm =  List.of(EStatus.NGHI_TAM_THOI,EStatus.STUDENT_BAO_LUU);
-            var colorSuccess = List.of(EStatus.STUDENT_DANG_HOC,EStatus.HOAT_DONG);
-            var colorPrimary = List.of(EStatus.STUDENT_CHUYEN_LOP,EStatus.STUDENT_TOT_NGHIEP);
-            statusRepository.saveAll(
-                studentStatus.stream().map((status)->Status.builder()
-                    .name(status.getName())
-                    .code(status.name())
-                    .build()).toList()
-            );
-        }
-        int initStudent = 15;
-        List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
-        if(userRepository.findAllByUsernameContains("parent").isEmpty()){
-            createUser("parent",((classes.size()*initStudent)/2 + 2));
-        }
-        if(studentRepository.findAll().isEmpty()){
-            List<User> userParents = userRepository.findAllByUsernameContains("parent");
-            Faker faker = new Faker();
-            int studentNum = 1;
-            int parentUser = 0;
-            var status = statusRepository.findByCode(EStatus.STUDENT_DANG_HOC.name());
-            for(int i=1 ; i <= classes.size();i++){
-                Name student = faker.name();
-                for(int J=1;J<=initStudent;J++){
-                    if(studentNum%2!=0){
-                        parentUser++;
-                    }
-                    Student std =  Student.builder()
-                            .gender(J>(initStudent/2))
-                            .firstName(student.firstName())
-                            .lastName(student.lastName())
-                            .birthday(faker.date().birthday())
-                            .address(faker.address().fullAddress())
-                            .studentCode("HS"+classes.get(i-1).getClassCode()+J)
-                            .parents(List.of(userParents.get(parentUser)))
-                            .build();
-                    var newStudent = studentRepository.save(std);
-                    // create StudentStatus
-                    StudentStatus sts = StudentStatus.builder().student(newStudent).status(status).createdAt(new java.util.Date(System.currentTimeMillis())).description("Bắt đầu nhập học.").build();
-                    studentStatusRepository.save(sts);
-                    // create student year info
-                    studentYearInfoRepository.save(StudentYearInfo.builder()
-                            .students(newStudent)
-                            .schoolYearClass(classes.get(i-1))
-                            .build());
-                    studentNum++;
-                }
-            }
-        }
-    }
     /**
      *  create teacherSchoolYearClassSubjectRepository
      *  15 lop => 15 gv chu nhiem && 5 gv bo mon,
@@ -547,7 +518,135 @@ public class DataInitializer {
 
     }
 
+    /**
+     * creat student-schoolyear & parent
+     *
+     * @var initStudent: 15 học sinh/lớp
+     * @var parent: 1 phụ huynh/2 học sinh
+     */
+    private void createStudents(){
 
+        if(statusRepository.findAll().isEmpty()){
+            var colorErr = List.of(EStatus.NGUNG_HOAT_DONG,EStatus.STUDENT_BO_HOC,EStatus.STUDENT_THOI_HOC,EStatus.STUDENT_CHUYEN_TRUONG);
+            var colorWarm =  List.of(EStatus.NGHI_TAM_THOI,EStatus.STUDENT_BAO_LUU);
+            var colorSuccess = List.of(EStatus.STUDENT_DANG_HOC,EStatus.HOAT_DONG);
+            var colorPrimary = List.of(EStatus.STUDENT_CHUYEN_LOP,EStatus.STUDENT_TOT_NGHIEP);
+            statusRepository.saveAll(
+                    studentStatus.stream().map((status)->Status.builder()
+                            .name(status.getName())
+                            .code(status.name())
+                            .build()).toList()
+            );
+        }
+        int initStudent = 15;
+        List<SchoolYearClass> classes = schoolYearClassRepository.findAll();
+        if(userRepository.findAllByUsernameContains("parent").isEmpty()){
+            createUser("parent",((classes.size()*initStudent)/2 + 2));
+        }
+        if(studentRepository.findAll().isEmpty()){
+            List<User> userParents = userRepository.findAllByUsernameContains("parent");
+            Faker faker = new Faker();
+            int studentNum = 1;
+            int parentUser = 0;
+            var status = statusRepository.findByCode(EStatus.STUDENT_DANG_HOC.name());
+            List<StudentStatus> studentStatuses = new ArrayList<>();
+            var newDate = new java.util.Date(System.currentTimeMillis());
+            for(int i=1 ; i <= classes.size();i++){
+                Name student = faker.name();
+                var classId = classes.get(i-1).getId();
+                var teacherSchoolYearCLassSubject = teacherSchoolYearClassSubjectRepository
+                        .findAllBySchoolYearClass_Id(classId);
+                for(int J=1;J<=initStudent;J++){
+                    if(studentNum%2!=0){
+                        parentUser++;
+                    }
+                    Student std =  Student.builder()
+                            .gender(J>(initStudent/2))
+                            .firstName(student.firstName())
+                            .lastName(student.lastName())
+                            .birthday(faker.date().birthday())
+                            .address(faker.address().fullAddress())
+                            .studentCode("HS"+classes.get(i-1).getClassCode()+J)
+                            .parents(List.of(userParents.get(parentUser)))
+                            .build();
+                    var newStudent = studentRepository.save(std);
+                    // create StudentStatus
+                    studentStatuses.add(StudentStatus.builder().student(newStudent).status(status).createdAt(newDate).description("Bắt đầu nhập học.").build());
+                    // create student year info
+                    var stdInfo = studentYearInfoRepository.save(StudentYearInfo.builder()
+                            .students(newStudent)
+                            .schoolYearClass(classes.get(i-1))
+                            .createdAt(newDate)
+                            .build());
+
+
+
+                    studentNum++;
+                }
+            }
+            studentStatusRepository.saveAll(studentStatuses);
+        }
+
+        if(studentScoreSubjectRepository.findAll().isEmpty()){
+            var classList = schoolYearClassRepository.findAll();
+            List<StudentScoreSubject> data = new ArrayList<>();
+            var newDate = new java.util.Date(System.currentTimeMillis());
+            classList.forEach(c->{
+                c.getStudentYearInfos().forEach(s->{
+                    c.getTeacherSchoolYearClassSubjects().forEach(t->
+                        data.add(StudentScoreSubject.builder()
+                                .studentYearInfo(s)
+                                .schoolYearSubject(t.getSchoolYearSubject())
+                                .teacherSchoolYear(t.getTeacherSchoolYear())
+                                .createdAt(newDate)
+                                .build()));
+                });
+            });
+            var rs = studentScoreSubjectRepository.saveAll(data);
+            System.out.println("Created studentScoreSubject data");
+
+            var stdClassList = classList.get(0).getStudentYearInfos();
+            var pointType = pointTypeRepository.findAll();
+            // get studentScoreSubjects of class
+            var sss=  rs.stream().filter(e->stdClassList.contains(e.getStudentYearInfo())).toList();
+            List<StudentScores> stdSCores = new ArrayList<>();
+            var scoreChar = new String[]{"T","K","TB","Y"};
+
+            sss.forEach(s->{
+                Arrays.asList(ESem.values()).forEach(sem->{
+                    // tạo ds điểm theo hệ số của từng môn và kì
+                    Arrays.asList(EPointType.values()).forEach(pt->{
+                        var pointT = pointType.stream().filter(e->e.getPointType().equals(pt)).findFirst().orElseThrow();
+                        Faker faker = new Faker();
+                        var scoreNum = faker.number().numberBetween(6,10);
+                        var scoreCharIndex = faker.number().numberBetween(0,3);
+                        if(pt.equals(EPointType.KTTX)){
+                            for(int i=1;i<=3;i++){
+                                stdSCores.add(StudentScores.builder()
+                                        .score(s.getSchoolYearSubject().getSubject().isNumberType()?String.valueOf(scoreNum):scoreChar[scoreCharIndex])
+                                        .semesterName(sem)
+                                        .semester(sem.getSem())
+                                        .pointType(pointT)
+                                        .studentScoreSubject(s)
+                                        .createdAt(newDate)
+                                        .build());
+                            }
+                        }
+                        stdSCores.add(StudentScores.builder()
+                                        .score(s.getSchoolYearSubject().getSubject().isNumberType()?String.valueOf(scoreNum):scoreChar[scoreCharIndex])
+                                        .semesterName(sem)
+                                        .semester(sem.getSem())
+                                        .pointType(pointT)
+                                        .studentScoreSubject(s)
+                                        .createdAt(newDate)
+                                .build());
+                    });
+                });
+            });
+            studentScoresRepository.saveAll(stdSCores);
+            System.out.println("Created studentScore data");
+        }
+    }
     private final UnitRepository unitRepository;
     private final PaymentTimeRepository paymentTimeRepository;
     private final ScopeRepository scopeRepository;

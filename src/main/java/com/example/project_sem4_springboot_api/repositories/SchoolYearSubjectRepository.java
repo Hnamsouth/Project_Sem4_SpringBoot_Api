@@ -9,7 +9,10 @@ import java.util.List;
 public interface SchoolYearSubjectRepository extends JpaRepository<SchoolYearSubject,Long> {
     SchoolYearSubject findBySubject_Name(String name);
     boolean existsBySubject_Id(Long subjectId);
-    boolean existsBySubject_IdIn(List<Long> subjectIds);
+    boolean existsBySubject_IdInAndSchoolYear_Id(List<Long> subjectIds,Long schoolYearId);
+    List<SchoolYearSubject> findAllBySubject_IdInAndSchoolYear_Id(List<Long> subjectIds,Long schoolYearId);
     List<SchoolYearSubject> findAllBySchoolYear_IdAndSubject_IdIn(Long schoolYearId, List<Long> subjectIds);
+    List<SchoolYearSubject> findAllBySchoolYear_Id(Long schoolYearId);
     List<SchoolYearSubject> findAllBySchoolYear_IdOrSubject_IdIn(Long schoolYearId, List<Long> subjectIds);
+
 }

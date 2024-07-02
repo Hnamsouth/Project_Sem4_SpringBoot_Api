@@ -23,10 +23,9 @@ public class ArticleController {
     private final ObjectMapper objectMapper;
 
     @PostMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<Article> uploadArticle(
+    public ResponseEntity<?> uploadArticle(
             @RequestPart("article") String articleString,
-            @RequestPart("images") List<MultipartFile> images,
-            @RequestParam("user_id") Long userId) throws IOException {
+            @RequestPart("images") List<MultipartFile> images) throws IOException {
 
         // Convert articleString to ArticleDto
         ArticleDto articleDto = objectMapper.readValue(articleString, ArticleDto.class);
@@ -34,11 +33,8 @@ public class ArticleController {
         // Set images in ArticleDto
         articleDto.setImages(images);
 
-        // Save article data along with image URLs and user to the database
-        Article savedArticle = articleService.saveArticle(articleDto, userId);
-
         // Return the saved article's details
-        return ResponseEntity.ok(savedArticle);
+        return articleService.saveArticle(articleDto);
     }
 
     @GetMapping
