@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
+import com.example.project_sem4_springboot_api.entities.enums.EGrade;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.enums.HandleStatus;
 import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
@@ -44,6 +45,8 @@ public class StudentServiceImpl  {
         Date newDate = new Date(System.currentTimeMillis());
         var schoolYearClass = schoolYearClassRepository.findById(data.getSchoolYearClassId()).orElseThrow(
                 ()->new NullPointerException("Không tìm thấy lớp học."));
+//        var checkGrade = schoolYearClass.getGrade().getName().equals(EGrade.KHOI_1);
+//        if(!checkGrade  ) throw new ArgumentNotValidException("Chỉ có thể thêm mới học sinh vào khối 1","","");
         Student student = data.toStudent();
         var newStudent = studentRepository.save(student);
         var status = statusRepository.findByCode(STUDENT_STATUS_CREATE);

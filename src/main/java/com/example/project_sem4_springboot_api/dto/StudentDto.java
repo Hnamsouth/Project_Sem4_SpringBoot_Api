@@ -37,6 +37,8 @@ public class StudentDto {
     @NotNull(message = "Id Lớp không được để trống!!!")
     private Long schoolYearClassId;
 
+    @NotNull(message = "Chuyển trường!!!")
+    private boolean isMigrated;
 
     @JsonIgnore
     public Student toStudent(){

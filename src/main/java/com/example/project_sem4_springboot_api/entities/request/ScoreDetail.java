@@ -1,6 +1,5 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
-import com.example.project_sem4_springboot_api.entities.enums.EAchievement;
 import com.example.project_sem4_springboot_api.entities.enums.EPointType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;

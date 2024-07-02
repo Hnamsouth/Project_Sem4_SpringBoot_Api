@@ -47,7 +47,7 @@ public class StudyResultService {
             var classList = schoolYearClassRepository.findAllBySchoolYear_Id(schoolYearId);
             return ResponseEntity.ok(
                     convertStudyResult(sem,
-                            gradeIds.isEmpty()?
+                            gradeIds==null||gradeIds.isEmpty()?
                                     classList:
                                     classList.stream().filter(e->gradeIds.contains(e.getGrade().getId())).toList()
                     )
@@ -57,7 +57,7 @@ public class StudyResultService {
             var classList = teacherSchoolYearClassSubjectRepository.getClassListIdByTeacherSchoolYear_Id(teacher.getId());
             return ResponseEntity.ok(
                     convertStudyResult(sem,
-                            gradeIds.isEmpty()?
+                            gradeIds==null||gradeIds.isEmpty()?
                                     classList:
                                     classList.stream().filter(e->gradeIds.contains(e.getGrade().getId())).toList()
                     )
