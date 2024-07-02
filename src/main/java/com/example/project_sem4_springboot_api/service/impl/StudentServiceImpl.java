@@ -3,7 +3,6 @@ package com.example.project_sem4_springboot_api.service.impl;
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
-import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
 import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
@@ -115,7 +114,7 @@ public class StudentServiceImpl  {
 
         Attendance attendance = Attendance.builder()
                 .studentYearInfo(studentYearInfo)
-                .status(status)
+                //
                 .note(note)
                 .createdAt(new Date())
                 .build();

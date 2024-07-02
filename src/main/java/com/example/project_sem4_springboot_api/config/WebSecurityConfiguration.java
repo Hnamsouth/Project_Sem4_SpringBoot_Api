@@ -38,6 +38,9 @@ public class WebSecurityConfiguration {
             "/swagger-ui.html",
             "/test/api",
             "/api/v1/email",
+            "/api/v1/uploadToGoogleDrive",
+            "/api/v1/upload",
+            "/api/v1/{fileName}",
 //            "/**"
     };
 

@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "project-student-managerment",
+  "private_key_id": "280b7b54a65f08e00c63552599ecbce623a86a33",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDBWonENfrHYc76\nQ6PVCbdi7MrPuzYv6aoQhnZ5MVJlBztxGkrM16cYWi/Lt9PSOW4d7iDDWPoHdC+J\naFkANqDrSTByLkESKDdMn26zHLDjdxZlnGacphvc8RAGPQos18tFkamkoeBXOrEE\n2/NWgYRTaoGquB0XUIJL798CQxYBrYIfQpUGKNLRDgq4FOvrss1S4MR53QwRvabl\nrk+8P73u8rTQYMtCI8kpjntbgF+gSzuAS3RTozFw1GwZrTJTllXEg0dvw2Cgdyyt\ntTebmA31omqvgK5i2OzkirDOK3V4sF401CPMlYAUp+1o1ZnyhE8hC/xU/HCo5jQW\n64L+qGKTAgMBAAECggEADfCuIBRYOUnG92orBLAHpb02vhVcScYJ+dkH76Lrstb7\npSLlI7GknW/bJE/jmLOFSekiOZNPq3vn9Xstd4N4xJ3pPUIydNGrcv3HqGg4JJ4w\nYjENgNvFBH/ozNpXwnXodOKUnYcCOqfDnXsSJzl9RdpW8O0HQ+gNDNaFeI9HpeUx\nXAbrJjPXFqdnTbkCN/FVIjYXQzO37tWa4QUsNc14JXjsLE1XNueV5bpL4TpsCbgM\nvHlRP6SyDnC3KAMiaQYesUnxLyvk+5KudAIrdpPyo/vShcsBT2DX6FMRs+gx5fq2\nBjRqG3ZUVTjACP26ipo3p+CCA1pERiebKqT9dWvE0QKBgQDx4RncbPah0Lrjr/US\ncc75cvXqaXQ+dXlHJy8LpMvA6cmpp4m+Sgmqg9nuXcAWakkQgGUz3SSvzyh4qoK3\nlzBe2ZBPpLd0AYFecHNr51BGJjRClGglJND3TwFVELLuXd1lgsnmhxUsGLxynpfw\ngH4OZ7P3ntgdB5SY1QmykZKCGwKBgQDMpDgLYPU5J9l3e2b9q8KAu7aK5DMahBLe\nfb/V/9kXPxMsk4vt6SjCTspMU4BkugpFMb30/g4nTmjYCLItW8ROnOVJ+ldjd190\neuFGmQ9QL026yqoOxmTBBUG7Jvbwo0Uut6ajyVn61An4EWRRRtsqc3Fha7zdAe2S\nrvAO0a9o6QKBgQCsQtY6J9gWMiOHmH7/HdJ70SXWRjgla2BuDjfxIPKDd3zJuKne\nvbfYmoKQwm/VBuj2OZrZrvs7wlteZIEn4yLtyiB+uB53HcNW0NtC08BV1UuOx0bM\nfUXde4TFYlksbekJLHZCGZ44g31iXBR1ke00sSJ4jcX4Frf7iG2ZoRcoVQKBgDZ+\nlJ4TF7o8rmBu8CIlFwqI8jdSRXmOKigtfGRUWU8jcMuyDtUv/bagnKZupgYstIdw\nk5EmBkbZTnoY9rm1cjUs+rIUhCjspPKztkHCiJ1lu2E+jsKYekQcTkC0Q5YZJFco\neKus9tUgmfcBSqGKKNrJGyxCMGz6EnW5OBv6IqfhAoGBAKwv/tybv6YNrXIZfmxk\nrve0QEBoPccr9Kf7IzQMFvOIOO//neQD0qeML0LcOZJgv1vzCEX5AsuF/ZSCK9BN\nS9hTaxXZzYrQQv0QfN6Q+tB56Vbax7JAlzFJqtOiNsLsA4WHxGbf/JsLwWbiVo/g\nP/GWLHmy4c5zkZ20A1vDaro7\n-----END PRIVATE KEY-----\n",
+  "client_email": "googledriveupload@project-student-managerment.iam.gserviceaccount.com",
+  "client_id": "115230486624234002807",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/googledriveupload%40project-student-managerment.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

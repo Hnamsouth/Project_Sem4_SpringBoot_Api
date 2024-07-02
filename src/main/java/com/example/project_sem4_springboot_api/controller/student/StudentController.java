@@ -3,8 +3,6 @@ package com.example.project_sem4_springboot_api.controller.student;
 import com.example.project_sem4_springboot_api.dto.StudentDto;
 import com.example.project_sem4_springboot_api.entities.Attendance;
 import com.example.project_sem4_springboot_api.entities.Student;
-import com.example.project_sem4_springboot_api.entities.User;
-import com.example.project_sem4_springboot_api.entities.request.AttendanceCreate;
 import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.service.impl.StudentServiceImpl;
 import com.turkraft.springfilter.boot.Filter;
