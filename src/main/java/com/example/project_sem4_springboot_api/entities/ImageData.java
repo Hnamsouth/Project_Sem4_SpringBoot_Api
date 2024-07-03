@@ -1,26 +1,26 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
-@Table(name = "ImageData")
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
 @NoArgsConstructor
-@Builder
+@AllArgsConstructor
+@Table(name = "image_data")
 public class ImageData {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+    private int id;
     private String name;
-    private String type;
-    @Lob
-    @Column(name = "imagedata",length = 1000)
-    private byte[] imageData;
-}
+    private String imageUrl;
+    private String imageId;
 
+    public ImageData(String name, String imageUrl, String imageId) {
+        this.name = name;
+        this.imageUrl = imageUrl;
+        this.imageId = imageId;
+    }
+
+}

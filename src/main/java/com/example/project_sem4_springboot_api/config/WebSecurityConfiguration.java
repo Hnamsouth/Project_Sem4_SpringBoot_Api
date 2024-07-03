@@ -39,8 +39,9 @@ public class WebSecurityConfiguration {
             "/test/api",
             "/api/v1/email",
             "/api/v1/uploadToGoogleDrive",
-            "/api/v1/upload",
-            "/api/v1/{fileName}",
+            "/cloudinary/upload",
+            "/cloudinary/list",
+            "cloudinary/delete/{id}",
 //            "/**"
     };
 
