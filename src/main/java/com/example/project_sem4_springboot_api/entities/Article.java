@@ -25,6 +25,7 @@ public class Article {
     private Long id;
 
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
