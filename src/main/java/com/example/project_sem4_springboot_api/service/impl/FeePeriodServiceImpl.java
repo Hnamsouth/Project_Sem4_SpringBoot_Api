@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,33 +31,36 @@ public class FeePeriodServiceImpl {
     private final SchoolYearFeeRepository schoolYearFeeRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final GradeRepository gradeRepository;
-
+    private final StudentYearInfoRepository studentYearInfoRepository;
+    private final StudentTransactionRepository studentTransactionRepository;
+    private final TransactionDetailRepository transactionDetailRepository;
 
     /**
      * @return listOf dot thu + thong ke lop hoc + sl hs cua lop trong pham vi dot thu da dong
      * */
-    public ResponseEntity<?> getFeePeriodBy(Long schoolYearId) {
-        var feePeriods = feePeriodRepository.findAllBySchoolyear_Id(schoolYearId);
+    public ResponseEntity<?> getFeePeriodBy(Long schoolYearId, Long FeePeriodId) {
+        List<FeePeriod> feePeriods =schoolYearId !=null? feePeriodRepository.findAllBySchoolyear_Id(schoolYearId): List.of(feePeriodRepository.findById(FeePeriodId).orElseThrow())  ;
         List<FeePeriodRes> res = new ArrayList<>();
         feePeriods.forEach(fp->{
             // check scope
             var scope = fp.getFeePeriodScopes().get(0);
-            var scopeIds = fp.getFeePeriodScopes().stream().map(FeePeriodScope::getId).toList();
+            var objectIds = fp.getFeePeriodScopes().stream().map(FeePeriodScope::getObjectId).toList();
             boolean checkScope = scope.getScope().getCode().equals(EScope.GRADE);
-            var classList = checkScope ? schoolYearClassRepository.findAllByGrade_IdIn(scopeIds):
-                    schoolYearClassRepository.findAllByIdIn(scopeIds);
+            var classList = checkScope ? schoolYearClassRepository.findAllByGrade_IdIn(objectIds):
+                    schoolYearClassRepository.findAllByIdIn(objectIds);
             if(classList.isEmpty()) throw new NullPointerException("Danh sách id "+(checkScope?"khoi":"lop")+" không hợp lệ");
 
             var stdTrans = fp.getStudentTransactions();
-            List<Map<String,Object>> classListRs = new ArrayList<>();
-            classList.forEach(c->{
-                Map<String,Object> classRs = new HashMap<>();
-                var stdTransOfClass = stdTrans.stream().filter(st->st.getStudentYearInfo().getSchoolYearClass().getId().equals(c.getId())).toList();
-                classRs.put("schoolYearClass",c);
-                classRs.put("totalStudent",stdTransOfClass.size());
-                classRs.put("totalPaid",stdTransOfClass.stream().filter(st->st.getStatusCode().equals(EStatus.STUDENT_TRANS_PAID)).toList().size());
-                classListRs.add(classRs);
-            });
+            List<Map<String, Object>> classListRs = new ArrayList<>(
+                classList.stream().map(c -> {
+                    Map<String, Object> classRs = new HashMap<>();
+                    var stdTransOfClass = stdTrans.stream().filter(st ->st.getStudentYearInfo().getSchoolYearClass().equals(c)).toList();
+                    classRs.put("schoolYearClass", c.toRes());
+                    classRs.put("totalStudent", c.getStudentYearInfos().size());
+                    classRs.put("totalPaid", stdTransOfClass.stream().filter(st -> st.getStatusCode().equals(EStatus.STUDENT_TRANS_PAID)).toList().size());
+                    return classRs;
+            }).toList());
+
             res.add(FeePeriodRes.builder()
                     .id(fp.getId())
                     .title(fp.getTitle())
@@ -80,16 +84,10 @@ public class FeePeriodServiceImpl {
 
         // check fee period scope
         var scope = scopeRepository.findById(data.getFeePeriodScope().getScopeId()).orElseThrow(() -> new NullPointerException("Không tìm thấy phạm vi thu với Id: " + data.getFeePeriodScope().getScopeId()));
-        switch (scope.getCode()){
-            case GRADE -> {
-                var gradeList = gradeRepository.findAllByIdIn(data.getFeePeriodScope().getObjectIdList());
-                if(gradeList.isEmpty()) throw new NullPointerException("Danh sách id khối không hợp lệ");
-            }
-            case CLASS -> {
-               var classList = schoolYearClassRepository.findAllByIdIn(data.getFeePeriodScope().getObjectIdList());
-                if(classList.isEmpty()) throw new NullPointerException("Danh sách id lớp không hợp lệ");
-            }
-        }
+        boolean checkScope = scope.getCode().equals(EScope.GRADE);
+        var classList = checkScope ? schoolYearClassRepository.findAllByGrade_IdIn(data.getFeePeriodScope().getObjectIdList()):
+                schoolYearClassRepository.findAllByIdIn(data.getFeePeriodScope().getObjectIdList());
+        if(classList.isEmpty()) throw new NullPointerException("Danh sách id "+(checkScope?"khoi":"lop")+" không hợp lệ");
         // check school year fee
         var listSchoolYearFeePeriod = data.getSchoolYearFeePeriodCreateList().stream().map(SchoolYearFeePeriodCreate::getSchoolYearFeeId).toList();
         var listSchoolYearFee = schoolYearFeeRepository.findAllByIdIn(listSchoolYearFeePeriod);
@@ -99,6 +97,61 @@ public class FeePeriodServiceImpl {
         var feePeriodScope = feePeriodScopeRepository.saveAll(data.toFeePeriodScope(scope, feePeriod));
         var schoolYearFeePeriod = schoolYearFeePeriodRepository.saveAll(data.toSchoolYearFeePeriod(listSchoolYearFee, feePeriod));
         // create student transaction
+
+        switch (scope.getCode()){
+            case GRADE -> {
+                // tạo transaction cho từng học sinh trong khối
+                var studentList = studentYearInfoRepository.findAllBySchoolYearClass_Grade_IdInAndSchoolYearClass_SchoolYear_Id(
+                        data.getFeePeriodScope().getObjectIdList(), feePeriod.getSchoolyear().getId());
+            }
+            case CLASS -> {
+                // tạo transaction cho từng học sinh trong lớp
+                // lấy tất cả hs trong các lớp
+                var studentList = studentYearInfoRepository.findAllBySchoolYearClass_IdIn(data.getFeePeriodScope().getObjectIdList());
+                // tạo transaction cho từng học sinh
+                var stdTransData = studentList.stream().map(s->StudentTransaction.builder()
+                        .status(EStatus.STUDENT_TRANS_UNPAID.getName())
+                        .statusCode(EStatus.STUDENT_TRANS_UNPAID)
+                        .feePeriod(feePeriod)
+                        .studentYearInfo(s)
+                        .build()).toList();
+                var listStuTrans = studentTransactionRepository.saveAll(stdTransData);
+                // tạo transaction detail cho từng khoản thu
+                List<TransactionDetail> StdTransDetails = new ArrayList<>();
+
+                var stdTrans =  listStuTrans.stream().map(st->{
+                    // nếu dùng giá trị  là kiểu dữ liệu nguyên thủy thì phải dùng AtomicReference vì giá trị bên trong không thể thay đổi
+                    // nên không thể thay đổi giá trị của biến total
+                    // phải cấp phát bộ nhớ mới cho biến total bằng cách dùng AtomicReference
+                    AtomicReference<Double> total = new AtomicReference<>(0.0);
+                    feePeriod.getSchoolYearFeePeriods().forEach(s->{
+                        // lấy giá tiền của khoản thu theo khối của hs hoặc lấy giá tiền mặc định
+                        var price = s.getSchoolyearfee().getFeePrices().stream()
+                                .filter(f->f.getGradeId() !=null && f.getGradeId().equals(st.getStudentYearInfo().getSchoolYearClass().getGrade().getId()))
+                                .findAny()
+                                .orElseGet(()->s.getSchoolyearfee().getFeePrices().get(0)
+                                );
+                        StdTransDetails.add(TransactionDetail.builder()
+                                .title(s.getSchoolyearfee().getTitle())
+                                .price(price.getPrice())
+                                .amount(s.getAmount())
+                                .studentTransaction(st)
+                                .build());
+                        total.updateAndGet(v -> (v + price.getPrice() * s.getAmount()));
+                    });
+                    st.setTotal(total.get());
+                    return st;
+                }).toList();
+                assert(stdTrans.size() == listStuTrans.size());
+                studentTransactionRepository.saveAll(stdTrans);
+                transactionDetailRepository.saveAll(StdTransDetails);
+            }
+            case SCHOOL -> {
+                // tạo transaction cho tất cả học sinh
+                var studentList = studentYearInfoRepository.findAllBySchoolYearClass_SchoolYear_Id(
+                        feePeriod.getSchoolyear().getId());
+            }
+        }
 
         return ResponseEntity.ok(feePeriodRepository.findById(feePeriod.getId()));
     }

@@ -55,6 +55,12 @@ public class StudentYearInfo {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
+    private List<StudentTransaction> studentTransactions;
+
+    @OneToMany(mappedBy = "studentYearInfo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
     private List<StudyResult> studentStudyResults;
     @JsonIgnore
     public StudentResponse toStudentResponse() {
