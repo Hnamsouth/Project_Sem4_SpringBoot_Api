@@ -80,6 +80,7 @@ public class ScheduleServiceImpl {
                         .releaseAt(data.getReleaseAt())
                         .schoolYear(schoolYear)
                         .status(false)
+                        .sem(data.getSem())
                         .statusName("Chưa áp dụng")
                         .build()
         );

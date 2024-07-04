@@ -51,6 +51,12 @@ public class FeePeriod {
     @ToString.Exclude
     private List<SchoolYearFeePeriod> schoolYearFeePeriods;
 
+    @JsonManagedReference
+    @OneToMany(mappedBy = "feePeriod", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private List<StudentTransaction> studentTransactions;
+
     @JsonIgnore
     public FeePeriod toResStudent(){
         return FeePeriod.builder()
@@ -63,5 +69,7 @@ public class FeePeriod {
                 .endDate(this.endDate)
                 .build();
     }
+
+
 
 }
