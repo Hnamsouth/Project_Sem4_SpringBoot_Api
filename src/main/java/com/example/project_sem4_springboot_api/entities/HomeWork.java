@@ -25,10 +25,16 @@ public class HomeWork {
     private Date dueDate;
     private boolean status;
     private String statusName;
+    @ElementCollection
+    private List<String> imageUrls;
     @ManyToOne
     @JoinColumn(name = "teacher_schoolyear_id")
     @JsonManagedReference
     private TeacherSchoolYear teacherSchoolYear;
+    @ManyToOne
+    @JoinColumn(name = "teacher_schoolyear_class_subject_id")
+    @JsonManagedReference
+    private TeacherSchoolYearClassSubject teacherSchoolYearClassSubject;
     @ManyToOne
     @JoinColumn(name = "schoolyear_subject_id")
     @JsonManagedReference
