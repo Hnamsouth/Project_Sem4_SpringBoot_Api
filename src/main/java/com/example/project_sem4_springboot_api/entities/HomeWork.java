@@ -25,8 +25,6 @@ public class HomeWork {
     private Date dueDate;
     private boolean status;
     private String statusName;
-    @ElementCollection
-    private List<String> imageUrls;
     @ManyToOne
     @JoinColumn(name = "teacher_schoolyear_id")
     @JsonManagedReference

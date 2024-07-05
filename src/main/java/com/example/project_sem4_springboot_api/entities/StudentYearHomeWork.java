@@ -27,8 +27,6 @@ public class StudentYearHomeWork {
     private boolean status;
     private String statusName;
     private double point;
-    @ElementCollection
-    private List<String> imageUrls;
     @ManyToOne
     @JoinColumn(name = "student_year_info_id")
     @JsonManagedReference
