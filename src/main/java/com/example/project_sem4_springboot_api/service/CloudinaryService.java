@@ -2,20 +2,26 @@ package com.example.project_sem4_springboot_api.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class CloudinaryService {
-    Cloudinary cloudinary;
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
+    private final Cloudinary cloudinary;
+
+    public CloudinaryService(Cloudinary cloudinary) {
+        this.cloudinary = cloudinary;
+    }
 
     public CloudinaryService() {
         Map<String, String> valuesMap = new HashMap<>();
@@ -25,26 +31,33 @@ public class CloudinaryService {
         cloudinary = new Cloudinary(valuesMap);
     }
 
-
-    public Map upload(MultipartFile multipartFile) throws IOException {
-        File file = convert(multipartFile);
-        Map result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-        if (!Files.deleteIfExists(file.toPath())) {
-            throw new IOException("Failed to delete temporary file: " + file.getAbsolutePath());
+    public String uploadImage(MultipartFile image, String tag, String folderName) {
+        try {
+            Map<String, String> param = new HashMap<>();
+            param.put("folder", folderName);
+            param.put("tags", tag);
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(), param);
+            return (String) uploadResult.get("secure_url");
+        } catch (IOException e) {
+            throw new RuntimeException("Error uploading image to Cloudinary", e);
         }
-        return result;
     }
 
-    public Map delete(String id) throws IOException {
-        return cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
-    }
+    public List<String> getImageUrl(String tag, String folder) {
+        Map<String, Object> options = ObjectUtils.asMap(
+                "resource_type", "image",
+                "type", "upload",
+                "folder", folder
+        );
+        try {
+            var result = cloudinary.api().resourcesByTag(tag,options);
+            List<Map> lisMap = (List<Map>)result.get("resources");
+            System.out.println(result);
+            return lisMap.stream().map(l->l.get("secure_url").toString()).toList();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage() +"Không thể lấy URL ảnh từ Cloudinary");
 
-    private File convert(MultipartFile multipartFile) throws IOException {
-        File file = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-        FileOutputStream fo = new FileOutputStream(file);
-        fo.write(multipartFile.getBytes());
-        fo.close();
-        return file;
+        }
     }
 
 }

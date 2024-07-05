@@ -1,189 +1,216 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
-import com.example.project_sem4_springboot_api.dto.HomeWorkDetailDto;
 import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.request.HomeWorkDto;
-import com.example.project_sem4_springboot_api.exception.ResourceNotFoundException;
+import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
+import com.example.project_sem4_springboot_api.service.CloudinaryService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
+
 
 @Service
 public class HomeWorkService {
 
     private final HomeWorkRepository homeWorkRepository;
-    private final StorageService storageService;
+    private final CloudinaryService cloudinaryService;
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentYearHomeWorkRepository studentYearHomeWorkRepository;
 
-    public HomeWorkService(HomeWorkRepository homeWorkRepository, StorageService storageService, TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository, StudentYearInfoRepository studentYearInfoRepository, StudentYearHomeWorkRepository studentYearHomeWorkRepository) {
+    public HomeWorkService(HomeWorkRepository homeWorkRepository, CloudinaryService cloudinaryService, TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository, StudentYearInfoRepository studentYearInfoRepository, StudentYearHomeWorkRepository studentYearHomeWorkRepository) {
         this.homeWorkRepository = homeWorkRepository;
-        this.storageService = storageService;
+        this.cloudinaryService = cloudinaryService;
         this.teacherSchoolYearClassSubjectRepository = teacherSchoolYearClassSubjectRepository;
+
         this.studentYearInfoRepository = studentYearInfoRepository;
         this.studentYearHomeWorkRepository = studentYearHomeWorkRepository;
     }
 
-    public HomeWork createHomeWork(HomeWorkDto homeWorkDto) {
-        TeacherSchoolYearClassSubject teacherSchoolYearClassSubject = teacherSchoolYearClassSubjectRepository.findById(homeWorkDto.getTeacherSchoolYearClassSubjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("TeacherSchoolYearClassSubject not found with id: " + homeWorkDto.getTeacherSchoolYearClassSubjectId()));
+    public HomeWork createHomeWork(String title,
+                                   String content,
+                                   String dueDate,
+                                   Long teacherSchoolYearClassSubjectId,
+                                   List<MultipartFile> images) throws ParseException {
+        TeacherSchoolYearClassSubject teacherSchoolYearClassSubject = teacherSchoolYearClassSubjectRepository.findById(teacherSchoolYearClassSubjectId)
+                .orElseThrow(() -> new RuntimeException("TeacherSchoolYearClassSubject not found"));
 
         HomeWork homeWork = new HomeWork();
-        homeWork.setTitle(homeWorkDto.getTitle());
-        homeWork.setContent(homeWorkDto.getContent());
-        homeWork.setDueDate(homeWorkDto.getDueDate());
+        homeWork.setTitle(title);
+        homeWork.setContent(content);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        homeWork.setDueDate(dateFormat.parse(dueDate));
         homeWork.setTeacherSchoolYearClassSubject(teacherSchoolYearClassSubject);
         homeWork.setStatus(true);
+        homeWork.setStatusName("Đang hoạt động");
+        var saveHomeWork = homeWorkRepository.save(homeWork);
 
-        // Save image files
-        List<String> imageUrls = new ArrayList<>();
-        for (MultipartFile file : homeWorkDto.getImageFiles()) {
-            String imageUrl = storageService.storeFile(file);
-            imageUrls.add(imageUrl);
+        for (MultipartFile image : images) {
+            String imageUrl = cloudinaryService.uploadImage(image, "homework" + saveHomeWork.getId(), "homeWork");
+
         }
-        homeWork.setImageUrls(imageUrls);
+        saveHomeWork.setUrl("homework" + saveHomeWork.getId());
 
-        return homeWorkRepository.save(homeWork);
+        return homeWorkRepository.save(saveHomeWork);
     }
 
-    public StudentYearHomeWork createStudentYearHomeWork(StudentYearHomeWorkDto studentYearHomeWorkDto) {
-        HomeWork homeWork = homeWorkRepository.findById(studentYearHomeWorkDto.getHomeWorkId())
-                .orElseThrow(() -> new ResourceNotFoundException("HomeWork not found with id: " + studentYearHomeWorkDto.getHomeWorkId()));
+    public StudentYearHomeWork submitHomeWork(List<MultipartFile> images, String description, Long studentYearInfoId, Long homeWorkId) {
+        HomeWork homeWork = homeWorkRepository.findById(homeWorkId)
+                .orElseThrow(() -> new RuntimeException("HomeWork khong ton tai"));
 
-        StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearHomeWorkDto.getStudentYearInfoId())
-                .orElseThrow(() -> new ResourceNotFoundException("StudentYearInfo not found with id: " + studentYearHomeWorkDto.getStudentYearInfoId()));
-
-        StudentYearHomeWork studentYearHomeWork = new StudentYearHomeWork();
-        studentYearHomeWork.setHomeWork(homeWork);
-        studentYearHomeWork.setStudentYearInfo(studentYearInfo);
-        studentYearHomeWork.setDescription(studentYearHomeWorkDto.getDescription());
-        studentYearHomeWork.setSubmitTime(new Date());
-
-        // Save image files
-        List<String> imgUrls = new ArrayList<>();
-        for (MultipartFile file : studentYearHomeWorkDto.getImageFiles()) {
-            String imgUrl = storageService.storeFile(file);
-            imgUrls.add(imgUrl);
+        if (homeWork.getDueDate().before(new Date())) {
+            throw new RuntimeException("bai tap dahet han");
         }
-        studentYearHomeWork.setImageUrls(imgUrls);
+        StudentYearHomeWork studentYearHomeWork = new StudentYearHomeWork();
+        studentYearHomeWork.setDescription(description);
+        studentYearHomeWork.setSubmitTime(new Date());
+        studentYearHomeWork.setStatus(true);
+        studentYearHomeWork.setStatusName("Đã nộp");
+        studentYearHomeWork.setPoint(0.0);
+        studentYearHomeWork.setStudentYearInfo(studentYearInfoRepository.findById(studentYearInfoId)
+                .orElseThrow(() -> new RuntimeException("StudentYearInfo notfound")));
+        studentYearHomeWork.setHomeWork(homeWork);
+        var saveStudentYearHomeWork = studentYearHomeWorkRepository.save(studentYearHomeWork);
 
-        return studentYearHomeWorkRepository.save(studentYearHomeWork);
+        for (MultipartFile image : images) {
+            String imageUrl = cloudinaryService.uploadImage(image, "student-homework-" + studentYearHomeWork.getId(), "studentHomeWork");
+            studentYearHomeWork.setUrl(imageUrl);
+        }
+        return studentYearHomeWorkRepository.save(saveStudentYearHomeWork);
     }
 
     public List<HomeWorkDto> getHomeWorksByStudentYearInfoId(Long studentYearInfoId) {
-        List<HomeWork> homeWorks = homeWorkRepository.findAll();
-        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findByStudentYearInfo_Id(studentYearInfoId);
+        var student = studentYearInfoRepository.findById(studentYearInfoId).orElseThrow(() ->
+                new ArgumentNotValidException("Student not found", "", ""));
 
-        Map<Long, StudentYearHomeWork> studentYearHomeWorkMap = studentYearHomeWorks.stream()
-                .collect(Collectors.toMap(StudentYearHomeWork::getHomeWork_id, Function.identity()));
+        List<HomeWork> homeWorks = homeWorkRepository.
+                findAllByTeacherSchoolYearClassSubject_SchoolYearClass_Id(student.getSchoolYearClass().getId());
 
-        return homeWorks.stream()
-                .map(homeWork -> {
-                    HomeWorkDto homeWorkDto = new HomeWorkDto();
-                    homeWorkDto.setId(homeWork.getId());
-                    homeWorkDto.setTitle(homeWork.getTitle());
-                    homeWorkDto.setContent(homeWork.getContent());
-                    homeWorkDto.setDueDate(homeWork.getDueDate());
-                    homeWorkDto.setImageUrls(homeWork.getImageUrls());
-
-                    StudentYearHomeWork studentYearHomeWork = studentYearHomeWorkMap.get(homeWork.getId());
-                    if (studentYearHomeWork != null) {
-                        homeWorkDto.setStatus(studentYearHomeWork.isStatus());
-                        homeWorkDto.setStatusName(studentYearHomeWork.getStatusName());
-                        homeWorkDto.setPoint(studentYearHomeWork.getPoint());
-                        homeWorkDto.setSubmitTime(studentYearHomeWork.getSubmitTime());
-                        homeWorkDto.setDescription(studentYearHomeWork.getDescription());
-                    } else {
-                        homeWorkDto.setStatus(false);
-                        homeWorkDto.setStatusName("Chưa nộp");
-                        homeWorkDto.setPoint(0.0);
-                        homeWorkDto.setSubmitTime(null);
-                        homeWorkDto.setDescription(null);
-                    }
-
-                    // Kiểm tra thời hạn nộp bài
-                    if (homeWork.getDueDate().before(new Date())) {
-                        homeWorkDto.setStatus(false);
-                        homeWorkDto.setStatusName("Quá hạn");
-                    }
-
-                    return homeWorkDto;
-                })
-                .collect(Collectors.toList());
+        return homeWorks.stream().map(s->{
+            var students = s.convertToDto(studentYearInfoId);
+            var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),"homeWork");
+            students.setHomeworkImageUrls(homeWorkImageUrl);
+            return students;
+        }).toList();
     }
 
-    public List<HomeWorkDto> getHomeWorksByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId) {
-        List<HomeWork> homeWorks = homeWorkRepository.findByTeacherSchoolYearClassSubject_Id(teacherSchoolYearClassSubjectId);
-        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findAll();
-
-        Map<Long, List<StudentYearHomeWork>> studentYearHomeWorkMap = studentYearHomeWorks.stream()
-                .collect(Collectors.groupingBy(StudentYearHomeWork::getHomeWork_id));
-
-        return homeWorks.stream()
-                .map(homeWork -> {
-                    HomeWorkDto homeWorkDto = new HomeWorkDto();
-                    homeWorkDto.setId(homeWork.getId());
-                    homeWorkDto.setTitle(homeWork.getTitle());
-                    homeWorkDto.setContent(homeWork.getContent());
-                    homeWorkDto.setDueDate(homeWork.getDueDate());
-                    homeWorkDto.setImageUrls(homeWork.getImageUrls());
-
-                    List<StudentYearHomeWork> relatedStudentYearHomeWorks = studentYearHomeWorkMap.get(homeWork.getId());
-                    if (relatedStudentYearHomeWorks != null) {
-                        long submittedCount = relatedStudentYearHomeWorks.stream()
-                                .filter(StudentYearHomeWork::isStatus)
-                                .count();
-                        homeWorkDto.setSubmittedCount(Math.toIntExact(submittedCount));
-                        homeWorkDto.setTotalStudentCount(relatedStudentYearHomeWorks.size());
-                    } else {
-                        homeWorkDto.setSubmittedCount(0);
-                        homeWorkDto.setTotalStudentCount(0);
-                    }
-
-                    return homeWorkDto;
-                })
-                .collect(Collectors.toList());
-    }
-
-    public HomeWorkDetailDto getHomeWorkDetails(Long homeWorkId) {
+    public HomeWorkDto getHomeWorkDetail(Long homeWorkId) {
         HomeWork homeWork = homeWorkRepository.findById(homeWorkId)
-                .orElseThrow(() -> new ResourceNotFoundException("HomeWork not found with id: " + homeWorkId));
+                .orElseThrow(() -> new RuntimeException("HomeWork không tồn tại"));
 
-        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findByHomeWorkId(homeWorkId);
+        List<StudentYearHomeWork> studentHomeWorks = studentYearHomeWorkRepository.findByHomeWorkId(homeWorkId);
 
-        HomeWorkDetailDto homeWorkDetailDto = new HomeWorkDetailDto();
-        homeWorkDetailDto.setId(homeWork.getId());
-        homeWorkDetailDto.setTitle(homeWork.getTitle());
-        homeWorkDetailDto.setContent(homeWork.getContent());
-        homeWorkDetailDto.setDueDate(homeWork.getDueDate());
-        homeWorkDetailDto.setImageUrls(homeWork.getImageUrls());
-
-        List<StudentYearHomeWorkDto> studentYearHomeWorkDtos = studentYearHomeWorks.stream()
-                .map(studentYearHomeWork -> {
-                    StudentYearHomeWorkDto studentYearHomeWorkDto = new StudentYearHomeWorkDto();
-                    studentYearHomeWorkDto.setId(studentYearHomeWork.getId());
-                    studentYearHomeWorkDto.setDescription(studentYearHomeWork.getDescription());
-                    studentYearHomeWorkDto.setImageUrls(studentYearHomeWork.getImageUrls());
-                    studentYearHomeWorkDto.setSubmitTime(studentYearHomeWork.getSubmitTime());
-                    studentYearHomeWorkDto.setStatus(studentYearHomeWork.isStatus());
-                    studentYearHomeWorkDto.setStatusName(studentYearHomeWork.getStatusName());
-                    studentYearHomeWorkDto.setPoint(studentYearHomeWork.getPoint());
-                    return studentYearHomeWorkDto;
+        List<StudentYearHomeWorkDto> studentHomeWorkDtos = studentHomeWorks.stream()
+                .map(s->{
+                    var student = s.convertToDto();
+                    var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),"studentHomeWork");
+                    student.setImageUrl(homeWorkImageUrl);
+                    return student;
                 })
                 .collect(Collectors.toList());
+        var homeWorkImageUrl = cloudinaryService.getImageUrl("homework4","homeWork");
 
-        homeWorkDetailDto.setStudentYearHomeWorks(studentYearHomeWorkDtos);
+        HomeWorkDto homeWorkDto = HomeWorkDto.builder()
+                .id(homeWork.getId())
+                .title(homeWork.getTitle())
+                .content(homeWork.getContent())
+                .dueDate(homeWork.getDueDate())
+                .description(homeWork.getDescription())
+                .url(homeWork.getUrl())
+                .status(homeWork.isStatus())
+                .statusName(homeWork.getStatusName())
+                .overdue(homeWork.getDueDate().before(new Date()))
+                .studentYearHomeWorks(studentHomeWorkDtos)
+                .homeworkImageUrls(homeWorkImageUrl)
+                .build();
 
-        return homeWorkDetailDto;
+        return homeWorkDto;
     }
+
+    private StudentYearHomeWorkDto convertToDto(StudentYearHomeWork studentYearHomeWork) {
+        return StudentYearHomeWorkDto.builder()
+                .id(studentYearHomeWork.getId())
+                .description(studentYearHomeWork.getDescription())
+                .url(studentYearHomeWork.getUrl())
+                .submitTime(studentYearHomeWork.getSubmitTime())
+                .status(studentYearHomeWork.isStatus())
+                .statusName(studentYearHomeWork.getStatusName())
+                .point(studentYearHomeWork.getPoint())
+                .build();
+    }
+
+    /*
+         4: lấy ds bài tập đã giao của giáo viên theo id phân công giảng dạy (techer_schoolyear_class_subject)
+        DB(HomeWork)  , method: GET , params: techer_schoolyear_class_subject_id
+
+         return : trả về danh sách bài tập + (số lượng hs đã đã nộp / sl hs của lớp )
+         trả về ds url ảnh bài tập và ảnh bài nộp nếu có
+    */
+//    public List<HomeWorkDto> getHomeWorksByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId) {
+//        List<HomeWork> homeWorks = homeWorkRepository.findByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
+//        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
+//
+//        List<HomeWorkDto> homeWorkDTOs = new ArrayList<>();
+//        for (HomeWork homeWork : homeWorks) {
+//            HomeWorkDto homeWorkDto = HomeWorkDto.builder()
+//                    .id(homeWork.getId())
+//                    .title(homeWork.getTitle())
+//                    .content(homeWork.getContent())
+//                    .url(homeWork.getUrl())
+//                    .dueDate(homeWork.getDueDate())
+//                    .status(homeWork.isStatus())
+//                    .statusName(homeWork.getStatusName())
+//                    .teacherSchoolYearClassSubjectId(homeWork.getTeacherSchoolYearClassSubject())
+//                    .homeworkImageUrls(Collections.singletonList(homeWork.getUrl()))
+//                    .build();
+//
+//            long submittedStudents = studentYearHomeWorks.stream()
+//                    .filter(s -> s.getHomeWork().getId().equals(homeWork.getId()))
+//                    .count();
+//            homeWorkDto.setSubmittedStudents((int) submittedStudents);
+//
+//            List<StudentYearHomeWorkDto> studentYearHomeWorkDtos = studentYearHomeWorks.stream()
+//                    .filter(s -> s.getHomeWork().getId().equals(homeWork.getId()))
+//                    .map(s -> StudentYearHomeWorkDto.builder()
+//                            .id(s.getId())
+//                            .description(s.getDescription())
+//                            .status(s.isStatus())
+//                            .statusName(s.getStatusName())
+//                            .url(s.getUrl())
+//                            .build())
+//                    .collect(Collectors.toList());
+//            homeWorkDto.setStudentYearHomeWorks(studentYearHomeWorkDtos);
+//
+//            int totalStudents = teacherSchoolYearClassSubjectRepository.findTotalStudentsByTeacherSchoolYearClassSubjectId(homeWork.getTeacherSchoolYearClassSubject().getId());
+//            homeWorkDto.setTotalStudents(totalStudents);
+//
+//            homeWorkDTOs.add(homeWorkDto);
+//        }
+//
+//        return homeWorkDTOs;
+//    }
+
+
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -5,12 +5,20 @@ import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
 import com.example.project_sem4_springboot_api.entities.HomeWork;
 import com.example.project_sem4_springboot_api.entities.StudentYearHomeWork;
 import com.example.project_sem4_springboot_api.entities.request.HomeWorkDto;
+import com.example.project_sem4_springboot_api.entities.request.HomeWorkRequest;
+import com.example.project_sem4_springboot_api.entities.request.ImageDTO;
 import com.example.project_sem4_springboot_api.service.impl.HomeWorkService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -22,40 +30,52 @@ public class HomeWorkController {
         this.homeWorkService = homeWorkService;
     }
 
-    @PostMapping
-    public ResponseEntity<HomeWork> createHomeWork(@RequestBody HomeWorkDto homeWorkDto) {
-        HomeWork createdHomeWork = homeWorkService.createHomeWork(homeWorkDto);
+    @PostMapping("/createHomework")
+    public ResponseEntity<HomeWork> createHomeWork(
+            @RequestParam String title,
+            @RequestParam String content,
+            @RequestParam String dueDate,
+            @RequestParam Long teacherSchoolYearClassSubjectId,
+            @RequestParam List<MultipartFile> images) throws ParseException {
+        HomeWork createdHomeWork = homeWorkService.createHomeWork(title, content, dueDate, teacherSchoolYearClassSubjectId, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<HomeWorkDetailDto> getHomeWorkDetails(@PathVariable Long id) {
-        HomeWorkDetailDto homeWorkDetailDto = homeWorkService.getHomeWorkDetails(id);
-        return ResponseEntity.ok(homeWorkDetailDto);
+    @PostMapping("/createStudentYearHomeWork")
+    public ResponseEntity<StudentYearHomeWork> submitHomeWork(
+            @RequestParam List<MultipartFile> images,
+            @RequestParam String description,
+            @RequestParam Long studentYearInfoId,
+            @RequestParam Long homeWorkId) {
+        StudentYearHomeWork createdStudentYearHomeWork = homeWorkService.submitHomeWork(images, description, studentYearInfoId, homeWorkId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudentYearHomeWork);
     }
 
-    @GetMapping("/student-year/{studentYearInfoId}")
-    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByStudentYearInfoId(@PathVariable Long studentYearInfoId) {
-        List<HomeWorkDto> homeworkDtos = homeWorkService.getHomeWorksByStudentYearInfoId(studentYearInfoId);
-        return ResponseEntity.ok(homeworkDtos);
+    @GetMapping("/getHomeWorkByStudentYearInfoID")
+    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByStudentYearInfoId(@RequestParam("id") Long studentYearInfoId) {
+        List<HomeWorkDto> homeWorkDTOs = homeWorkService.getHomeWorksByStudentYearInfoId(studentYearInfoId);
+        return ResponseEntity.ok(homeWorkDTOs);
     }
 
-    @GetMapping("/teacher-school-year-class-subject/{teacherSchoolYearClassSubjectId}")
-    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(@PathVariable Long teacherSchoolYearClassSubjectId) {
-        List<HomeWorkDto> homeworkDtos = homeWorkService.getHomeWorksByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-        return ResponseEntity.ok(homeworkDtos);
-    }
+    /*
+         4: lấy ds bài tập đã giao của giáo viên theo id phân công giảng dạy (techer_schoolyear_class_subject)
+        DB(HomeWork)  , method: GET , params: techer_schoolyear_class_subject_id
 
-//    @PostMapping
-//    public ResponseEntity<StudentYearHomeWorkDto> createStudentYearHomeWork(@RequestBody StudentYearHomeWorkDto studentYearHomeWorkDto) {
-//        StudentYearHomeWorkDto createdDto = homeWorkService.createStudentYearHomeWork(studentYearHomeWorkDto);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(createdDto);
+         return : trả về danh sách bài tập + (số lượng hs đã đã nộp / sl hs của lớp )
+         trả về ds url ảnh bài tập và ảnh bài nộp nếu có
+    */
+//    @GetMapping("/teacher/{teacherSchoolYearClassSubjectId}")
+//    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(
+//            @PathVariable Long teacherSchoolYearClassSubjectId) {
+//        List<HomeWorkDto> homeWorkDtos = homeWorkService.getHomeWorksByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
+//        return ResponseEntity.ok(homeWorkDtos);
 //    }
 
-//    @GetMapping("/{id}")
-//    public ResponseEntity<HomeWorkDetailDto> getHomeWorkDetails(@PathVariable Long id) {
-//        HomeWorkDetailDto homeWorkDetailDto = homeWorkService.getHomeWorkDetails(id);
-//        return ResponseEntity.ok(homeWorkDetailDto);
-//    }
+    @GetMapping("/getHomeWorkDetail")
+    public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("id") Long homeWorkId) {
+        HomeWorkDto homeWorkDto = homeWorkService.getHomeWorkDetail(homeWorkId);
+        return ResponseEntity.ok(homeWorkDto);
+    }
+
 
 }

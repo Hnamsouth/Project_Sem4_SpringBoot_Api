@@ -15,6 +15,8 @@ public interface TeacherSchoolYearClassSubjectRepository extends JpaRepository<T
     Optional<TeacherSchoolYearClassSubject> findBySchoolYearClass_IdAndSchoolYearSubject_Id(Long schoolYearClass_id, Long schoolYearSubject_id);
     List<TeacherSchoolYearClassSubject> findAllByTeacherSchoolYear_SchoolYear_Id(Long schoolYear_id);
     List<TeacherSchoolYearClassSubject> findAllByTeacherSchoolYear_Id(Long teacherSchoolYear_id);
+    //int findTotalStudentsByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId);
+
 
 
     @Query("SELECT tscs.schoolYearClass FROM TeacherSchoolYearClassSubject tscs WHERE tscs.teacherSchoolYear.id = :teacherSchoolYear_id GROUP BY tscs.schoolYearClass.id")

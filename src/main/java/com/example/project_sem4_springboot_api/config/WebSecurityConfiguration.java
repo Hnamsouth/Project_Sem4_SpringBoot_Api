@@ -38,10 +38,11 @@ public class WebSecurityConfiguration {
             "/swagger-ui.html",
             "/test/api",
             "/api/v1/email",
-            "/api/v1/uploadToGoogleDrive",
-            "/cloudinary/upload",
-            "/cloudinary/list",
-            "cloudinary/delete/{id}",
+            "/api/v1/createHomework",
+            "/api/v1/createStudentYearHomeWork",
+            "/api/v1/getHomeWorkByStudentYearInfoID",
+           // "/api/v1/teacher/{teacherSchoolYearClassSubjectId}",
+            "/api/v1/getHomeWorkDetail"
 //            "/**"
     };
 
