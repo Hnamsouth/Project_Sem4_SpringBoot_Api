@@ -41,6 +41,8 @@ public class WebSecurityConfiguration {
             "/api/v1/createHomework",
             "/api/v1/createStudentYearHomeWork",
             "/api/v1/getHomeWorkByStudentYearInfoID",
+           // "/api/v1/teacher/{teacherSchoolYearClassSubjectId}",
+            "/api/v1/getHomeWorkDetail"
 //            "/**"
     };
 

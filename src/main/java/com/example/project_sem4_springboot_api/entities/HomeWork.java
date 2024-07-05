@@ -1,6 +1,9 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
+import com.example.project_sem4_springboot_api.entities.request.HomeWorkDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,6 +24,7 @@ public class HomeWork {
     private Long id;
     private String title;
     private String content;
+    private String description;
     private String url;
     private Date dueDate;
     private boolean status;
@@ -45,4 +49,22 @@ public class HomeWork {
     @OneToMany(mappedBy = "homeWork", fetch = FetchType.LAZY)
     @JsonBackReference
     private List<StudentYearHomeWork> studentYearHomeWorks;
+
+
+    @JsonIgnore
+    public HomeWorkDto convertToDto(Long studentYearInfo) {
+        return HomeWorkDto.builder()
+                .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .description(this.description)
+                .status(this.status)
+                .statusName(this.statusName)
+                .url(this.url)
+                .dueDate(this.dueDate)
+                .submission(studentYearHomeWorks.stream().anyMatch(
+                        s->s.getStudentYearInfo().getId().equals(studentYearInfo)))
+                .build();
+    }
+
 }

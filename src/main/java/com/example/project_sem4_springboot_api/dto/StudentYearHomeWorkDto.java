@@ -1,10 +1,11 @@
 package com.example.project_sem4_springboot_api.dto;
 
+import com.example.project_sem4_springboot_api.entities.StudentYearHomeWork;
+import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,11 @@ public class StudentYearHomeWorkDto {
     private boolean status;
     private String statusName;
     private double point;
+    private StudentYearInfo studentYearInfoId;
+    private List<String> imageUrl;
+
+
+
 
 
 

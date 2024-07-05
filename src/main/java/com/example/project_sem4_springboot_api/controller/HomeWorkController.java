@@ -53,44 +53,29 @@ public class HomeWorkController {
 
     @GetMapping("/getHomeWorkByStudentYearInfoID")
     public ResponseEntity<List<HomeWorkDto>> getHomeWorksByStudentYearInfoId(@RequestParam("id") Long studentYearInfoId) {
-        System.out.println("id" + studentYearInfoId);
         List<HomeWorkDto> homeWorkDTOs = homeWorkService.getHomeWorksByStudentYearInfoId(studentYearInfoId);
-
         return ResponseEntity.ok(homeWorkDTOs);
     }
 
+    /*
+         4: lấy ds bài tập đã giao của giáo viên theo id phân công giảng dạy (techer_schoolyear_class_subject)
+        DB(HomeWork)  , method: GET , params: techer_schoolyear_class_subject_id
 
-
-//    private final HomeWorkService homeWorkService;
-//
-//    public HomeWorkController(HomeWorkService homeWorkService) {
-//        this.homeWorkService = homeWorkService;
-//    }
-
-//    @PostMapping("/createHomework")
-//    public ResponseEntity<HomeWork> createHomeWork(@RequestBody HomeWorkDto homeWorkDto) {
-//        HomeWork createdHomeWork = homeWorkService.createHomeWork(homeWorkDto);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
-//    }
-//
-//    @GetMapping("/{id}")
-//    public ResponseEntity<HomeWorkDetailDto> getHomeWorkDetails(@PathVariable Long id) {
-//        HomeWorkDetailDto homeWorkDetailDto = homeWorkService.getHomeWorkDetails(id);
-//        return ResponseEntity.ok(homeWorkDetailDto);
-//    }
-//
-//    @GetMapping("/student-year/{studentYearInfoId}")
-//    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByStudentYearInfoId(@PathVariable Long studentYearInfoId) {
-//        List<HomeWorkDto> homeworkDtos = homeWorkService.getHomeWorksByStudentYearInfoId(studentYearInfoId);
-//        return ResponseEntity.ok(homeworkDtos);
-//    }
-//
-//    @GetMapping("/teacher-school-year-class-subject/{teacherSchoolYearClassSubjectId}")
-//    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(@PathVariable Long teacherSchoolYearClassSubjectId) {
-//        List<HomeWorkDto> homeworkDtos = homeWorkService.getHomeWorksByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-//        return ResponseEntity.ok(homeworkDtos);
+         return : trả về danh sách bài tập + (số lượng hs đã đã nộp / sl hs của lớp )
+         trả về ds url ảnh bài tập và ảnh bài nộp nếu có
+    */
+//    @GetMapping("/teacher/{teacherSchoolYearClassSubjectId}")
+//    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(
+//            @PathVariable Long teacherSchoolYearClassSubjectId) {
+//        List<HomeWorkDto> homeWorkDtos = homeWorkService.getHomeWorksByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
+//        return ResponseEntity.ok(homeWorkDtos);
 //    }
 
+    @GetMapping("/getHomeWorkDetail")
+    public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("id") Long homeWorkId) {
+        HomeWorkDto homeWorkDto = homeWorkService.getHomeWorkDetail(homeWorkId);
+        return ResponseEntity.ok(homeWorkDto);
+    }
 
 
 }

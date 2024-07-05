@@ -2,15 +2,21 @@ package com.example.project_sem4_springboot_api.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class CloudinaryService {
+    private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
     private final Cloudinary cloudinary;
 
     public CloudinaryService(Cloudinary cloudinary) {
@@ -29,7 +35,7 @@ public class CloudinaryService {
         try {
             Map<String, String> param = new HashMap<>();
             param.put("folder", folderName);
-            param.put("tag", tag);
+            param.put("tags", tag);
             Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(), param);
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
@@ -37,26 +43,21 @@ public class CloudinaryService {
         }
     }
 
+    public List<String> getImageUrl(String tag, String folder) {
+        Map<String, Object> options = ObjectUtils.asMap(
+                "resource_type", "image",
+                "type", "upload",
+                "folder", folder
+        );
+        try {
+            var result = cloudinary.api().resourcesByTag(tag,options);
+            List<Map> lisMap = (List<Map>)result.get("resources");
+            System.out.println(result);
+            return lisMap.stream().map(l->l.get("secure_url").toString()).toList();
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage() +"Không thể lấy URL ảnh từ Cloudinary");
 
-//    public Map upload(MultipartFile multipartFile) throws IOException {
-//        File file = convert(multipartFile);
-//        Map result = cloudinary.uploader().upload(file, ObjectUtils.emptyMap());
-//        if (!Files.deleteIfExists(file.toPath())) {
-//            throw new IOException("Failed to delete temporary file: " + file.getAbsolutePath());
-//        }
-//        return result;
-//    }
-//
-//    public Map delete(String id) throws IOException {
-//        return cloudinary.uploader().destroy(id, ObjectUtils.emptyMap());
-//    }
-//
-//    private File convert(MultipartFile multipartFile) throws IOException {
-//        File file = new File(Objects.requireNonNull(multipartFile.getOriginalFilename()));
-//        FileOutputStream fo = new FileOutputStream(file);
-//        fo.write(multipartFile.getBytes());
-//        fo.close();
-//        return file;
-//    }
+        }
+    }
 
 }

@@ -1,14 +1,12 @@
 package com.example.project_sem4_springboot_api.entities;
 
-import com.example.project_sem4_springboot_api.entities.response.StudentResponse;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Data
@@ -39,5 +37,20 @@ public class StudentYearHomeWork {
     public Long getHomeWork_id() {
         return homeWork.getId();
     }
+
+    @JsonIgnore
+    public StudentYearHomeWorkDto convertToDto() {
+        return StudentYearHomeWorkDto.builder()
+                .id(this.id)
+                .description(this.description)
+                .url(this.url)
+                .submitTime(this.submitTime)
+                .status(this.status)
+                .statusName(this.statusName)
+                .point(this.point)
+                .studentYearInfoId(this.studentYearInfo.toRes())
+                .build();
+    }
+
 
 }

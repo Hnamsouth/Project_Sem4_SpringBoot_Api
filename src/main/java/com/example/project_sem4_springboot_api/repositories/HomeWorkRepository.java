@@ -16,4 +16,6 @@ public interface HomeWorkRepository extends JpaRepository<HomeWork, Long> {
 
     List<HomeWork> findByStudentYearHomeWorks_StudentYearInfo_Id(Long studentYearInfoId);
 
+    List<HomeWork> findByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId);
+    List<HomeWork> findAllByTeacherSchoolYearClassSubject_SchoolYearClass_Id(Long classId);
 }
