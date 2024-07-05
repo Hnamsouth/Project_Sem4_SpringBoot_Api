@@ -8,6 +8,7 @@ import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import com.example.project_sem4_springboot_api.entities.request.TestUploadFile;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
 import com.example.project_sem4_springboot_api.entities.response.LoginResponse;
 import com.example.project_sem4_springboot_api.exception.AuthException;
@@ -29,6 +30,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
