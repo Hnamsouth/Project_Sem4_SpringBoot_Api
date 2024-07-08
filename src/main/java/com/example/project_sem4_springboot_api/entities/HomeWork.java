@@ -62,8 +62,8 @@ public class HomeWork {
                 .statusName(this.statusName)
                 .url(this.url)
                 .dueDate(this.dueDate)
-                .teacherInfo(this.teacherSchoolYearClassSubject.getTeacherSchoolYear().toTeacherInfo())
-                .schoolYearSubject(this.teacherSchoolYearClassSubject.getSchoolYearSubject().toRes())
+                .teacherInfo(this.teacherSchoolYearClassSubject.getTeacherSchoolYear().getTeacher().toTeacherInfo())
+                .subject(this.teacherSchoolYearClassSubject.getSchoolYearSubject().getSubject().toRes())
                 .submission(studentYearHomeWorks.stream().anyMatch(
                         s->s.getStudentYearInfo().getId().equals(studentYearInfo)))
                 .build();

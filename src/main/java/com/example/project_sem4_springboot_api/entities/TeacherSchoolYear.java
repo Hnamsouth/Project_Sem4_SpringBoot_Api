@@ -76,7 +76,7 @@ public class TeacherSchoolYear {
 
     @JsonIgnore
     public Map<String,Object> toTeacherInfo(){
-        return teacher.toTeacherInfo();
+        return this.getTeacher().toTeacherInfo();
     }
 
 }

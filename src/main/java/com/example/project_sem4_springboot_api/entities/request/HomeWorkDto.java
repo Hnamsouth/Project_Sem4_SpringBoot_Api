@@ -3,6 +3,7 @@ package com.example.project_sem4_springboot_api.entities.request;
 import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
 import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.entities.SchoolYearSubject;
+import com.example.project_sem4_springboot_api.entities.Subject;
 import com.example.project_sem4_springboot_api.entities.response.TeacherClassSubject;
 import lombok.Builder;
 import lombok.Data;
@@ -28,6 +29,6 @@ public class HomeWorkDto {
         private List<StudentYearHomeWorkDto> studentYearHomeWorks;
         private boolean studentHomeWorkStatus;
         private boolean submission;
-        private SchoolYearSubject schoolYearSubject;
+        private Subject subject;
         private Map<String,Object> teacherInfo;
 }

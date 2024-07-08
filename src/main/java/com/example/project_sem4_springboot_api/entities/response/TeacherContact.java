@@ -8,8 +8,9 @@ import lombok.Data;
 public class TeacherContact {
     private Long id;
     private String shortName;
-    private String name;
+    private String fullName;
     private boolean gender;
     private String email;
     private String phone;
+
 }
