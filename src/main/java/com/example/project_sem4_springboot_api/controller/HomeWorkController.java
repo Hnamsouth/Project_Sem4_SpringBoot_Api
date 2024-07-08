@@ -30,7 +30,7 @@ public class HomeWorkController {
         this.homeWorkService = homeWorkService;
     }
 
-    @PostMapping("/createHomework")
+    @PostMapping(consumes = {"multipart/form-data"},value="/createHomeWork")
     public ResponseEntity<HomeWork> createHomeWork(
             @RequestParam String title,
             @RequestParam String content,
@@ -41,7 +41,7 @@ public class HomeWorkController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
     }
 
-    @PostMapping("/createStudentYearHomeWork")
+    @PostMapping(consumes = {"multipart/form-data"},value="/createStudentHomeWork")
     public ResponseEntity<StudentYearHomeWork> submitHomeWork(
             @RequestParam List<MultipartFile> images,
             @RequestParam String description,
