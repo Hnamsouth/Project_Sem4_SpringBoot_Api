@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
@@ -72,4 +73,10 @@ public class TeacherSchoolYear {
                 .schoolYear(this.schoolYear)
                 .build();
     }
+
+    @JsonIgnore
+    public Map<String,Object> toTeacherInfo(){
+        return teacher.toTeacherInfo();
+    }
+
 }

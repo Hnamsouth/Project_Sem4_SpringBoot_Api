@@ -72,6 +72,26 @@ public class Teacher {
     }
 
     @JsonIgnore
+    public Map<String,Object> toTeacherInfo(){
+        var ud = user.getUserDetail().get(0);
+        return Map.ofEntries(
+                Map.entry("id",id),
+                Map.entry("officerNumber",officerNumber),
+                Map.entry("sortName",sortName),
+                Map.entry("joiningDate",joiningDate),
+                Map.entry("active",active),
+                Map.entry("fullName",ud.getFirstname()+" "+ud.getLastname()),
+                Map.entry("email",ud.getEmail()),
+                Map.entry("phone",ud.getPhone()),
+                Map.entry("gender",ud.isGender()),
+                Map.entry("birthday",ud.getBirthday()),
+                Map.entry("citizen_id",ud.getCitizen_id()),
+                Map.entry("nation",ud.getNation()),
+                Map.entry("avatar",ud.getAvatar())
+        );
+    }
+
+    @JsonIgnore
     public Teacher from(TeacherUpdateDto data){
         this.setActive(data.isActive());
         this.setOfficerNumber(data.getOfficerNumber());
