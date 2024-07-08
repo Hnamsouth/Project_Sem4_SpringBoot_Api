@@ -62,6 +62,7 @@ public class HomeWork {
                 .statusName(this.statusName)
                 .url(this.url)
                 .dueDate(this.dueDate)
+                .teacherContactDetail(this.teacherSchoolYearClassSubject.toRes())
                 .submission(studentYearHomeWorks.stream().anyMatch(
                         s->s.getStudentYearInfo().getId().equals(studentYearInfo)))
                 .build();
