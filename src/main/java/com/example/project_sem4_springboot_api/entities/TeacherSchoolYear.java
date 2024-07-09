@@ -9,6 +9,9 @@ import lombok.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -80,8 +83,8 @@ public class TeacherSchoolYear {
     }
 
     @JsonIgnore
-    public List<SchoolYearClass> getSchoolYearClass(){
-        return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearClass().toRes()).toList();
+    public Set<SchoolYearClass> getSchoolYearClass(){
+        return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearClass().toRes()).collect(Collectors.toSet());
     }
 
 }
