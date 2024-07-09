@@ -79,4 +79,9 @@ public class TeacherSchoolYear {
         return this.getTeacher().toTeacherInfo();
     }
 
+    @JsonIgnore
+    public List<SchoolYearClass> getSchoolYearClass(){
+        return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearClass().toRes()).toList();
+    }
+
 }

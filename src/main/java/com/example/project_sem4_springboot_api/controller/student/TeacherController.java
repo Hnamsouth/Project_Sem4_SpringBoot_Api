@@ -53,6 +53,10 @@ public class TeacherController {
     public ResponseEntity<?> getTeacherContact( @Nullable Long schoolYearClassId){
         return teacherService.getContactTeacher(schoolYearClassId);
     }
+    @GetMapping("/getClasses")
+    public ResponseEntity<?> getTeacherSchoolYearClass(@RequestParam Long schoolYearClassId){
+        return teacherService.getSchoolYearClassByTeacher(schoolYearClassId);
+    }
 
 
 }

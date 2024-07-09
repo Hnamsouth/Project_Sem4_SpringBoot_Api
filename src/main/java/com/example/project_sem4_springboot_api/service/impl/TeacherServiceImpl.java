@@ -9,6 +9,7 @@ import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
+import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -27,6 +30,7 @@ public class TeacherServiceImpl {
 
     private final UserDetailRepository userDetailRepository;
     private final TeacherRepository teacherRepository;
+    private final TeacherSchoolYearRepository teacherSchoolYearRepository;
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -125,7 +129,17 @@ public class TeacherServiceImpl {
         }
         return ResponseEntity.ok(teacherContactDetails);
     }
+    /**
+     *
+     * @return list school year class by teacher
+     * */
+    public ResponseEntity<?> getSchoolYearClassByTeacher(Long schoolYearId){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(currentUser.getId(),schoolYearId);
+        if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
 
-
+        return ResponseEntity.ok(teacher.getSchoolYearClass());
+    }
 
 }
