@@ -45,10 +45,14 @@ public class FCMService {
                 .build();
         try {
             String response = FirebaseMessaging.getInstance().send(message);
+//            FirebaseMessaging.getInstance().sendAll();
             System.out.println("Successfully sent message: " + response);
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public void sendAllNotification(){
+
     }
 
     public void attendanceNotificationToParent(LocalDate date, Long teacherSchoolYearId){

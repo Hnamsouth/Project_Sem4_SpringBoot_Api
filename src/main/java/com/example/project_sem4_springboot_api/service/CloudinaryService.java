@@ -36,11 +36,22 @@ public class CloudinaryService {
             Map<String, String> param = new HashMap<>();
             param.put("folder", folderName);
             param.put("tags", tag);
-            Map<String, Object> uploadResult = cloudinary.uploader().upload(image.getBytes(), param);
+            Map uploadResult = cloudinary.uploader().upload(image.getBytes(), param);
             return (String) uploadResult.get("secure_url");
         } catch (IOException e) {
             throw new RuntimeException("Error uploading image to Cloudinary", e);
         }
+    }
+    public List<String> uploadMultiImage(List<MultipartFile> images, String tag, String folderName) {
+        List<String> listUrl = new ArrayList<>();
+        for (MultipartFile image : images) {
+            listUrl.add(uploadImage(image, tag, folderName));
+        }
+        return listUrl;
+    }
+
+    public void removeFileByTag(String tag,String folderName) throws Exception {
+       cloudinary.api().deleteAllResources(Map.of("folder",folderName,"tags",tag));
     }
 
     public List<String> getImageUrl(String tag, String folder) {

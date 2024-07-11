@@ -51,6 +51,18 @@ public class StudentYearHomeWork {
                 .studentYearInfoId(this.studentYearInfo.toRes())
                 .build();
     }
+    @JsonIgnore
+    public StudentYearHomeWorkDto convertToDtoNoStdInfo() {
+        return StudentYearHomeWorkDto.builder()
+                .id(this.id)
+                .description(this.description)
+                .url(this.url)
+                .submitTime(this.submitTime)
+                .status(this.status)
+                .statusName(this.statusName)
+                .point(this.point)
+                .build();
+    }
 
 
 }

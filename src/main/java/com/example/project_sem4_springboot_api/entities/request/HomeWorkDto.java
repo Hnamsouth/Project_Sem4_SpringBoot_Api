@@ -25,9 +25,7 @@ public class HomeWorkDto {
         private String statusName;
         private boolean overdue;
         private List<String> homeworkImageUrls;
-        private List<String> studentHomeworkImageUrls;
         private List<StudentYearHomeWorkDto> studentYearHomeWorks;
-        private boolean studentHomeWorkStatus;
         private boolean submission;
         private Subject subject;
         private Map<String,Object> teacherInfo;

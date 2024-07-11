@@ -18,6 +18,11 @@ import java.util.stream.Collectors;
 @Service
 public class HomeWorkService {
 
+    private final String HOMEWORK_FN= "homeWork";
+    private final String HOMEWORK_TAG= "homework";
+    private final String STUDENT_HOMEWORK_FN= "studentHomeWork";
+    private final String STUDENT_HOMEWORK_TAG= "student-homework-";
+
     private final HomeWorkRepository homeWorkRepository;
     private final CloudinaryService cloudinaryService;
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
@@ -60,7 +65,7 @@ public class HomeWorkService {
         return homeWorkRepository.save(saveHomeWork);
     }
 
-    public StudentYearHomeWork submitHomeWork(List<MultipartFile> images, String description, Long studentYearInfoId, Long homeWorkId) {
+    public StudentYearHomeWork submitHomeWork(List<MultipartFile> images, String description, Long studentYearInfoId, Long homeWorkId) throws Exception {
         HomeWork homeWork = homeWorkRepository.findById(homeWorkId)
                 .orElseThrow(() -> new RuntimeException("HomeWork khong ton tai"));
 
@@ -71,34 +76,36 @@ public class HomeWorkService {
         StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearInfoId)
                 .orElseThrow(() -> new RuntimeException("Student Year Info khong ton tai"));
         //check nop chua
+
         Optional<StudentYearHomeWork> existingHomeWork =
-                studentYearHomeWorkRepository.findByStudentYearInfoIdAndHomeWorkId(studentYearInfoId, homeWorkId);
+                homeWork.getStudentYearHomeWorks().stream().filter(h->h.getStudentYearInfo().equals(studentYearInfo)).findFirst();
 
         StudentYearHomeWork studentYearHomeWork;
         if (existingHomeWork.isPresent()){
             //nop roi thi update
-            studentYearHomeWork = existingHomeWork.get();
-            studentYearHomeWork.setSubmitTime(new Date());
-            studentYearHomeWork.setStatus(true);
-            studentYearHomeWork.setStatusName("Đã nộp");
-            studentYearHomeWork.setDescription(description);
-            studentYearHomeWork.setPoint(0.0);
+            var s = existingHomeWork.get();
+            s.setDescription(description);
+            s.setSubmitTime(new Date());
+            // remove img tren cloudinary
+            try {
+                cloudinaryService.removeFileByTag(s.getUrl(),STUDENT_HOMEWORK_FN);
+            }catch (Exception e){
+                throw new ArgumentNotValidException("","","");
+            }
+            studentYearHomeWork = s;
         }else {
-            studentYearHomeWork = new StudentYearHomeWork();
-            studentYearHomeWork.setDescription(description);
-            studentYearHomeWork.setSubmitTime(new Date());
-            studentYearHomeWork.setStatus(true);
-            studentYearHomeWork.setStatusName("Đã nộp");
-            studentYearHomeWork.setPoint(0.0);
-            studentYearHomeWork.setStudentYearInfo(studentYearInfo);
-            studentYearHomeWork.setHomeWork(homeWork);
+            studentYearHomeWork =  StudentYearHomeWork.builder()
+                .description(description).submitTime(new Date()).status(true)
+                    .point(0.0).studentYearInfo(studentYearInfo).homeWork(homeWork)
+                .build();
         }
+        // save StudentYearHomeWork
         var saveStudentYearHomeWork = studentYearHomeWorkRepository.save(studentYearHomeWork);
+        // upload file to cloudinary
+        cloudinaryService.uploadMultiImage(images,STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId(), STUDENT_HOMEWORK_FN);
 
-        for (MultipartFile image : images) {
-            String imageUrl = cloudinaryService.uploadImage(image, "student-homework-" + studentYearHomeWork.getId(), "studentHomeWork");
-            studentYearHomeWork.setUrl(imageUrl);
-        }
+        saveStudentYearHomeWork.setUrl(STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId());
+
         return studentYearHomeWorkRepository.save(saveStudentYearHomeWork);
     }
 
@@ -111,11 +118,14 @@ public class HomeWorkService {
 
         return homeWorks.stream().map(s->{
             var students = s.convertToDto(studentYearInfoId);
-            var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),"homeWork");
+            if(students.isSubmission()){
+               var stdHw =  students.getStudentYearHomeWorks().get(0);
+               stdHw.setImageUrl(cloudinaryService.getImageUrl(stdHw.getUrl(),STUDENT_HOMEWORK_FN));
+                students.setStudentYearHomeWorks(List.of(stdHw));
+            }
+            var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),HOMEWORK_FN);
             students.setHomeworkImageUrls(homeWorkImageUrl);
-
             return students;
-
         }).toList();
     }
 
@@ -128,12 +138,12 @@ public class HomeWorkService {
         List<StudentYearHomeWorkDto> studentHomeWorkDtos = studentHomeWorks.stream()
                 .map(s->{
                     var student = s.convertToDto();
-                    var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),"studentHomeWork");
+                    var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),STUDENT_HOMEWORK_FN);
                     student.setImageUrl(homeWorkImageUrl);
                     return student;
                 })
                 .collect(Collectors.toList());
-        var homeWorkImageUrl = cloudinaryService.getImageUrl("homework4","homeWork");
+        var homeWorkImageUrl = cloudinaryService.getImageUrl(homeWork.getUrl(),HOMEWORK_FN);
 
         HomeWorkDto homeWorkDto = HomeWorkDto.builder()
                 .id(homeWork.getId())

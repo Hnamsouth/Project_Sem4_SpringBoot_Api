@@ -46,7 +46,7 @@ public class HomeWorkController {
             @RequestParam List<MultipartFile> images,
             @RequestParam String description,
             @RequestParam Long studentYearInfoId,
-            @RequestParam Long homeWorkId) {
+            @RequestParam Long homeWorkId) throws Exception {
         StudentYearHomeWork createdStudentYearHomeWork = homeWorkService.submitHomeWork(images, description, studentYearInfoId, homeWorkId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdStudentYearHomeWork);
     }
@@ -72,7 +72,7 @@ public class HomeWorkController {
 //    }
 
     @GetMapping("/getHomeWorkDetail")
-    public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("id") Long homeWorkId) {
+    public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("homeWorkId") Long homeWorkId) {
         HomeWorkDto homeWorkDto = homeWorkService.getHomeWorkDetail(homeWorkId);
         return ResponseEntity.ok(homeWorkDto);
     }
