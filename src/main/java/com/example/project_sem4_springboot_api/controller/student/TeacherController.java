@@ -54,8 +54,8 @@ public class TeacherController {
         return teacherService.getContactTeacher(schoolYearClassId);
     }
     @GetMapping("/getClasses")
-    public ResponseEntity<?> getTeacherSchoolYearClass(@RequestParam Long schoolYearClassId){
-        return teacherService.getSchoolYearClassByTeacher(schoolYearClassId);
+    public ResponseEntity<?> getTeacherSchoolYearClass(@RequestParam Long schoolYearId){
+        return teacherService.getSchoolYearClassByTeacher(schoolYearId);
     }
 
 
