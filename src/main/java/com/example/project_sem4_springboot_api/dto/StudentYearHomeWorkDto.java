@@ -25,6 +25,8 @@ public class StudentYearHomeWorkDto {
     private double point;
     private StudentYearInfo studentYearInfoId;
     private List<String> imageUrl;
+    private String subjectName;
+    private String teacherName;
 
 
 

@@ -1,11 +1,17 @@
 package com.example.project_sem4_springboot_api.entities.request;
 
 import com.example.project_sem4_springboot_api.dto.StudentYearHomeWorkDto;
+import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
+import com.example.project_sem4_springboot_api.entities.Teacher;
+import com.example.project_sem4_springboot_api.entities.TeacherSchoolYearClassSubject;
+import com.example.project_sem4_springboot_api.entities.response.TeacherClassSubject;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Data
 @Builder
@@ -24,4 +30,5 @@ public class HomeWorkDto {
         private List<StudentYearHomeWorkDto> studentYearHomeWorks;
         private boolean studentHomeWorkStatus;
         private boolean submission;
+        private TeacherContactDetail teacherContactDetail;
 }

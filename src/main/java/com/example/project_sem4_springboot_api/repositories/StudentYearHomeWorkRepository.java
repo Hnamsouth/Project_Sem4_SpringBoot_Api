@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StudentYearHomeWorkRepository extends JpaRepository<StudentYearHomeWork, Long> {
@@ -14,6 +15,8 @@ public interface StudentYearHomeWorkRepository extends JpaRepository<StudentYear
     List<StudentYearHomeWork> findByHomeWorkId(Long homeWorkId);
 
     List<StudentYearHomeWork> findByStudentYearInfoId(Long studentYearInfoId);
+
+    Optional<StudentYearHomeWork> findByStudentYearInfoIdAndHomeWorkId(Long studentYearInfoId, Long homeWorkId);
 
 
     //List<StudentYearHomeWork> findByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId);

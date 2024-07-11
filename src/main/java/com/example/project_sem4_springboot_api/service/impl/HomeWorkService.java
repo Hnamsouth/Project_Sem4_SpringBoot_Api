@@ -67,15 +67,32 @@ public class HomeWorkService {
         if (homeWork.getDueDate().before(new Date())) {
             throw new RuntimeException("bai tap dahet han");
         }
-        StudentYearHomeWork studentYearHomeWork = new StudentYearHomeWork();
-        studentYearHomeWork.setDescription(description);
-        studentYearHomeWork.setSubmitTime(new Date());
-        studentYearHomeWork.setStatus(true);
-        studentYearHomeWork.setStatusName("Đã nộp");
-        studentYearHomeWork.setPoint(0.0);
-        studentYearHomeWork.setStudentYearInfo(studentYearInfoRepository.findById(studentYearInfoId)
-                .orElseThrow(() -> new RuntimeException("StudentYearInfo notfound")));
-        studentYearHomeWork.setHomeWork(homeWork);
+
+        StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearInfoId)
+                .orElseThrow(() -> new RuntimeException("Student Year Info khong ton tai"));
+        //check nop chua
+        Optional<StudentYearHomeWork> existingHomeWork =
+                studentYearHomeWorkRepository.findByStudentYearInfoIdAndHomeWorkId(studentYearInfoId, homeWorkId);
+
+        StudentYearHomeWork studentYearHomeWork;
+        if (existingHomeWork.isPresent()){
+            //nop roi thi update
+            studentYearHomeWork = existingHomeWork.get();
+            studentYearHomeWork.setSubmitTime(new Date());
+            studentYearHomeWork.setStatus(true);
+            studentYearHomeWork.setStatusName("Đã nộp");
+            studentYearHomeWork.setDescription(description);
+            studentYearHomeWork.setPoint(0.0);
+        }else {
+            studentYearHomeWork = new StudentYearHomeWork();
+            studentYearHomeWork.setDescription(description);
+            studentYearHomeWork.setSubmitTime(new Date());
+            studentYearHomeWork.setStatus(true);
+            studentYearHomeWork.setStatusName("Đã nộp");
+            studentYearHomeWork.setPoint(0.0);
+            studentYearHomeWork.setStudentYearInfo(studentYearInfo);
+            studentYearHomeWork.setHomeWork(homeWork);
+        }
         var saveStudentYearHomeWork = studentYearHomeWorkRepository.save(studentYearHomeWork);
 
         for (MultipartFile image : images) {
@@ -96,7 +113,9 @@ public class HomeWorkService {
             var students = s.convertToDto(studentYearInfoId);
             var homeWorkImageUrl = cloudinaryService.getImageUrl(s.getUrl(),"homeWork");
             students.setHomeworkImageUrls(homeWorkImageUrl);
+
             return students;
+
         }).toList();
     }
 
