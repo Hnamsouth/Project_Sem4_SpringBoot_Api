@@ -54,10 +54,7 @@ public class HomeWork {
 
 
     @JsonIgnore
-    public HomeWorkDto convertToDto(Long studentYearInfo) {
-        var stdHw = this.getStudentYearHomeWorks().stream().filter(
-            s->s.getStudentYearInfo().getId().equals(studentYearInfo)
-                    && s.getHomeWork().getId().equals(this.id)).map(StudentYearHomeWork::convertToDtoNoStdInfo).toList();
+    public HomeWorkDto convertToDto() {
         return HomeWorkDto.builder()
                 .id(this.id)
                 .title(this.title)
@@ -69,8 +66,6 @@ public class HomeWork {
                 .dueDate(this.dueDate)
                 .teacherInfo(this.teacherSchoolYearClassSubject.getTeacherSchoolYear().getTeacher().toTeacherInfo())
                 .subject(this.teacherSchoolYearClassSubject.getSchoolYearSubject().getSubject().toRes())
-                .studentYearHomeWorks(stdHw)
-                .submission(!stdHw.isEmpty())
                 .build();
     }
 

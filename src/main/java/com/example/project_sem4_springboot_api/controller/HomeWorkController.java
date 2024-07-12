@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,7 +38,7 @@ public class HomeWorkController {
             @RequestParam String content,
             @RequestParam String dueDate,
             @RequestParam Long teacherSchoolYearClassSubjectId,
-            @RequestParam List<MultipartFile> images) throws ParseException, IOException {
+            @RequestParam List<MultipartFile> images) throws ParseException, IOException, ExecutionException, InterruptedException {
         HomeWork createdHomeWork = homeWorkService.createHomeWork(title, content, dueDate, teacherSchoolYearClassSubjectId, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
     }

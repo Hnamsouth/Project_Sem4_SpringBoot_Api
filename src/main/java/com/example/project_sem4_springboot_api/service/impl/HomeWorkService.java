@@ -6,7 +6,9 @@ import com.example.project_sem4_springboot_api.entities.request.HomeWorkDto;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.service.CloudinaryService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,10 +16,13 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class HomeWorkService {
 
     private final String HOMEWORK_FN= "homeWork";
@@ -31,20 +36,15 @@ public class HomeWorkService {
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentYearHomeWorkRepository studentYearHomeWorkRepository;
 
-    public HomeWorkService(HomeWorkRepository homeWorkRepository, CloudinaryService cloudinaryService, TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository, StudentYearInfoRepository studentYearInfoRepository, StudentYearHomeWorkRepository studentYearHomeWorkRepository) {
-        this.homeWorkRepository = homeWorkRepository;
-        this.cloudinaryService = cloudinaryService;
-        this.teacherSchoolYearClassSubjectRepository = teacherSchoolYearClassSubjectRepository;
+    private final FileStorageRepository fileStorageRepository;
 
-        this.studentYearInfoRepository = studentYearInfoRepository;
-        this.studentYearHomeWorkRepository = studentYearHomeWorkRepository;
-    }
+
 
     public HomeWork createHomeWork(String title,
                                    String content,
                                    String dueDate,
                                    Long teacherSchoolYearClassSubjectId,
-                                   List<MultipartFile> images) throws ParseException, IOException {
+                                   List<MultipartFile> images) throws ParseException, IOException, ExecutionException, InterruptedException {
         TeacherSchoolYearClassSubject teacherSchoolYearClassSubject = teacherSchoolYearClassSubjectRepository.findById(teacherSchoolYearClassSubjectId)
                 .orElseThrow(() -> new RuntimeException("TeacherSchoolYearClassSubject not found"));
 
@@ -115,17 +115,24 @@ public class HomeWorkService {
 
         List<HomeWork> homeWorks = homeWorkRepository.
                 findAllByTeacherSchoolYearClassSubject_SchoolYearClass_Id(student.getSchoolYearClass().getId());
+        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findAllByStudentYearInfo_IdAndHomeWorkIn(studentYearInfoId, homeWorks);
+        // get all tags
+        List<String> tags = new ArrayList<>(homeWorks.stream().map(HomeWork::getUrl).toList());
+        tags.addAll(studentYearHomeWorks.stream().map(StudentYearHomeWork::getUrl).toList());
+        // get all images by tags
+        var listImagesUrl = getImageByTags(tags);
 
         return homeWorks.stream().map(s->{
-            var students = s.convertToDto(studentYearInfoId);
-            if(students.isSubmission()){
-               var stdHw =  students.getStudentYearHomeWorks().get(0);
-               stdHw.setImageUrl(cloudinaryService.getImageUrlByTag(stdHw.getUrl(),STUDENT_HOMEWORK_FN));
-                students.setStudentYearHomeWorks(List.of(stdHw));
+            var hw = s.convertToDto();
+            var st = studentYearHomeWorks.stream().filter(h->h.getHomeWork().getId().equals(s.getId())).findFirst();
+            if(st.isPresent()){
+                var stdHw = st.get().convertToDtoNoStdInfo();
+                stdHw.setImageUrl(listImagesUrl.get(stdHw.getUrl()));
+                hw.setStudentYearHomeWorks(List.of(stdHw));
             }
-            var homeWorkImageUrl = cloudinaryService.getImageUrlByTag(s.getUrl(),HOMEWORK_FN);
-            students.setHomeworkImageUrls(homeWorkImageUrl);
-            return students;
+            hw.setHomeworkImageUrls(listImagesUrl.get(s.getUrl()));
+            hw.setSubmission(true);
+            return hw;
         }).toList();
     }
 
@@ -133,34 +140,26 @@ public class HomeWorkService {
         HomeWork homeWork = homeWorkRepository.findById(homeWorkId)
                 .orElseThrow(() -> new RuntimeException("HomeWork không tồn tại"));
 
-        List<StudentYearHomeWork> studentHomeWorks = studentYearHomeWorkRepository.findByHomeWorkId(homeWorkId);
-//        var listTags = studentHomeWorks.stream().map(StudentYearHomeWork::getUrl).toList();
-//        var listImagesUrl = cloudinaryService.getImageUrlByTags(listTags,STUDENT_HOMEWORK_FN);
+        List<StudentYearHomeWork> studentHomeWorks = homeWork.getStudentYearHomeWorks();
+
+        List<String> listTags = new LinkedList<>();
+        listTags.add(homeWork.getUrl());
+        studentHomeWorks.forEach(s->listTags.add(s.getUrl()));
+
+        var listImagesUrl = getImageByTags(listTags);
         List<StudentYearHomeWorkDto> studentHomeWorkDtos = studentHomeWorks.stream()
                 .map(s->{
                     var student = s.convertToDto();
-                    student.setImageUrl(cloudinaryService.getImageUrlByTag(s.getUrl(),STUDENT_HOMEWORK_FN));
+                    student.setImageUrl(listImagesUrl.get(student.getUrl()));
                     return student;
                 })
                 .collect(Collectors.toList());
 
         var res = homeWork.convertToDtoOnlyHw();
         res.setStudentYearHomeWorks(studentHomeWorkDtos);
-        res.setHomeworkImageUrls(cloudinaryService.getImageUrlByTag(homeWork.getUrl(),HOMEWORK_FN));
+        res.setHomeworkImageUrls(listImagesUrl.get(homeWork.getUrl()));
 
         return res;
-    }
-
-    private StudentYearHomeWorkDto convertToDto(StudentYearHomeWork studentYearHomeWork) {
-        return StudentYearHomeWorkDto.builder()
-                .id(studentYearHomeWork.getId())
-                .description(studentYearHomeWork.getDescription())
-                .url(studentYearHomeWork.getUrl())
-                .submitTime(studentYearHomeWork.getSubmitTime())
-                .status(studentYearHomeWork.isStatus())
-                .statusName(studentYearHomeWork.getStatusName())
-                .point(studentYearHomeWork.getPoint())
-                .build();
     }
 
     /*
@@ -172,62 +171,38 @@ public class HomeWorkService {
     */
     public ResponseEntity<?> getHomeWorksByTeacher(Long teacherSchoolYearClassSubjectId){
         List<HomeWork> homeWorks = homeWorkRepository.findAllByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
+        var listImg =  getImageByTags(homeWorks.stream().map(HomeWork::getUrl).toList());
 
         var res = homeWorks.stream().map(h->{
             var hw = h.toTeacherRes();
-            hw.put("homeworkImageUrls",cloudinaryService.getImageUrlByTag(h.getUrl(),HOMEWORK_FN));
+            hw.put("homeworkImageUrls",listImg.get(h.getUrl()));
             return hw;
         }).toList();
         return ResponseEntity.ok(res);
     }
 
+    private Map<String,List<String>> getImageByTags(List<String> tags){
+        var listUrls = fileStorageRepository.findAllByTagsIn(tags);
+        return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
+    }
 
 
-//    public List<HomeWorkDto> getHomeWorksByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId) {
-//        List<HomeWork> homeWorks = homeWorkRepository.findByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-//        List<StudentYearHomeWork> studentYearHomeWorks = studentYearHomeWorkRepository.findByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-//
-//        List<HomeWorkDto> homeWorkDTOs = new ArrayList<>();
-//        for (HomeWork homeWork : homeWorks) {
-//            HomeWorkDto homeWorkDto = HomeWorkDto.builder()
-//                    .id(homeWork.getId())
-//                    .title(homeWork.getTitle())
-//                    .content(homeWork.getContent())
-//                    .url(homeWork.getUrl())
-//                    .dueDate(homeWork.getDueDate())
-//                    .status(homeWork.isStatus())
-//                    .statusName(homeWork.getStatusName())
-//                    .teacherSchoolYearClassSubjectId(homeWork.getTeacherSchoolYearClassSubject())
-//                    .homeworkImageUrls(Collections.singletonList(homeWork.getUrl()))
-//                    .build();
-//
-//            long submittedStudents = studentYearHomeWorks.stream()
-//                    .filter(s -> s.getHomeWork().getId().equals(homeWork.getId()))
-//                    .count();
-//            homeWorkDto.setSubmittedStudents((int) submittedStudents);
-//
-//            List<StudentYearHomeWorkDto> studentYearHomeWorkDtos = studentYearHomeWorks.stream()
-//                    .filter(s -> s.getHomeWork().getId().equals(homeWork.getId()))
-//                    .map(s -> StudentYearHomeWorkDto.builder()
-//                            .id(s.getId())
-//                            .description(s.getDescription())
-//                            .status(s.isStatus())
-//                            .statusName(s.getStatusName())
-//                            .url(s.getUrl())
-//                            .build())
-//                    .collect(Collectors.toList());
-//            homeWorkDto.setStudentYearHomeWorks(studentYearHomeWorkDtos);
-//
-//            int totalStudents = teacherSchoolYearClassSubjectRepository.findTotalStudentsByTeacherSchoolYearClassSubjectId(homeWork.getTeacherSchoolYearClassSubject().getId());
-//            homeWorkDto.setTotalStudents(totalStudents);
-//
-//            homeWorkDTOs.add(homeWorkDto);
-//        }
-//
-//        return homeWorkDTOs;
-//    }
 
+    @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
+    public void checkAndUpdateAssignments() {
+        Date now = new Date();
+        System.out.println("Kiểm tra bài tập đã hết hạn\t" + now);
 
+        List<HomeWork> homeWorks = homeWorkRepository.findAllByDueDateBefore(now);
+        if(!homeWorks.isEmpty()){
+            homeWorks.forEach(h->{
+                h.setStatus(false);
+                h.setStatusName("Đã hết hạn");
+                System.out.println("HomeWork: " + h.getId() + " đã hết hạn\t" + now);
+            });
+            homeWorkRepository.saveAll(homeWorks);
+        }
+    }
 
 }
 

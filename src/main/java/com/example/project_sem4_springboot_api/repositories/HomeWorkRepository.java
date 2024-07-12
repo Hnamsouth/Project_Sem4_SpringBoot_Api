@@ -4,6 +4,7 @@ import com.example.project_sem4_springboot_api.entities.HomeWork;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -17,5 +18,6 @@ public interface HomeWorkRepository extends JpaRepository<HomeWork, Long> {
     List<HomeWork> findByStudentYearHomeWorks_StudentYearInfo_Id(Long studentYearInfoId);
 
     List<HomeWork> findAllByTeacherSchoolYearClassSubjectId(Long teacherSchoolYearClassSubjectId);
+    List<HomeWork> findAllByDueDateBefore(Date dueDate);
     List<HomeWork> findAllByTeacherSchoolYearClassSubject_SchoolYearClass_Id(Long classId);
 }
