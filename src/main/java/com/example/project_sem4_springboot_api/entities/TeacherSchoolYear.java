@@ -83,7 +83,7 @@ public class TeacherSchoolYear {
     }
 
     @JsonIgnore
-    public Set<SchoolYearClass> getSchoolYearClass(){
+    public Set<SchoolYearClass> getClasses(){
         return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearClass().toRes()).collect(Collectors.toSet());
     }
     @JsonIgnore

@@ -136,8 +136,7 @@ public class TeacherServiceImpl {
     public ResponseEntity<?> getSchoolYearClassByTeacher(Long schoolYearId){
         var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(checkUser(),schoolYearId);
         if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
-
-        return ResponseEntity.ok(teacher.getSchoolYearClass());
+        return ResponseEntity.ok(teacher.getClasses());
     }
 
     /**
@@ -148,7 +147,7 @@ public class TeacherServiceImpl {
     public ResponseEntity<?> getSchoolYearSubject(Long schoolYearId){
         var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(checkUser(),schoolYearId);
         if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
-        return ResponseEntity.ok(teacher.getSchoolYearClass());
+        return ResponseEntity.ok(teacher.getSubjects());
     }
 
     private Long checkUser(){
