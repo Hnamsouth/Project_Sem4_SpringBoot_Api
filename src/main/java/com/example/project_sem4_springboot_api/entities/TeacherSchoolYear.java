@@ -7,10 +7,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -92,17 +89,17 @@ public class TeacherSchoolYear {
     }
 
     @JsonIgnore
-    public List<Map<String,Object>> getClassesSubjects(){
+    public List<LinkedHashMap<String, Object>> getClassesSubjects(){
         var classes = this.teacherSchoolYearClassSubjects
                 .stream().map(t->t.getSchoolYearClass().toRes()).collect(Collectors.toSet());
         return classes.stream().map(c->{
-            Map<String,Object> map = Map.of(
-                    "id",c.getId(),
-                    "className",c.getClassName(),
-                    "classCode",c.getClassCode(),
-                    "grade",c.getGrade(),
-                    "subjects",this.teacherSchoolYearClassSubjects.stream().filter(s->
-                            s.getTeacherSchoolYear().getId().equals(c.getId())).map(x->x.getSchoolYearSubject().toRes()).toList()
+            LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+            map.put("id",c.getId());
+            map.put("className",c.getClassName());
+            map.put("classCode",c.getClassCode());
+            map.put("grade",c.getGrade());
+            map.put("subjects",this.teacherSchoolYearClassSubjects.stream().filter(s->
+                    s.getTeacherSchoolYear().getId().equals(c.getId())).map(x->x.getSchoolYearSubject().toRes()).toList()
             );
             return map;
         }).toList();
