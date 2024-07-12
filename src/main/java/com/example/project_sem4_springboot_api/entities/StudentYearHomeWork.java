@@ -48,7 +48,7 @@ public class StudentYearHomeWork {
                 .status(this.status)
                 .statusName(this.statusName)
                 .point(this.point)
-                .studentYearInfoId(this.studentYearInfo.toRes())
+                .studentYearInfoId(this.studentYearInfo.toStudentResponse())
                 .build();
     }
     @JsonIgnore

@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.dto;
 
 import com.example.project_sem4_springboot_api.entities.StudentYearHomeWork;
 import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
+import com.example.project_sem4_springboot_api.entities.response.StudentResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class StudentYearHomeWorkDto {
     private boolean status;
     private String statusName;
     private double point;
-    private StudentYearInfo studentYearInfoId;
+    private StudentResponse studentYearInfoId;
     private List<String> imageUrl;
     private String subjectName;
     private String teacherName;

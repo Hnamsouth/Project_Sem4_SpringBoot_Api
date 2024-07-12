@@ -86,5 +86,9 @@ public class TeacherSchoolYear {
     public Set<SchoolYearClass> getSchoolYearClass(){
         return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearClass().toRes()).collect(Collectors.toSet());
     }
+    @JsonIgnore
+    public Set<SchoolYearSubject> getSubjects(){
+        return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearSubject().toRes()).collect(Collectors.toSet());
+    }
 
 }

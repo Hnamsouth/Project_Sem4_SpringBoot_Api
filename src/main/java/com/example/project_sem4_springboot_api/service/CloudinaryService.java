@@ -1,74 +1,124 @@
 package com.example.project_sem4_springboot_api.service;
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.Search;
+import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CloudinaryService {
     private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
     private final Cloudinary cloudinary;
 
-    public CloudinaryService(Cloudinary cloudinary) {
-        this.cloudinary = cloudinary;
-    }
+    private final ExecutorService executorService;
 
-    public CloudinaryService() {
-        Map<String, String> valuesMap = new HashMap<>();
-        valuesMap.put("cloud_name", "doyi7x2s3");
-        valuesMap.put("api_key", "642753163166488");
-        valuesMap.put("api_secret", "bjRR3CDlmpr3rsen0Tc-J5_QQCU");
-        cloudinary = new Cloudinary(valuesMap);
+    public void uploadImage(MultipartFile image, String tag, String folderName) throws IOException {
+        executorService.submit(() -> {
+            try {
+                Map<String, String> param = Map.of(
+                        "folder", folderName,
+                        "resource_type", "image",
+                        "type", "upload",
+                        "tags", tag
+                );
+                var rs = cloudinary.uploader().upload(image.getBytes(), param);
+                System.out.println(rs);
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading image to Cloudinary", e);
+            }
+        });
     }
-
-    public String uploadImage(MultipartFile image, String tag, String folderName) {
-        try {
-            Map<String, String> param = new HashMap<>();
-            param.put("folder", folderName);
-            param.put("tags", tag);
-            Map uploadResult = cloudinary.uploader().upload(image.getBytes(), param);
-            return (String) uploadResult.get("secure_url");
-        } catch (IOException e) {
-            throw new RuntimeException("Error uploading image to Cloudinary", e);
-        }
-    }
-    public List<String> uploadMultiImage(List<MultipartFile> images, String tag, String folderName) {
-        List<String> listUrl = new ArrayList<>();
+    public void uploadMultiImage(List<MultipartFile> images, String tag, String folderName) throws IOException {
         for (MultipartFile image : images) {
-            listUrl.add(uploadImage(image, tag, folderName));
+            uploadImage(image, tag, folderName);
         }
-        return listUrl;
     }
 
     public void removeFileByTag(String tag,String folderName) throws Exception {
-       cloudinary.api().deleteAllResources(Map.of("folder",folderName,"tags",tag));
+        executorService.submit(()->{
+            try {
+                Map<String,Object> options = Map.of(
+                        "folder", folderName,
+                        "type", "upload",
+                        "resource_type", "image"
+                );
+                cloudinary.api().deleteResourcesByTag(tag,options);
+            } catch (Exception e) {
+                log.error("Error deleting image from Cloudinary", e);
+            }
+        });
+
     }
 
-    public List<String> getImageUrl(String tag, String folder) {
-        Map<String, Object> options = ObjectUtils.asMap(
-                "resource_type", "image",
+    public List<String> getImageUrlByTag(String tag, String folder) {
+        Map<String,Object> options = Map.of(
+                "folder", folder,
                 "type", "upload",
-                "folder", folder
+                "resource_type", "image",
+                "tags", true
         );
         try {
-            var result = cloudinary.api().resourcesByTag(tag,options);
+            var result = cloudinary.api().resourcesByTag(tag, options);
             List<Map> lisMap = (List<Map>)result.get("resources");
-            System.out.println(result);
             return lisMap.stream().map(l->l.get("secure_url").toString()).toList();
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage() +"Không thể lấy URL ảnh từ Cloudinary");
-
         }
     }
+
+    public Map<String,List<String>> getImageUrlByTags(List<String> tags, String folder) {
+
+        try {
+            Map<String,Object> options = Map.of(
+                    "folder", folder,
+                    "type", "upload",
+                    "resource_type", "image",
+                    "tags", true
+            );
+            String tagss = String.join(",", tags);
+            var result = cloudinary.search()
+                    .expression("tags:" + tagss)
+//                    .maxResults(10) // Số lượng hình ảnh tối đa cần lấy
+                    .withField("tags") // Lấy cả thông tin tags của hình ảnh
+                    .execute();
+            List<Map> lisMap = (List<Map>)result.get("resources");
+            System.out.println(result);
+            return tags.stream().collect(Collectors.toMap(Function.identity(),
+                    t-> lisMap.stream().filter(l->l.get("tags").toString().contains(t))
+                    .map(l->l.get("secure_url").toString()).toList()));
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage() +"Không thể lấy URL ảnh từ Cloudinary");
+        }
+    }
+
+    @PreDestroy
+    public void shutdown() {
+        try {
+            System.out.println("Shutting down executor service");
+            executorService.shutdown();
+            if (!executorService.awaitTermination(60, TimeUnit.MILLISECONDS)) {
+                System.out.println("Executor service did not terminate in the specified time. Shutting down now.");
+                executorService.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executorService.shutdownNow();
+        }
+    }
+
 
 }

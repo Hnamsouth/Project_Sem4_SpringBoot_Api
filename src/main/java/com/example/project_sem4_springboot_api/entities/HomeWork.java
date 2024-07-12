@@ -9,7 +9,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
@@ -54,7 +56,8 @@ public class HomeWork {
     @JsonIgnore
     public HomeWorkDto convertToDto(Long studentYearInfo) {
         var stdHw = this.getStudentYearHomeWorks().stream().filter(
-            s->s.getStudentYearInfo().getId().equals(studentYearInfo)).map(StudentYearHomeWork::convertToDtoNoStdInfo).toList();
+            s->s.getStudentYearInfo().getId().equals(studentYearInfo)
+                    && s.getHomeWork().getId().equals(this.id)).map(StudentYearHomeWork::convertToDtoNoStdInfo).toList();
         return HomeWorkDto.builder()
                 .id(this.id)
                 .title(this.title)
@@ -70,5 +73,37 @@ public class HomeWork {
                 .submission(!stdHw.isEmpty())
                 .build();
     }
+
+    @JsonIgnore
+    public Map<String,Object> toTeacherRes(){
+        var res = new LinkedHashMap<String,Object>();
+        res.put("id",this.id);
+        res.put("title",this.title);
+        res.put("content",this.content);
+        res.put("description",this.description);
+        res.put("status",this.status);
+        res.put("statusName",this.statusName);
+        res.put("url",this.url);
+        res.put("dueDate",this.dueDate);
+        res.put("subject",this.teacherSchoolYearClassSubject.getSchoolYearSubject().getSubject().toRes());
+        res.put("class",this.teacherSchoolYearClassSubject.getSchoolYearClass().toRes());
+        res.put("studentSubmission",this.studentYearHomeWorks.size()+"/"+this.getTeacherSchoolYearClassSubject().getSchoolYearClass().getStudentYearInfos().size());
+        return res;
+    }
+
+    @JsonIgnore
+    public HomeWorkDto convertToDtoOnlyHw(){
+        return HomeWorkDto.builder()
+                .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .description(this.description)
+                .status(this.status)
+                .statusName(this.statusName)
+                .url(this.url)
+                .dueDate(this.dueDate)
+                .build();
+    }
+
 
 }

@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -36,7 +37,7 @@ public class HomeWorkController {
             @RequestParam String content,
             @RequestParam String dueDate,
             @RequestParam Long teacherSchoolYearClassSubjectId,
-            @RequestParam List<MultipartFile> images) throws ParseException {
+            @RequestParam List<MultipartFile> images) throws ParseException, IOException {
         HomeWork createdHomeWork = homeWorkService.createHomeWork(title, content, dueDate, teacherSchoolYearClassSubjectId, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
     }
@@ -64,12 +65,11 @@ public class HomeWorkController {
          return : trả về danh sách bài tập + (số lượng hs đã đã nộp / sl hs của lớp )
          trả về ds url ảnh bài tập và ảnh bài nộp nếu có
     */
-//    @GetMapping("/teacher/{teacherSchoolYearClassSubjectId}")
-//    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(
-//            @PathVariable Long teacherSchoolYearClassSubjectId) {
-//        List<HomeWorkDto> homeWorkDtos = homeWorkService.getHomeWorksByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-//        return ResponseEntity.ok(homeWorkDtos);
-//    }
+    @GetMapping("/getHomeWorksByTeacherSchoolYearClassSubject")
+    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(
+            @RequestParam Long teacherSchoolYearClassSubjectId) {
+        return ResponseEntity.ok(homeWorkService.getHomeWorksByStudentYearInfoId(teacherSchoolYearClassSubjectId));
+    }
 
     @GetMapping("/getHomeWorkDetail")
     public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("homeWorkId") Long homeWorkId) {
