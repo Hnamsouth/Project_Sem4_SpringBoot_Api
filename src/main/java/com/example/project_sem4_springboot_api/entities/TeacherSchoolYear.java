@@ -91,4 +91,22 @@ public class TeacherSchoolYear {
         return this.teacherSchoolYearClassSubjects.stream().map(t->t.getSchoolYearSubject().toRes()).collect(Collectors.toSet());
     }
 
+    @JsonIgnore
+    public List<Map<String,Object>> getClassesSubjects(){
+        var classes = this.teacherSchoolYearClassSubjects
+                .stream().map(t->t.getSchoolYearClass().toRes()).collect(Collectors.toSet());
+        return classes.stream().map(c->{
+            Map<String,Object> map = Map.of(
+                    "id",c.getId(),
+                    "className",c.getClassName(),
+                    "classCode",c.getClassCode(),
+                    "grade",c.getGrade(),
+                    "subjects",this.teacherSchoolYearClassSubjects.stream().filter(s->
+                            s.getTeacherSchoolYear().getId().equals(c.getId())).map(x->x.getSchoolYearSubject().toRes()).toList()
+            );
+            return map;
+        }).toList();
+
+    }
+
 }
