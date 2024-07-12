@@ -17,6 +17,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,8 +36,8 @@ public class HomeWorkService {
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentYearHomeWorkRepository studentYearHomeWorkRepository;
-
     private final FileStorageRepository fileStorageRepository;
+    private final ExecutorService executorService;
 
 
 
@@ -191,16 +192,16 @@ public class HomeWorkService {
     @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
     public void checkAndUpdateAssignments() {
         Date now = new Date();
-        System.out.println("Kiểm tra bài tập đã hết hạn\t" + now);
-
-        List<HomeWork> homeWorks = homeWorkRepository.findAllByDueDateBefore(now);
+        System.out.println("Kiểm tra hạn nộp bài tập \t" + now);
+        List<HomeWork> homeWorks = homeWorkRepository.findAllByDueDateBeforeAndStatus(now,true);
         if(!homeWorks.isEmpty()){
-            homeWorks.forEach(h->{
+            var hw= homeWorks.stream().map(h->{
                 h.setStatus(false);
                 h.setStatusName("Đã hết hạn");
                 System.out.println("HomeWork: " + h.getId() + " đã hết hạn\t" + now);
-            });
-            homeWorkRepository.saveAll(homeWorks);
+                return h;
+            }).toList();
+            homeWorkRepository.saveAll(hw);
         }
     }
 
