@@ -143,11 +143,10 @@ public class HomeWorkService {
                     return student;
                 })
                 .collect(Collectors.toList());
-        var homeWorkImageUrl = cloudinaryService.getImageUrlByTag(homeWork.getUrl(),HOMEWORK_FN);
 
         var res = homeWork.convertToDtoOnlyHw();
         res.setStudentYearHomeWorks(studentHomeWorkDtos);
-        res.setHomeworkImageUrls(homeWorkImageUrl);
+        res.setHomeworkImageUrls(cloudinaryService.getImageUrlByTag(homeWork.getUrl(),HOMEWORK_FN));
 
         return res;
     }

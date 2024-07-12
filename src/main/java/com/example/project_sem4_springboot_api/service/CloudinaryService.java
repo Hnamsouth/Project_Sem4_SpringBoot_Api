@@ -91,13 +91,10 @@ public class CloudinaryService {
                     "tags", true
             );
             String tagss = String.join(",", tags);
-            var result = cloudinary.search()
-                    .expression("tags:" + tagss)
-//                    .maxResults(10) // Số lượng hình ảnh tối đa cần lấy
-                    .withField("tags") // Lấy cả thông tin tags của hình ảnh
-                    .execute();
+            var result = cloudinary.api().resourcesByTag(tagss, options);
             List<Map> lisMap = (List<Map>)result.get("resources");
             System.out.println(result);
+            lisMap.forEach(System.out::println);
             return tags.stream().collect(Collectors.toMap(Function.identity(),
                     t-> lisMap.stream().filter(l->l.get("tags").toString().contains(t))
                     .map(l->l.get("secure_url").toString()).toList()));

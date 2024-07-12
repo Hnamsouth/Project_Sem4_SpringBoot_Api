@@ -66,15 +66,14 @@ public class HomeWorkController {
          trả về ds url ảnh bài tập và ảnh bài nộp nếu có
     */
     @GetMapping("/getHomeWorksByTeacherSchoolYearClassSubject")
-    public ResponseEntity<List<HomeWorkDto>> getHomeWorksByTeacherSchoolYearClassSubjectId(
+    public ResponseEntity<?> getHomeWorksByTeacherSchoolYearClassSubjectId(
             @RequestParam Long teacherSchoolYearClassSubjectId) {
-        return ResponseEntity.ok(homeWorkService.getHomeWorksByStudentYearInfoId(teacherSchoolYearClassSubjectId));
+        return ResponseEntity.ok(homeWorkService.getHomeWorksByTeacher(teacherSchoolYearClassSubjectId));
     }
 
     @GetMapping("/getHomeWorkDetail")
     public ResponseEntity<HomeWorkDto> getHomeWorkDetail(@RequestParam("homeWorkId") Long homeWorkId) {
-        HomeWorkDto homeWorkDto = homeWorkService.getHomeWorkDetail(homeWorkId);
-        return ResponseEntity.ok(homeWorkDto);
+        return ResponseEntity.ok(homeWorkService.getHomeWorkDetail(homeWorkId));
     }
 
 
