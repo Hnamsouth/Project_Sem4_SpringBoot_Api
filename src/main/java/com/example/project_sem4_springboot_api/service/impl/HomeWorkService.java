@@ -132,7 +132,7 @@ public class HomeWorkService {
                 hw.setStudentYearHomeWorks(List.of(stdHw));
             }
             hw.setHomeworkImageUrls(listImagesUrl.get(s.getUrl()));
-            hw.setSubmission(true);
+            hw.setSubmission(st.isPresent());
             return hw;
         }).toList();
     }
