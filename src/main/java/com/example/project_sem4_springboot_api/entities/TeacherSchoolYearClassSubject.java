@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -75,6 +76,15 @@ public class TeacherSchoolYearClassSubject {
                                 .build()
                 )
                 .build();
+    }
+
+    @JsonIgnore
+    public Map<String, Object> toResTeacher(){
+        return Map.of(
+                "teacherSchoolYearClassSubject", this.id,
+                "schoolYearClass", this.schoolYearClass.toRes(),
+                "schoolYearSubject", this.schoolYearSubject.toRes()
+        );
     }
 
 }

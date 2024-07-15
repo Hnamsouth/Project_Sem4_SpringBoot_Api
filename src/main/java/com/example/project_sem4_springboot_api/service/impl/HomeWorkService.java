@@ -58,12 +58,14 @@ public class HomeWorkService {
         homeWork.setStatus(true);
         homeWork.setStatusName("Đang hoạt động");
         var saveHomeWork = homeWorkRepository.save(homeWork);
+        if(!images.isEmpty()){
+            cloudinaryService.uploadMultiImage(images,HOMEWORK_TAG + saveHomeWork.getId(), HOMEWORK_FN);
+            saveHomeWork.setUrl("homework" + saveHomeWork.getId());
+            homeWorkRepository.save(saveHomeWork);
+        }
 
-        cloudinaryService.uploadMultiImage(images,HOMEWORK_TAG + saveHomeWork.getId(), HOMEWORK_FN);
 
-        saveHomeWork.setUrl("homework" + saveHomeWork.getId());
-
-        return homeWorkRepository.save(saveHomeWork);
+        return saveHomeWork;
     }
 
     public StudentYearHomeWork submitHomeWork(List<MultipartFile> images, String description, Long studentYearInfoId, Long homeWorkId) throws Exception {
@@ -103,11 +105,12 @@ public class HomeWorkService {
         // save StudentYearHomeWork
         var saveStudentYearHomeWork = studentYearHomeWorkRepository.save(studentYearHomeWork);
         // upload file to cloudinary
-        cloudinaryService.uploadMultiImage(images,STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId(), STUDENT_HOMEWORK_FN);
-
-        saveStudentYearHomeWork.setUrl(STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId());
-
-        return studentYearHomeWorkRepository.save(saveStudentYearHomeWork);
+        if(!images.isEmpty()){
+            cloudinaryService.uploadMultiImage(images,STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId(), STUDENT_HOMEWORK_FN);
+            saveStudentYearHomeWork.setUrl(STUDENT_HOMEWORK_TAG + studentYearHomeWork.getId());
+            studentYearHomeWorkRepository.save(saveStudentYearHomeWork);
+        }
+        return saveStudentYearHomeWork;
     }
 
     public List<HomeWorkDto> getHomeWorksByStudentYearInfoId(Long studentYearInfoId) {
@@ -187,23 +190,6 @@ public class HomeWorkService {
         return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
     }
 
-
-
-    @Scheduled(fixedRate = 60000) // Kiểm tra mỗi phút
-    public void checkAndUpdateAssignments() {
-        Date now = new Date();
-        System.out.println("Kiểm tra hạn nộp bài tập \t" + now);
-        List<HomeWork> homeWorks = homeWorkRepository.findAllByDueDateBeforeAndStatus(now,true);
-        if(!homeWorks.isEmpty()){
-            var hw= homeWorks.stream().map(h->{
-                h.setStatus(false);
-                h.setStatusName("Đã hết hạn");
-                System.out.println("HomeWork: " + h.getId() + " đã hết hạn\t" + now);
-                return h;
-            }).toList();
-            homeWorkRepository.saveAll(hw);
-        }
-    }
 
 }
 

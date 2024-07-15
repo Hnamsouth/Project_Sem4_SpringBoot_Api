@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 @Data
 public class SubjectClassRes {
+    public Long teacherSchoolYearSubjectId;
     public SchoolYearSubject schoolYearSubject;
     public List<SchoolYearClass> schoolYearClassList;
 }

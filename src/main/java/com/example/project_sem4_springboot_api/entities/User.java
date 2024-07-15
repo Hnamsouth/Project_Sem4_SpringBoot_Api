@@ -53,7 +53,7 @@ public class User {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
-    private List<UserNotification> notifications;
+    private List<UserNotification> userNotifications;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude

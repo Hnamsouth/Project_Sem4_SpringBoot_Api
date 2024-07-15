@@ -134,7 +134,7 @@ public class TeacherServiceImpl {
      * @return list school year class by teacher
      * */
     public ResponseEntity<?> getSchoolYearClassByTeacher(Long schoolYearId){
-        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(checkUser(),schoolYearId);
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
         if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
         return ResponseEntity.ok(teacher.getClassesSubjects());
     }
@@ -145,15 +145,9 @@ public class TeacherServiceImpl {
      * */
 
     public ResponseEntity<?> getSchoolYearSubject(Long schoolYearId){
-        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(checkUser(),schoolYearId);
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
         if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
         return ResponseEntity.ok(teacher.getSubjects());
-    }
-
-    private Long checkUser(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
-        return currentUser.getId();
     }
 
 }

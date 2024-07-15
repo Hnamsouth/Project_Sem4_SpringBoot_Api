@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 
 @Service
@@ -19,11 +22,11 @@ import java.time.LocalDate;
 public class FCMService {
 
     /**
-     * @thông báo cho phụ huynh khi gv điểm danh học sinh
-     * @thông báo cho gv khi phụ huynh xin nghỉ cho học sinh
-     * @thông báo cho phụ huynh khi gv phê duyệt xin nghỉ của học sinh
-     * @thông báo cho phụ huynh khi có đợt thu mới
-     * @thông báo cho phụ huynh khi có tkb mới
+     * @apiNote thông báo cho phụ huynh khi gv điểm danh học sinh
+     * @apiNote thông báo cho gv khi phụ huynh xin nghỉ cho học sinh
+     * @apiNote thông báo cho phụ huynh khi gv phê duyệt xin nghỉ của học sinh
+     * @apiNote thông báo cho phụ huynh khi có đợt thu mới
+     * @apiNote thông báo cho phụ huynh khi có tkb mới
      * nếu phụ huynh ko có device token thì
      *
      * */
@@ -32,27 +35,55 @@ public class FCMService {
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentRepository studentRepository;
+    private final ExecutorService executorService;
 
     public void sendNotification(String token, String title, String body) {
-
-        Notification notification = Notification.builder()
-                .setTitle(title)
-                .setBody(body)
-                .build();
-        Message message = Message.builder()
-                .setToken(token)
-                .setNotification(notification)
-                .build();
-        try {
-            String response = FirebaseMessaging.getInstance().send(message);
+        executorService.submit(()->{
+            try {
+                Notification notification = Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .setImage("https://images.pexels.com/photos/18939401/pexels-photo-18939401/free-photo-of-den-va-tr-ng-thanh-ph-xe-h-i-giao-thong.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")
+                        .build();
+                Message message = Message.builder()
+                        .putAllData(Map.of(
+                                "data1", "asda sd",
+                                "data3", "asda aasfsfsd",
+                                "data2", "asdasd asd"
+                                )
+                        )
+                        .setToken(token)
+                        .setNotification(notification)
+                        .build();
+                String response = FirebaseMessaging.getInstance().send(message);
 //            FirebaseMessaging.getInstance().sendAll();
-            System.out.println("Successfully sent message: " + response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void sendAllNotification(){
+                System.out.println("Successfully sent message: " + response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
+    }
+
+    public void sendAllNotification(List<String> tokens, Map<String,String> data, String title, String body, String image) {
+        executorService.submit(()->{
+            try {
+                Notification notification = Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .setImage(image)
+                        .build();
+                List<Message> messageList = tokens.stream().map(tk->Message.builder()
+                        .setToken(tk)
+                        .putAllData(data)
+                        .setNotification(notification)
+                        .build()).toList();
+                var response = FirebaseMessaging.getInstance().sendAll(messageList);
+                System.out.println("Successfully sendAll message: "+title+"\t" + response.getSuccessCount() + "/"+response.getFailureCount());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public void attendanceNotificationToParent(LocalDate date, Long teacherSchoolYearId){
@@ -64,13 +95,6 @@ public class FCMService {
         UserNotification.builder().build();
     }
 
-    public void attendanceNotificationFromTeacher(){
-
-    }
-
-    public void takeLeaveNotificationToParent(){
-
-    }
 
 
 

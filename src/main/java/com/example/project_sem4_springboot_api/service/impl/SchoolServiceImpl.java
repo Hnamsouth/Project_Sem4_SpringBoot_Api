@@ -233,6 +233,7 @@ public class SchoolServiceImpl {
                 if(checkSubjectExist.isEmpty()){
                     // if subject not exist add new subject
                     subjectClassResList.add(SubjectClassRes.builder().schoolYearSubject(e.getSchoolYearSubject().toRes())
+                                    .teacherSchoolYearSubjectId(e.getId())
                             .schoolYearClassList(List.of(e.getSchoolYearClass().toRes())).build());
                     resp.setSubjectClassResList(subjectClassResList);
                 }else {
@@ -241,6 +242,7 @@ public class SchoolServiceImpl {
                     List<SchoolYearClass> schoolYearClassList = new ArrayList<>(checkSubjectExist.get(0).getSchoolYearClassList());
                     schoolYearClassList.add(e.getSchoolYearClass().toRes());
                     resp2.setSchoolYearClassList(schoolYearClassList);
+                    resp2.setTeacherSchoolYearSubjectId(e.getId());
                     subjectClassResList.set(subjectClassResList.indexOf(checkSubjectExist.get(0)),resp2);
                 }
                 resp1.set(resp1.indexOf(checkTc.get(0)),resp);
@@ -250,6 +252,13 @@ public class SchoolServiceImpl {
                 resp1,
                 "Không tìm thấy data với schoolYearId: "+schoolYearId+" !!!"
         );
+    }
+
+    public ResponseEntity<?> getTeacherSchoolYearClassSubjectByTeacher(Long schoolYearId){
+        var rs = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
+        if(rs == null) throw new ArgumentNotValidException("Không tìm thấy TeacherSchoolYear với schoolYearId: "+schoolYearId+" !!!","","");
+        var tssc = rs.getTeacherSchoolYearClassSubjects().stream().map(TeacherSchoolYearClassSubject::toResTeacher).toList();
+        return ResponseEntity.ok().body(tssc);
     }
 
     /**
