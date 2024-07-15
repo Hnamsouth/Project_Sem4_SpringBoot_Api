@@ -72,11 +72,7 @@ public class CloudinaryService {
                 cloudinary.api().deleteResourcesByTag(tag,options);
                 // khi xoa data trong db sẽ yêu cầu giao dịch riêng biệt nên cần phải tạo giao dịch khi xóa
                 // có thể dùng @Transaction hoặc transactionTemplate
-                transactionTemplate.execute(status ->{
-                    var check = fileStorageRepository.deleteAllByTags(tag);
-                      System.out.println("delete img size:"+check.size());
-                    return null;
-                });
+                transactionTemplate.execute(status ->fileStorageRepository.deleteAllByTags(tag));
             } catch (Exception e) {
                 log.error("Error deleting image from Cloudinary", e);
             }
