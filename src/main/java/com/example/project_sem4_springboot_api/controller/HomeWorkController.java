@@ -36,10 +36,11 @@ public class HomeWorkController {
     public ResponseEntity<HomeWork> createHomeWork(
             @RequestParam String title,
             @RequestParam String content,
-            @RequestParam String dueDate,
+            @RequestParam Date dueDate,
+            @RequestParam Date startDate,
             @RequestParam Long teacherSchoolYearClassSubjectId,
             @RequestParam List<MultipartFile> images) throws ParseException, IOException, ExecutionException, InterruptedException {
-        HomeWork createdHomeWork = homeWorkService.createHomeWork(title, content, dueDate, teacherSchoolYearClassSubjectId, images);
+        HomeWork createdHomeWork = homeWorkService.createHomeWork(title, content, dueDate,startDate, teacherSchoolYearClassSubjectId, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdHomeWork);
     }
 

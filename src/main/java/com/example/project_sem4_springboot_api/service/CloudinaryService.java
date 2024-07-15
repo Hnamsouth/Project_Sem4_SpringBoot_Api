@@ -29,7 +29,7 @@ public class CloudinaryService {
     private final FileStorageRepository fileStorageRepository;
     private final ExecutorService executorService;
 
-    public void uploadImage(MultipartFile image, String tag, String folderName) throws IOException, ExecutionException, InterruptedException {
+    public void uploadImage(MultipartFile image, String tag, String folderName) {
          executorService.submit(() -> {
             try {
                 Map<String, String> param = Map.of(

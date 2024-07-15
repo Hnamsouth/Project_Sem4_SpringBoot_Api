@@ -43,8 +43,8 @@ public class NotificationController {
     }
 
     @GetMapping("/get-user-notifications")
-    public ResponseEntity<?> getUserNotifications(@RequestParam Long size){
-        return userNotificationService.getUserNotifications(size);
+    public ResponseEntity<?> getUserNotifications(@RequestParam Long page,@RequestParam Long size){
+        return userNotificationService.getUserNotifications(page,size);
     }
     @PutMapping("/update-user-notifications-read-status")
     public ResponseEntity<?> updateUserNotificationsReadStatus(@RequestParam Long size){

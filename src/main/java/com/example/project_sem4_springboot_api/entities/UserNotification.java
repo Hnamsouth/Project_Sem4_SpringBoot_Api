@@ -31,6 +31,12 @@ public class UserNotification {
     private boolean status;
     private boolean hasRead;
 
+//    @ElementCollection
+//    @CollectionTable(name = "notification_data", joinColumns = @JoinColumn(name = "notification_id"))
+//    @MapKeyColumn(name = "key")
+//    @Column(name = "value")
+//    private Map<String, String> data;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonManagedReference

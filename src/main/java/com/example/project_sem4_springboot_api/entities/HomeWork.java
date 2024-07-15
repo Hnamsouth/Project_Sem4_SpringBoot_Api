@@ -29,6 +29,7 @@ public class HomeWork {
     private String description;
     private String url;
     private Date dueDate;
+    private Date startDate;
     private boolean status;
     private String statusName;
     @ManyToOne

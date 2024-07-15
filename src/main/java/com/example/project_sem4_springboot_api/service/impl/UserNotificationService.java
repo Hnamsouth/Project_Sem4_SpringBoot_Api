@@ -44,23 +44,23 @@ public class UserNotificationService {
             throw new DataExistedException("Device token is already taken !!!");
         }else{
             var user = userRepository.findById(userId);
-            var res = userDeviceTokenRepository.save(
-                    UserDeviceToken.builder()
-                            .user(user.orElseThrow())
-                            .deviceToken(data.getDeviceToken())
-                            .os(data.getDeviceType().getName())
-                            .createdAt(java.time.LocalDate.now())
-                            .build()
+            userDeviceTokenRepository.save(
+                UserDeviceToken.builder()
+                    .user(user.orElseThrow())
+                    .deviceToken(data.getDeviceToken())
+                    .os(data.getDeviceType().getName())
+                    .createdAt(java.time.LocalDate.now())
+                    .build()
             );
-            return ResponseEntity.ok().body(res.toRes());
+            return ResponseEntity.ok().body("Device token is updated !!!");
         }
     }
 
-    public ResponseEntity<?>  getUserNotifications( Long size){
+    public ResponseEntity<?>  getUserNotifications(Long page, Long size){
         return ResponseEntity.ok().body(
             size != null ?
                 userNotificationRepository.findUserNotifications(
-                        AuthService.getUserId(), PageRequest.of(0, size.intValue())
+                        AuthService.getUserId(), PageRequest.of(page.intValue(), size.intValue())
                 )  :
                 userNotificationRepository.findAllByUserIdOrderByCreatedAtDesc(AuthService.getUserId())
             );
