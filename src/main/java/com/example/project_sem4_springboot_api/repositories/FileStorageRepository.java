@@ -8,5 +8,5 @@ import java.util.List;
 public interface FileStorageRepository extends JpaRepository<FileStorage,Long> {
     List<FileStorage> findAllByTags(String tags);
     List<FileStorage> findAllByTagsIn(List<String> tags);
-    void deleteAllByTags(String tags);
+    List<FileStorage> deleteAllByTags(String tags);
 }

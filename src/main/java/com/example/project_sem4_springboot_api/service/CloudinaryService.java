@@ -7,7 +7,10 @@ import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,12 +25,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+
 public class CloudinaryService {
     private static final Logger log = LoggerFactory.getLogger(CloudinaryService.class);
     private final Cloudinary cloudinary;
-
     private final FileStorageRepository fileStorageRepository;
     private final ExecutorService executorService;
+    private final TransactionTemplate transactionTemplate;
 
     public void uploadImage(MultipartFile image, String tag, String folderName) {
          executorService.submit(() -> {
@@ -57,7 +61,6 @@ public class CloudinaryService {
             uploadImage(image, tag, folderName);
         }
     }
-
     public void removeFileByTag(String tag,String folderName) throws Exception {
         executorService.submit(()->{
             try {
@@ -67,12 +70,17 @@ public class CloudinaryService {
                         "resource_type", "image"
                 );
                 cloudinary.api().deleteResourcesByTag(tag,options);
-                fileStorageRepository.deleteAllByTags(tag);
+                // khi xoa data trong db sẽ yêu cầu giao dịch riêng biệt nên cần phải tạo giao dịch khi xóa
+                // có thể dùng @Transaction hoặc transactionTemplate
+                transactionTemplate.execute(status ->{
+                    var check = fileStorageRepository.deleteAllByTags(tag);
+                      System.out.println("delete img size:"+check.size());
+                    return null;
+                });
             } catch (Exception e) {
                 log.error("Error deleting image from Cloudinary", e);
             }
         });
-
     }
 
     public List<String> getImageUrlByTag(String tag, String folder) {
@@ -91,30 +99,10 @@ public class CloudinaryService {
         }
     }
 
-    public Map<String,List<String>> getImageUrlByTags(List<String> tags, String folder) {
-
-        try {
-            Map<String,Object> options = Map.of(
-                    "folder", folder,
-                    "type", "upload",
-                    "resource_type", "image",
-                    "tags", true
-            );
-            String tagss = String.join(",", tags);
-            System.out.println(cloudinary.search().toQuery().put("tags",tagss));
-
-            var result = cloudinary.api().resourcesByTag(tagss, options);
-            List<Map> lisMap = (List<Map>)result.get("resources");
-            System.out.println(result);
-            lisMap.forEach(System.out::println);
-            return tags.stream().collect(Collectors.toMap(Function.identity(),
-                    t-> lisMap.stream().filter(l->l.get("tags").toString().contains(t))
-                    .map(l->l.get("secure_url").toString()).toList()));
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage() +"Không thể lấy URL ảnh từ Cloudinary");
-        }
+    public Map<String,List<String>> getImageGroupByTags(List<String> tags){
+        var listUrls = fileStorageRepository.findAllByTagsIn(tags);
+        return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
     }
-
     @PreDestroy
     public void shutdown() {
         try {

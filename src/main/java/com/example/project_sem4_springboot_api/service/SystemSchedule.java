@@ -29,7 +29,6 @@ public class SystemSchedule {
     // kiểm tra và update bài tập về nhà đã hết hạn
     public void checkAndUpdateHomeWork() {
         Date now = new Date();
-        System.out.println("Kiểm tra hạn nộp bài tập \t" + now);
         List<HomeWork> homeWorks = homeWorkRepository.findAllByDueDateBeforeAndStatus(now,true);
         if(!homeWorks.isEmpty()){
             var hw= homeWorks.stream().map(h->{
