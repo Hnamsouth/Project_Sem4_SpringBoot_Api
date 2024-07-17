@@ -33,4 +33,3 @@ build/
 .vscode/
 
 /src/main/resources/application-private.properties
-/src/main/resources/cloudmessages4-2875f-firebase-adminsdk-tzqok-de6f82a0ef.json
