@@ -1,15 +1,10 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
-import com.example.project_sem4_springboot_api.entities.StudentYearInfo;
-import com.example.project_sem4_springboot_api.entities.UserNotification;
-import com.example.project_sem4_springboot_api.repositories.SchoolYearClassRepository;
-import com.example.project_sem4_springboot_api.repositories.StudentRepository;
-import com.example.project_sem4_springboot_api.repositories.StudentYearInfoRepository;
+import com.example.project_sem4_springboot_api.entities.request.UserNotifyRes;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +25,15 @@ public class FCMService {
      *
      * */
     private final String TITLE_DIEM_DANH = "Thông báo điểm danh";
-
-    private final SchoolYearClassRepository schoolYearClassRepository;
-    private final StudentYearInfoRepository studentYearInfoRepository;
-    private final StudentRepository studentRepository;
+    private final String TEACHER_TOPIC = "teacher-t2207a";
+    private final String TEACHER_PARENT = "parent-t2207a";
+    private final String TEACHER_BGH = "bgh-t2207a";
+    private final String TEACHER_NV = "nv-t2207a";
     private final ExecutorService executorService;
 
+
+
+    private final String ANDROID_TK="ev4i5OVGRbyiyHngoQflNm:APA91bH0KWavda1t91Hcdyka56CZzASzAR4KGK9XxYnVynzJnuHL_3zCcHPgMRNoRJ2umVvDJ4PYljEVoLwzd7uFuFaje1SjNkgbG0otU3YufNmhn7rjY0tbiKsOTIZYYd7fmSgJRp4W";
     private final String IMG_URL = "https://images.pexels.com/photos/18939401/pexels-photo-18939401/free-photo-of-den-va-tr-ng-thanh-ph-xe-h-i-giao-thong.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1";
 
     public void sendNotification(String token, String title, String body) {
@@ -65,17 +63,19 @@ public class FCMService {
 
     }
 
-    public void sendAllNotification(List<String> tokens, Map<String,String> data, String title, String body, String image) {
+    public void sendAllNotification(UserNotifyRes req) {
         executorService.submit(()->{
             try {
                 Notification notification = Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .setImage(image)
+                        .setTitle(req.getTitle())
+                        .setBody(req.getBody())
+                        .setImage(req.getImage())
                         .build();
-                List<Message> messageList = tokens.stream().map(tk->allPlatformsMessage(tk,data,notification)).toList();
+                List<Message> messageList = req.getTokens().stream()
+                        .map(tk->allPlatformsMessage(tk,req.getData(),notification)).toList();
                 var response = FirebaseMessaging.getInstance().sendAll(messageList);
-                System.out.println("Successfully sendAll message: "+title+"\t" + response.getSuccessCount() + "/"+response.getFailureCount());
+
+                System.out.println("Successfully sendAll message: "+req.getTitle()+"\t" + response.getSuccessCount() + "/"+req.getTokens().size());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -84,14 +84,10 @@ public class FCMService {
     public Message allPlatformsMessage(String token,Map<String,String> data,Notification notification) {
         // [START multi_platforms_message]
         return Message.builder()
-                .setTopic("industry-tech")
+//                .setTopic("industry-tech")
                 .setToken(token)
-                .putAllData(data)
+                .putAllData(data==null?Map.of():data)
                 .setNotification(notification)
-                .setNotification(Notification.builder()
-                        .setTitle("$GOOG up 1.43% on the day")
-                        .setBody("$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.")
-                        .build())
                 .setAndroidConfig(AndroidConfig.builder()
                         .setTtl(3600 * 1000)
                         .setNotification(AndroidNotification.builder()
@@ -170,24 +166,21 @@ public class FCMService {
     }
 
 
-    public void subscribeToTopic() throws FirebaseMessagingException {
-        String topic = "highScores";
-        // [START subscribe]
-        // These registration tokens come from the client FCM SDKs.
-        List<String> registrationTokens = Arrays.asList(
-                "YOUR_REGISTRATION_TOKEN_1",
-                // ...
-                "YOUR_REGISTRATION_TOKEN_n"
-        );
+    public void subscribeToTopic(List<String> registrationTokens,String topic) throws FirebaseMessagingException {
+        executorService.submit(()->{
+            // Subscribe the devices corresponding to the registration tokens to the topic
+            try {
+                 var response = FirebaseMessaging.getInstance().subscribeToTopic(
+                        registrationTokens, topic);
+                System.out.println(response.getSuccessCount() + " tokens were subscribed successfully");
 
-        // Subscribe the devices corresponding to the registration tokens to the
-        // topic.
-        TopicManagementResponse response = FirebaseMessaging.getInstance().subscribeToTopic(
-                registrationTokens, topic);
-        // See the TopicManagementResponse reference documentation
-        // for the contents of response.
-        System.out.println(response.getSuccessCount() + " tokens were subscribed successfully");
-        // [END subscribe]
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+            // See the TopicManagementResponse reference documentation
+            // for the contents of response.
+            // [END subscribe]
+        });
     }
 
     public void unsubscribeFromTopic() throws FirebaseMessagingException {

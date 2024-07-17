@@ -2,6 +2,7 @@ package com.example.project_sem4_springboot_api.controller;
 
 import com.example.project_sem4_springboot_api.entities.UserDeviceToken;
 import com.example.project_sem4_springboot_api.entities.request.UserDeviceTokenReq;
+import com.example.project_sem4_springboot_api.entities.request.UserNotifyRes;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.UserDeviceTokenRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +37,13 @@ public class NotificationController {
     @GetMapping("/send-notification")
     public String sendNotification(@RequestParam String token, @RequestParam String title, @RequestParam String body) throws Exception {
         // token is the device token of the user
-        fcmService.sendNotification(token, title, body);
+        fcmService.sendAllNotification(
+                UserNotifyRes.builder()
+                        .tokens(List.of(token))
+                        .title(title)
+                        .body(body)
+                        .build()
+        );
         return "UserNotification sent";
     }
 
