@@ -66,25 +66,13 @@ public class ArticleService {
     public List<ArticleDto> getAllArticles() {
         List<Article> articles = articleRepository.findAll();
         List<String> tags = new ArrayList<>(articles.stream().map(Article::getUrl).toList());
-        var listImagesUrl = getImageByTags(tags);
+        var listImagesUrl = cloudinaryService.getImageGroupByTags(tags);
 
         return articles.stream().map(s->{
             var ar = s.convertToDto();
             ar.setArticleImageUrls(listImagesUrl.get(s.getUrl()));
             return ar;
         }).toList();
-
-
-
     }
-
-    private Map<String,List<String>> getImageByTags(List<String> tags){
-        var listUrls = fileStorageRepository.findAllByTagsIn(tags);
-        return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
-    }
-
-
-
-
 
 }
