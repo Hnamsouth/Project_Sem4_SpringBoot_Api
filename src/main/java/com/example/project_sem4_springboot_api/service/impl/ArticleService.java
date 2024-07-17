@@ -1,21 +1,25 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
 import com.example.project_sem4_springboot_api.dto.ArticleDto;
-import com.example.project_sem4_springboot_api.entities.Article;
-import com.example.project_sem4_springboot_api.entities.Image;
-import com.example.project_sem4_springboot_api.entities.User;
+import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.repositories.ArticleRepository;
+import com.example.project_sem4_springboot_api.repositories.FileStorageRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
-import com.example.project_sem4_springboot_api.service.impl.ImageService;
+import com.example.project_sem4_springboot_api.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,43 +27,64 @@ import java.util.stream.Collectors;
 public class ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final ImageService imageService;
+    private final FileStorageRepository fileStorageRepository;
+
+
 
     private final UserRepository userRepository;
+    private final String ARTICLE_TAG= "article";
+    private final String ARTICLE_FN= "article";
+    private final CloudinaryService cloudinaryService;
 
 
-    @Transactional
-    public ResponseEntity<?> saveArticle(ArticleDto articleDto) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
-        // Upload images and get URLs
-        List<String> imageUrls = imageService.upload(articleDto.getImages());
-        // Find the user by userId
-        User user = userRepository.findById(currentUser.getId()).orElseThrow(() ->
+
+
+
+    public Article saveArticle(
+            String title,
+            String content,
+            Long createdId,
+            List<MultipartFile> images
+    ) throws IOException, ExecutionException, InterruptedException {
+        User user = userRepository.findById(createdId).orElseThrow(() ->
                 new RuntimeException("User not found"));
 
-        // Create and save the article
-        Article article = Article.builder()
-                .title(articleDto.getTitle())
-                .content(articleDto.getContent())
-                .user(user)
-                .build();
+       Article article = new Article();
+       article.setTitle(title);
+       article.setContent(content);
+       article.setUser(user);
+        var saveArticle = articleRepository.save(article);
+        if(!images.isEmpty()){
+            cloudinaryService.uploadMultiImage(images,ARTICLE_TAG + saveArticle.getId(), ARTICLE_FN);
+            saveArticle.setUrl("article" + saveArticle.getId());
+            articleRepository.save(saveArticle);
+        }
+        return  saveArticle;
+    }
 
-        List<Image> images = imageUrls.stream()
-                .map(url -> Image.builder()
-                        .url(url)
-                        .article(article)
-                        .build())
-                .collect(Collectors.toList());
 
-        article.setImages(images);
-        var res = articleRepository.save(article).toRes();
-        return ResponseEntity.ok(res);
+    public List<ArticleDto> getAllArticles() {
+        List<Article> articles = articleRepository.findAll();
+        List<String> tags = new ArrayList<>(articles.stream().map(Article::getUrl).toList());
+        var listImagesUrl = getImageByTags(tags);
+
+        return articles.stream().map(s->{
+            var ar = s.convertToDto();
+            ar.setArticleImageUrls(listImagesUrl.get(s.getUrl()));
+            return ar;
+        }).toList();
+
+
+
+    }
+
+    private Map<String,List<String>> getImageByTags(List<String> tags){
+        var listUrls = fileStorageRepository.findAllByTagsIn(tags);
+        return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
     }
 
 
 
-    public List<Article> getAllArticles() {
-        return articleRepository.findAll();
-    }
+
+
 }
