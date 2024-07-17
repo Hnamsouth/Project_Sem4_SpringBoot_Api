@@ -19,6 +19,7 @@ public class HomeWorkDto {
         private String title;
         private String content;
         private Date dueDate;
+        private Date startDate;
         private String description;
         private String url;
         private boolean status;

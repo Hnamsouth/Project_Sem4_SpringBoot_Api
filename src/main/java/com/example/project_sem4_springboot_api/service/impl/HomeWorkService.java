@@ -43,17 +43,18 @@ public class HomeWorkService {
 
     public HomeWork createHomeWork(String title,
                                    String content,
-                                   String dueDate,
+                                   Date dueDate,
+                                   Date startDate,
                                    Long teacherSchoolYearClassSubjectId,
                                    List<MultipartFile> images) throws ParseException, IOException, ExecutionException, InterruptedException {
         TeacherSchoolYearClassSubject teacherSchoolYearClassSubject = teacherSchoolYearClassSubjectRepository.findById(teacherSchoolYearClassSubjectId)
                 .orElseThrow(() -> new RuntimeException("TeacherSchoolYearClassSubject not found"));
-
+        if(dueDate.before(startDate)) throw new ArgumentNotValidException("","", "Ngày kết thúc không thể trước ngày bắt đầu");
         HomeWork homeWork = new HomeWork();
         homeWork.setTitle(title);
         homeWork.setContent(content);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        homeWork.setDueDate(dateFormat.parse(dueDate));
+        homeWork.setDueDate(dueDate);
+        homeWork.setStartDate(startDate);
         homeWork.setTeacherSchoolYearClassSubject(teacherSchoolYearClassSubject);
         homeWork.setStatus(true);
         homeWork.setStatusName("Đang hoạt động");
@@ -90,11 +91,8 @@ public class HomeWorkService {
             s.setDescription(description);
             s.setSubmitTime(new Date());
             // remove img tren cloudinary
-            try {
-                cloudinaryService.removeFileByTag(s.getUrl(),STUDENT_HOMEWORK_FN);
-            }catch (Exception e){
-                throw new ArgumentNotValidException("","","");
-            }
+            cloudinaryService.removeFileByTag(s.getUrl(),STUDENT_HOMEWORK_FN);
+
             studentYearHomeWork = s;
         }else {
             studentYearHomeWork =  StudentYearHomeWork.builder()
@@ -124,7 +122,7 @@ public class HomeWorkService {
         List<String> tags = new ArrayList<>(homeWorks.stream().map(HomeWork::getUrl).toList());
         tags.addAll(studentYearHomeWorks.stream().map(StudentYearHomeWork::getUrl).toList());
         // get all images by tags
-        var listImagesUrl = getImageByTags(tags);
+        var listImagesUrl = cloudinaryService.getImageGroupByTags(tags);
 
         return homeWorks.stream().map(s->{
             var hw = s.convertToDto();
@@ -150,7 +148,7 @@ public class HomeWorkService {
         listTags.add(homeWork.getUrl());
         studentHomeWorks.forEach(s->listTags.add(s.getUrl()));
 
-        var listImagesUrl = getImageByTags(listTags);
+        var listImagesUrl = cloudinaryService.getImageGroupByTags(listTags);
         List<StudentYearHomeWorkDto> studentHomeWorkDtos = studentHomeWorks.stream()
                 .map(s->{
                     var student = s.convertToDto();
@@ -175,7 +173,7 @@ public class HomeWorkService {
     */
     public ResponseEntity<?> getHomeWorksByTeacher(Long teacherSchoolYearClassSubjectId){
         List<HomeWork> homeWorks = homeWorkRepository.findAllByTeacherSchoolYearClassSubjectId(teacherSchoolYearClassSubjectId);
-        var listImg =  getImageByTags(homeWorks.stream().map(HomeWork::getUrl).toList());
+        var listImg =  cloudinaryService.getImageGroupByTags(homeWorks.stream().map(HomeWork::getUrl).toList());
 
         var res = homeWorks.stream().map(h->{
             var hw = h.toTeacherRes();
@@ -183,11 +181,6 @@ public class HomeWorkService {
             return hw;
         }).toList();
         return ResponseEntity.ok(res);
-    }
-
-    private Map<String,List<String>> getImageByTags(List<String> tags){
-        var listUrls = fileStorageRepository.findAllByTagsIn(tags);
-        return listUrls.stream().collect(Collectors.groupingBy(FileStorage::getTags,Collectors.mapping(FileStorage::getFileUrl,Collectors.toList())));
     }
 
 

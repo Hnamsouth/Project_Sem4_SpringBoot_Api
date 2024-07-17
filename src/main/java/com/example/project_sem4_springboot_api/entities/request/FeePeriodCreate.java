@@ -56,12 +56,10 @@ public class FeePeriodCreate {
 
     @JsonIgnore
     public List<SchoolYearFeePeriod> toSchoolYearFeePeriod(List<SchoolYearFee> schoolYearFees, FeePeriod feePeriod){
-        return schoolYearFeePeriodCreateList.stream().map(s->{
-            return SchoolYearFeePeriod.builder()
-                    .amount(s.getAmount())
-                    .feePeriod(feePeriod)
-                    .schoolyearfee(schoolYearFees.stream().filter(fee -> fee.getId().equals(s.getSchoolYearFeeId())).findAny().get())
-                    .build();
-        }).toList();
+        return schoolYearFeePeriodCreateList.stream().map(s->SchoolYearFeePeriod.builder()
+                .amount(s.getAmount())
+                .feePeriod(feePeriod)
+                .schoolyearfee(schoolYearFees.stream().filter(fee -> fee.getId().equals(s.getSchoolYearFeeId())).findAny().get())
+                .build()).toList();
     }
 }
