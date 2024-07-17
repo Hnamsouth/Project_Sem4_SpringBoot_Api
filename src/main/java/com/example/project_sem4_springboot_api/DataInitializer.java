@@ -566,7 +566,7 @@ public class DataInitializer {
                             .lastName(student.lastName())
                             .birthday(faker.date().birthday())
                             .address(faker.address().fullAddress())
-                            .avatar("https://i.pravatar.cc/300\n")
+                            .avatar("https://i.pravatar.cc/"+(J>(initStudent/2)?300:299))
                             .studentCode("HS"+classes.get(i-1).getClassCode()+J)
                             .parents(List.of(userParents.get(parentUser)))
                             .build();
@@ -579,9 +579,6 @@ public class DataInitializer {
                             .schoolYearClass(classes.get(i-1))
                             .createdAt(newDate)
                             .build());
-
-
-
                     studentNum++;
                 }
             }

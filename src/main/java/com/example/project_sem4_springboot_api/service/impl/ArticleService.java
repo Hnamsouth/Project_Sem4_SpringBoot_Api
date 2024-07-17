@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -53,10 +54,11 @@ public class ArticleService {
        article.setTitle(title);
        article.setContent(content);
        article.setUser(user);
+       article.setCreatedAt(new Date());
         var saveArticle = articleRepository.save(article);
         if(!images.isEmpty()){
             cloudinaryService.uploadMultiImage(images,ARTICLE_TAG + saveArticle.getId(), ARTICLE_FN);
-            saveArticle.setUrl("article" + saveArticle.getId());
+            saveArticle.setUrl(ARTICLE_TAG + saveArticle.getId());
             articleRepository.save(saveArticle);
         }
         return  saveArticle;
@@ -67,7 +69,6 @@ public class ArticleService {
         List<Article> articles = articleRepository.findAll();
         List<String> tags = new ArrayList<>(articles.stream().map(Article::getUrl).toList());
         var listImagesUrl = cloudinaryService.getImageGroupByTags(tags);
-
         return articles.stream().map(s->{
             var ar = s.convertToDto();
             ar.setArticleImageUrls(listImagesUrl.get(s.getUrl()));

@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class Article {
     private String title;
     private String content;
     private String url;
+    private Date createdAt;
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonManagedReference
@@ -53,6 +55,7 @@ public class Article {
         res.put("title",this.getTitle());
         res.put("content",this.getContent());
         res.put("url",this.url);
+        res.put("createdAt",this.createdAt);
         res.put("userInfo",this.getUser().getUserDetail().get(0).getDto(false));
         return res;
     }
@@ -65,6 +68,7 @@ public class Article {
                 .title(this.title)
                 .content(this.content)
                 .url(this.url)
+                .createdAt(this.createdAt)
                 .build();
     }
 

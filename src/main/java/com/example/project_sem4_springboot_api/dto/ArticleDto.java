@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
 import java.util.List;
 @Data
 @Builder
@@ -13,5 +14,5 @@ public class ArticleDto {
     private String content;
     private String url;
     private List<String> articleImageUrls;
-
+    private Date createdAt;
 }
