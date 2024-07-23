@@ -13,6 +13,7 @@ import com.example.project_sem4_springboot_api.entities.response.ResultPaginatio
 import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
+import com.example.project_sem4_springboot_api.utils.ExcelUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,7 +22,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -118,6 +122,10 @@ public class StudentServiceImpl  {
         rs.setMeta(meta);
         rs.setResult(studentPage.getContent());
         return rs;
+    }
+
+    public List<Student> getAllStudent(){
+        return studentRepository.findAll();
     }
 
     public ResponseEntity<?> updateStudentInfo(Student data) {
@@ -323,6 +331,25 @@ public class StudentServiceImpl  {
 
     private Date localDateToDate(LocalDate date){
         return Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    public ByteArrayInputStream getDataDownloaded() throws IOException {
+        List<Student> products = studentRepository.findAll();
+        ByteArrayInputStream data = ExcelUtils.dataToExcel(products);
+        return data;
+    }
+
+    public void save(MultipartFile file) {
+        try {
+            List<Student> stuList = ExcelUtils.excelToStuList(file.getInputStream());
+            studentRepository.saveAll(stuList);
+        } catch (IOException ex) {
+            throw new RuntimeException("Excel data is failed to store: " + ex.getMessage());
+        }
+    }
+
+    public List<Student> findAll() {
+        return studentRepository.findAll();
     }
 
 }

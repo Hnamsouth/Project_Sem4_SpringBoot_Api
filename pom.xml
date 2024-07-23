@@ -181,6 +181,18 @@
             <version>1.12.734</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.3</version> <!-- Đảm bảo sử dụng phiên bản mới nhất -->
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>5.2.3</version>
+        </dependency>
+
 <!--        <dependency>-->
 <!--            <groupId>com.cloudinary</groupId>-->
 <!--            <artifactId>cloudinary-http45</artifactId>-->
