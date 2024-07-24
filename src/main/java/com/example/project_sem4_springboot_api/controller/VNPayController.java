@@ -125,6 +125,7 @@ class VNPayController {
                             </div>
                             <h1>Thanh toán thành công </h1>
                             <p>Giao dịch của bạn đã hoàn tất.</p>
+                            <a href="javascript:window.close();" class="button" >Quay lại ứng dụng</a>
                         </div>
                     </body>
                     </html>
