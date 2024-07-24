@@ -72,10 +72,6 @@ public class StudentController {
         return studentService.getStudentTransaction(feePeriodId,studentYearInfoId);
     }
 
-    @PostMapping("/create-student-transactions")
-    public ResponseEntity<?> createStudentTransactions(@RequestParam Long feePeriodId){
-        return studentService.createStudentTransaction(feePeriodId);
-    }
     @GetMapping("/students")
     public ResponseEntity<ResultPaginationDto> getAllStudent(@Filter Specification<Student> specification, Pageable pageable){
         return ResponseEntity.status(HttpStatus.OK).body(studentService.getAllStudent(specification, pageable));

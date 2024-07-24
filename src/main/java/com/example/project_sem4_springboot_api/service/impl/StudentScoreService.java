@@ -71,22 +71,22 @@ public class StudentScoreService {
      * @return danh sách điểm của học sinh trong lop
      * */
     public ResponseEntity<?> getStudentScoreSubject(ESem sem, Long schoolYearSubjectId, Long schoolYearClassId){
-        var classInfo = schoolYearClassRepository.findById(schoolYearClassId).orElseThrow();
-        var subject = schoolYearSubjectRepository.findById(schoolYearSubjectId).orElseThrow();
-        var listStd = classInfo.getStudentYearInfos();
+        var classInfo = schoolYearClassRepository.findById(schoolYearClassId).orElseThrow(
+                ()->new ArgumentNotValidException("Không tìm thấy lớp học","","")
+        );
+        var subject = schoolYearSubjectRepository.findById(schoolYearSubjectId).orElseThrow(
+                ()->new ArgumentNotValidException("Không tìm thấy môn học","","")
+        );
+        var listStd = classInfo.getStudentYearInfos().stream().map(StudentYearInfo::getId).toList();
+        var stdScoreSubject =  studentScoreSubjectRepository.findAllByStudentYearInfo_IdInAndSchoolYearSubject_Id(listStd,subject.getId());
         List<Map<String,Object>> resBody = new ArrayList<>();
-        var stdSS = StudentScoreSubject.builder().build();
-        if(!listStd.isEmpty()){
-            stdSS = listStd.get(0).getStudentScoreSubjects().stream().filter(ss->ss.getSchoolYearSubject().equals(subject)).toList().get(0);
-        }
-        StudentScoreSubject finalStdSS = stdSS;
-        listStd.forEach(s->{
-            resBody.add(finalStdSS.toResE(sem));
+        stdScoreSubject.forEach(s->{
+            resBody.add(s.toResE(sem));
         });
 
         Map<String,Object> res = new TreeMap<>();
-        res.put("schoolYearSubject",stdSS.getSchoolYearSubject().toRes());
-        res.put("teacherSchoolYear",stdSS.getTeacherSchoolYear().toRes());
+        res.put("schoolYearSubject",subject.toRes());
+        res.put("teacherSchoolYear",stdScoreSubject.get(0).getTeacherSchoolYear().toRes());
         res.put("studentScoreSubject",resBody);
 
         return ResponseEntity.ok(res);
