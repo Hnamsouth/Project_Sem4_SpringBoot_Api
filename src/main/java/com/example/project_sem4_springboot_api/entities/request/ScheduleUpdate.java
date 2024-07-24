@@ -28,13 +28,7 @@ public class ScheduleUpdate {
 
     private String note;
 
-    @NotNull(message = "Id Giáo viên không được để trống!!! ")
-    private Long teacherSchoolYearId;
-
-    @NotNull(message = "Id Lớp học không được để trống!!!")
-    private Long schoolYearClassId;
-
-    @NotNull(message = "Id Môn học không được để trống!!!")
-    private Long schoolYearSubjectId;
+    @NotNull(message = "Id Phân công giảng dạy không được để trống!!!")
+    private Long teacherSchoolYearClassSubjectId;
 
 }

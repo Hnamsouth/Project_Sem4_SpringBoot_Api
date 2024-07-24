@@ -76,6 +76,7 @@ public class ScheduleController {
     }
     @DeleteMapping("/delete-calendar-release")
     private  ResponseEntity<?> delete_CalendarRelease(@Nullable @RequestParam Long Id){
+
         return scheduleService.deleteCalendarRelease(Id);
     }
 

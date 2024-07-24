@@ -19,4 +19,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
              Long grade_id, Long schoolYear_id, Long teacherSchoolYear_id);
     List<Schedule> findAllBySchoolYearClassAndCalendarRelease_Status(SchoolYearClass schoolYearClass, boolean calendarRelease_status);
     List<Schedule> findAllBySchoolYearClassAndCalendarRelease_Id(SchoolYearClass schoolYearClass, Long calendarRelease_id);
+
+    List<Schedule> deleteAllByCalendarRelease_Id(Long calendarRelease_id);
 }
