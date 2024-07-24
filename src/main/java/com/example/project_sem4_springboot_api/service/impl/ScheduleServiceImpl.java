@@ -51,7 +51,7 @@ public class ScheduleServiceImpl {
         );
         var scheduleList = data.getScheduleDetailCreate().stream().map(e->{
             //  ktra tiết học đã tồn tại chưa
-            checkLessonExist(e.getDayOfWeek(),e.getStudyTime(),e.getIndexLesson(),schoolYearClass.getId());
+            checkLessonExist(e.getDayOfWeek(),e.getStudyTime(),e.getIndexLesson(),schoolYearClass.getId(),calendarRelease.getId());
             var t =tcs.stream().filter(c->c.getId().equals(e.getTeacherSchoolYearClassSubjectId())).findAny().orElseThrow();
             return Schedule.builder()
                     .schoolYearSubject(t.getSchoolYearSubject())
@@ -132,7 +132,7 @@ public class ScheduleServiceImpl {
         SchoolYearSubject subject = (SchoolYearSubject) checkData(data.getSchoolYearSubjectId(),3);
         //  ktra tiết học đã tồn tại chưa
         if(oldData.getIndexLesson()!=data.getIndexLesson() || oldData.getStudyTime()!=data.getStudyTime() || oldData.getDayOfWeek()!=data.getDayOfWeek()){
-            checkLessonExist(data.getDayOfWeek(),data.getStudyTime(),data.getIndexLesson(),data.getSchoolYearClassId());
+            checkLessonExist(data.getDayOfWeek(),data.getStudyTime(),data.getIndexLesson(),data.getSchoolYearClassId(),oldData.getCalendarRelease().getId());
         }
         oldData.setTeacherSchoolYear(teacher);
         oldData.setSchoolYearClass(classs);
@@ -225,8 +225,8 @@ public class ScheduleServiceImpl {
         if(releaseAt.before(schoolYear.getStartSem1()) || releaseAt.after(schoolYear.getEnd()))
             throw new ArgumentNotValidException("Ngày Áp dụng phải sau ngày bắt đầu học kỳ 1 và trước ngày kết thúc học kỳ 2 !!!","releaseAt",releaseAt.toString());
     }
-    private void checkLessonExist(DayOfWeek dow, StudyTime st, int indexLesson,Long schoolYearCLassId)throws DataExistedException{
-        if(scheduleRepository.existsByDayOfWeekAndStudyTimeAndIndexLessonAndSchoolYearClass_Id(dow,st,indexLesson,schoolYearCLassId))
+    private void checkLessonExist(DayOfWeek dow, StudyTime st, int indexLesson,Long schoolYearCLassId,Long calendarRel)throws DataExistedException{
+        if(scheduleRepository.existsByDayOfWeekAndStudyTimeAndIndexLessonAndSchoolYearClass_IdAndCalendarRelease_Id(dow,st,indexLesson,schoolYearCLassId,calendarRel))
             throw new DataExistedException("Tiết học "+indexLesson+" buổi "+st+" thứ "+dow.toString()+" của lớp "+schoolYearCLassId+" đã tồn tại !!!");
     }
 }
