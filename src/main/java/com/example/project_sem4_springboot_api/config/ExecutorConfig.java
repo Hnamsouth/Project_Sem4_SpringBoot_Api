@@ -13,7 +13,6 @@ public class ExecutorConfig {
 
     @Bean
     public ExecutorService executorService() {
-        var thr= Executors.newCachedThreadPool();
         return Executors.newCachedThreadPool(); // Tạo một thread pool với 10 luồng
         /**
          * newCachedThreadPool
