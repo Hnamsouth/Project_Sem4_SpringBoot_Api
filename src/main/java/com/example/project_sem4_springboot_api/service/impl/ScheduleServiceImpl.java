@@ -92,9 +92,14 @@ public class ScheduleServiceImpl {
      * @get lấy theo lớp - giáo viên - khối - năm học
      * */
     public ResponseEntity<?> getSchedule(@Nullable Long classId, @Nullable Long teacherSchoolYearId, @Nullable Long gradeId, @Nullable Long schoolYearId){
+
+
         if(classId!=null){
-            var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
-            return checkListEmptyGetResponse(scheduleRepository.findAllBySchoolYearClass(schoolYearClass).stream().map(Schedule::toScheduleResponse).toList(),
+            var schoolYearClass = schoolYearClassRepository.findById(classId)
+                    .orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
+            return checkListEmptyGetResponse(scheduleRepository
+                            .findAllBySchoolYearClassAndCalendarRelease_Status(schoolYearClass,true)
+                            .stream().map(Schedule::toScheduleResponse).toList(),
                     "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
         }
         if(teacherSchoolYearId!=null || gradeId!=null || schoolYearId != null){

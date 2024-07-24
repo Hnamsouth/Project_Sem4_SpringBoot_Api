@@ -38,6 +38,7 @@ public class StudentServiceImpl  {
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
+    private final StudentScoreSubjectRepository studentScoreSubjectRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final AttendanceRepository attendanceRepository;
     private final FeePeriodRepository feePeriodRepository;
@@ -61,8 +62,17 @@ public class StudentServiceImpl  {
         // add student_year_info
         StudentYearInfo studentYearInfo = StudentYearInfo.builder()
                 .students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
-        studentYearInfoRepository.save(studentYearInfo);
-
+        var stdYIF = studentYearInfoRepository.save(studentYearInfo);
+        // add student_score_subject
+        List<StudentScoreSubject> stdScore = new ArrayList<>();
+        schoolYearClass.getTeacherSchoolYearClassSubjects().forEach(t->
+                stdScore.add(StudentScoreSubject.builder()
+                        .studentYearInfo(stdYIF)
+                        .schoolYearSubject(t.getSchoolYearSubject())
+                        .teacherSchoolYear(t.getTeacherSchoolYear())
+                        .createdAt(newDate)
+                        .build()));
+        studentScoreSubjectRepository.saveAll(stdScore);
         return ResponseEntity.ok(newStudent);
     }
 

@@ -43,18 +43,22 @@ public class HomeWorkService {
 
     public HomeWork createHomeWork(String title,
                                    String content,
-                                   Date dueDate,
-                                   Date startDate,
+                                   String dueDate,
+                                   String startDate,
                                    Long teacherSchoolYearClassSubjectId,
                                    List<MultipartFile> images) throws ParseException, IOException, ExecutionException, InterruptedException {
         TeacherSchoolYearClassSubject teacherSchoolYearClassSubject = teacherSchoolYearClassSubjectRepository.findById(teacherSchoolYearClassSubjectId)
                 .orElseThrow(() -> new RuntimeException("TeacherSchoolYearClassSubject not found"));
-        if(dueDate.before(startDate)) throw new ArgumentNotValidException("","", "Ngày kết thúc không thể trước ngày bắt đầu");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date sd = sdf.parse(startDate);
+        Date dd = sdf.parse(dueDate);
+        if(dd.before(sd)) throw new ArgumentNotValidException("","", "Ngày kết thúc không thể trước ngày bắt đầu");
+
         HomeWork homeWork = new HomeWork();
         homeWork.setTitle(title);
         homeWork.setContent(content);
-        homeWork.setDueDate(dueDate);
-        homeWork.setStartDate(startDate);
+        homeWork.setDueDate(dd);
+        homeWork.setStartDate(sd);
         homeWork.setTeacherSchoolYearClassSubject(teacherSchoolYearClassSubject);
         homeWork.setStatus(true);
         homeWork.setStatusName("Đang hoạt động");

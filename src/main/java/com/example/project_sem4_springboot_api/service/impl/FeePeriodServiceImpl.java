@@ -11,6 +11,7 @@ import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ public class FeePeriodServiceImpl {
     private final StudentTransactionRepository studentTransactionRepository;
     private final TransactionDetailRepository transactionDetailRepository;
     private final ExecutorService executorService;
+    private final TransactionTemplate transactionTemplate;
 
     /**
      * @return listOf dot thu + thong ke lop hoc + sl hs cua lop trong pham vi dot thu da dong
@@ -106,9 +108,7 @@ public class FeePeriodServiceImpl {
     }
 
     private void createStudentTrans(EScope scope,FeePeriodCreate data,FeePeriod feePeriod,List<SchoolYearFeePeriod> schoolYearFeePeriod){
-        executorService.submit(()->{
-            createTransactions(getStudentByScope(scope,data,feePeriod),feePeriod,schoolYearFeePeriod);
-        });
+        createTransactions(getStudentByScope(scope,data,feePeriod),feePeriod,schoolYearFeePeriod);
     }
     private List<StudentYearInfo> getStudentByScope(EScope scope,FeePeriodCreate data,FeePeriod feePeriod){
         switch (scope){
