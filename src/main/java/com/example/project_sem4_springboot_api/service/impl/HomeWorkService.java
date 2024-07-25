@@ -8,17 +8,13 @@ import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.service.CloudinaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -36,10 +32,6 @@ public class HomeWorkService {
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentYearHomeWorkRepository studentYearHomeWorkRepository;
-    private final FileStorageRepository fileStorageRepository;
-    private final ExecutorService executorService;
-
-
 
     public HomeWork createHomeWork(String title,
                                    String content,
@@ -65,11 +57,9 @@ public class HomeWorkService {
         var saveHomeWork = homeWorkRepository.save(homeWork);
         if(!images.isEmpty()){
             cloudinaryService.uploadMultiImage(images,HOMEWORK_TAG + saveHomeWork.getId(), HOMEWORK_FN);
-            saveHomeWork.setUrl("homework" + saveHomeWork.getId());
+            saveHomeWork.setUrl(HOMEWORK_TAG + saveHomeWork.getId());
             homeWorkRepository.save(saveHomeWork);
         }
-
-
         return saveHomeWork;
     }
 
@@ -77,17 +67,13 @@ public class HomeWorkService {
         HomeWork homeWork = homeWorkRepository.findById(homeWorkId)
                 .orElseThrow(() -> new RuntimeException("HomeWork khong ton tai"));
 
-        if (homeWork.getDueDate().before(new Date())) {
-            throw new RuntimeException("bai tap dahet han");
-        }
+        if (homeWork.getDueDate().before(new Date())) throw new RuntimeException("bai tap dahet han");
 
         StudentYearInfo studentYearInfo = studentYearInfoRepository.findById(studentYearInfoId)
                 .orElseThrow(() -> new RuntimeException("Student Year Info khong ton tai"));
         //check nop chua
-
         Optional<StudentYearHomeWork> existingHomeWork =
                 homeWork.getStudentYearHomeWorks().stream().filter(h->h.getStudentYearInfo().equals(studentYearInfo)).findFirst();
-
         StudentYearHomeWork studentYearHomeWork;
         if (existingHomeWork.isPresent()){
             //nop roi thi update
@@ -96,7 +82,6 @@ public class HomeWorkService {
             s.setSubmitTime(new Date());
             // remove img tren cloudinary
             cloudinaryService.removeFileByTag(s.getUrl(),STUDENT_HOMEWORK_FN);
-
             studentYearHomeWork = s;
         }else {
             studentYearHomeWork =  StudentYearHomeWork.builder()

@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.service.impl;
 
+import com.example.project_sem4_springboot_api.entities.enums.UserNotificationActionType;
 import com.example.project_sem4_springboot_api.entities.request.UserNotifyRes;
 import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class FCMService {
     private final String TEACHER_PARENT = "parent-t2207a";
     private final String TEACHER_BGH = "bgh-t2207a";
     private final String TEACHER_NV = "nv-t2207a";
+
     private final ExecutorService executorService;
 
 
@@ -66,49 +68,62 @@ public class FCMService {
     public void sendAllNotification(UserNotifyRes req) {
         executorService.submit(()->{
             try {
-                Notification notification = Notification.builder()
-                        .setTitle(req.getTitle())
-                        .setBody(req.getBody())
-                        .setImage(req.getImage())
-                        .build();
+                req.setData(Map.of(
+                        "data1", "asda sd",
+                        "data3", "asda aasfsfsd",
+                        "data2", "asdasd asd"
+                        ));
                 List<Message> messageList = req.getTokens().stream()
-                        .map(tk->allPlatformsMessage(tk,req.getData(),notification)).toList();
+                        .map(tk->allPlatformsMessage(tk,req)).toList();
                 var response = FirebaseMessaging.getInstance().sendAll(messageList);
-
                 System.out.println("Successfully sendAll message: "+req.getTitle()+"\t" + response.getSuccessCount() + "/"+req.getTokens().size());
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
-    public Message allPlatformsMessage(String token,Map<String,String> data,Notification notification) {
+    public Message allPlatformsMessage(String token,UserNotifyRes req) {
         // [START multi_platforms_message]
         return Message.builder()
 //                .setTopic("industry-tech")
                 .setToken(token)
-                .putAllData(data==null?Map.of():data)
-                .setNotification(notification)
-                .setAndroidConfig(AndroidConfig.builder()
-                        .setTtl(3600 * 1000)
-                        .setNotification(AndroidNotification.builder()
-                                .setIcon("stock_ticker_update")
-                                .setColor("#f45342")
-                                .build())
-                        .build())
-                .setApnsConfig(ApnsConfig.builder()
-                        .setAps(Aps.builder()
-                                .setBadge(42)
-                                .build())
-                        .build())
-                .setWebpushConfig(WebpushConfig.builder()
-                        .setNotification(new WebpushNotification(
-                                "$GOOG up 1.43% on the day",
-                                "$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.",
-                                "https://my-server/icon.png"))
-                        .setFcmOptions(WebpushFcmOptions.withLink("https://my-server/page-to-open-on-click"))
-                        .build())
+                .setAndroidConfig(androidConfig(req))
+                .setWebpushConfig(webpushConfig(req))
                 .build();
         // [END multi_platforms_message]
+    }
+
+    public AndroidConfig androidConfig(UserNotifyRes req){
+        return AndroidConfig.builder()
+                .setTtl(3600 * 1000)
+                .setNotification(AndroidNotification.builder()
+                        .setIcon("stock_ticker_update")
+                        .setColor("#f45342")
+                        .build())
+                .build();
+    }
+
+    public WebpushConfig webpushConfig(UserNotifyRes req){
+        // [START webpush_config]
+        return WebpushConfig.builder()
+                .putHeader("ttl", "300")
+                .putAllData(req.getData())
+                .setNotification( WebpushNotification.builder()
+                        .setTitle(req.getTitle())
+                        .setBody(req.getBody())
+                        .setDirection(WebpushNotification.Direction.LEFT_TO_RIGHT)
+                        .setImage(IMG_URL)
+                        .setRequireInteraction(true)
+                        .addAllActions(List.of(
+                                new WebpushNotification.Action(
+                                        "http://localhost:3000/",
+                                        UserNotificationActionType.STUDENT_ATTENDANCE.getRouterPath(),
+                                        "https://my-server/order/123"
+                                )
+                        ))
+                        .build())
+                .setFcmOptions(WebpushFcmOptions.withLink("http://localhost:3000/"))
+                .build();
     }
 
     public Message androidMessage() {
@@ -149,21 +164,35 @@ public class FCMService {
         return message;
     }
 
-    public Message webpushMessage() {
+    public Message webpushMessage(UserNotifyRes req) {
         // [START webpush_message]
         Message message = Message.builder()
-                .setWebpushConfig(WebpushConfig.builder()
-                        .setNotification(new WebpushNotification(
-                                "$GOOG up 1.43% on the day",
-                                "$GOOG gained 11.80 points to close at 835.67, up 1.43% on the day.",
-                                "https://my-server/icon.png"))
-                        .setFcmOptions(WebpushFcmOptions.withLink("https://my-server/page-to-open-on-click"))
+            .setWebpushConfig(WebpushConfig.builder()
+                .putAllData(req.getData()==null?Map.of():req.getData())
+                .putHeader("ttl", "300")
+                .setNotification(
+                    WebpushNotification.builder()
+                        .addAllActions(List.of(
+                            new WebpushNotification.Action(
+                                UserNotificationActionType.STUDENT_ATTENDANCE.toString(),
+                                UserNotificationActionType.STUDENT_ATTENDANCE.getRouterPath(),
+                                "https://my-server/order/123"
+                            )
+                        ))
+                        .setData(req.getData())
+                        .setImage(req.getImage())
+                        .setTitle(req.getTitle())
+                        .setBody(req.getBody())
                         .build())
-                .setTopic("industry-tech")
-                .build();
+                .setFcmOptions(WebpushFcmOptions.withLink("https://my-server/page-to-open-on-click"))
+                .build())
+            .setTopic("industry-tech")
+            .build();
         // [END webpush_message]
         return message;
     }
+
+
 
 
     public void subscribeToTopic(List<String> registrationTokens,String topic) throws FirebaseMessagingException {

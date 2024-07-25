@@ -4,22 +4,17 @@ import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EScope;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
 import com.example.project_sem4_springboot_api.entities.request.FeePeriodCreate;
-import com.example.project_sem4_springboot_api.entities.request.FeePeriodScopeCreate;
 import com.example.project_sem4_springboot_api.entities.request.SchoolYearFeePeriodCreate;
 import com.example.project_sem4_springboot_api.entities.response.FeePeriodRes;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,8 +30,6 @@ public class FeePeriodServiceImpl {
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentTransactionRepository studentTransactionRepository;
     private final TransactionDetailRepository transactionDetailRepository;
-    private final ExecutorService executorService;
-    private final TransactionTemplate transactionTemplate;
 
     /**
      * @return listOf dot thu + thong ke lop hoc + sl hs cua lop trong pham vi dot thu da dong
@@ -127,7 +120,6 @@ public class FeePeriodServiceImpl {
         }
     }
     private void createTransactions(List<StudentYearInfo> studentList,FeePeriod feePeriod,List<SchoolYearFeePeriod> schoolYearFeePeriod){
-
             var stdTransData = studentList.stream().map(s->StudentTransaction.builder()
                     .status(EStatus.STUDENT_TRANS_UNPAID.getName())
                     .statusCode(EStatus.STUDENT_TRANS_UNPAID)

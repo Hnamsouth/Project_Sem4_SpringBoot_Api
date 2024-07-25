@@ -125,13 +125,6 @@ class VNPayController {
                             </div>
                             <h1>Thanh toán thành công </h1>
                             <p>Giao dịch của bạn đã hoàn tất.</p>
-                            <button class="back-button" onclick="goBackToApp()">Quay lại ứng dụng</button>
-                            <script>
-                                    function goBackToApp() {
-                                        var appURL = 'com.project4.hs.2204m'; // Thay thế bằng URL scheme của bạn
-                                        window.location.href = appURL;
-                                    }
-                                </script>
                         </div>
                     </body>
                     </html>
