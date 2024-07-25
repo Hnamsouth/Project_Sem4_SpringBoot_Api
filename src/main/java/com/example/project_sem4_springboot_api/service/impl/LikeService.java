@@ -5,22 +5,32 @@ import com.example.project_sem4_springboot_api.entities.Like;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.repositories.LikeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class LikeService {
 
-    private final LikeRepository likeRepository;
+    @Autowired
+    private LikeRepository likeRepository;
 
-    public void likeArticle(Long articleId, Long userId) {
-        Like like = new Like();
-        like.setArticle(new Article(articleId));
-        like.setUser(new User(userId));
-        likeRepository.save(like);
+    public List<Like> getAllLikes() {
+        return likeRepository.findAll();
     }
 
-    public long countLikes(Long articleId) {
-        return likeRepository.countByArticleId(articleId);
+    public Optional<Like> getLikeById(Long id) {
+        return likeRepository.findById(id);
+    }
+
+    public Like createLike(Like like) {
+        return likeRepository.save(like);
+    }
+
+    public void deleteLike(Long id) {
+        likeRepository.deleteById(id);
     }
 }

@@ -5,25 +5,32 @@ import com.example.project_sem4_springboot_api.entities.Comment;
 import com.example.project_sem4_springboot_api.entities.User;
 import com.example.project_sem4_springboot_api.repositories.CommentRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
 
-    private final CommentRepository commentRepository;
+    @Autowired
+    private CommentRepository commentRepository;
 
-    public Comment addComment(Long articleId, Long userId, String content) {
-        Comment comment = new Comment();
-        comment.setArticle(new Article(articleId));
-        comment.setUser(new User(userId));
-        comment.setContent(content);
+    public List<Comment> getAllComments() {
+        return commentRepository.findAll();
+    }
+
+    public Optional<Comment> getCommentById(Long id) {
+        return commentRepository.findById(id);
+    }
+
+    public Comment createComment(Comment comment) {
         return commentRepository.save(comment);
     }
 
-    public List<Comment> getCommentsByArticleId(Long articleId) {
-        return commentRepository.findAllByArticleId(articleId);
+    public void deleteComment(Long id) {
+        commentRepository.deleteById(id);
     }
 }
