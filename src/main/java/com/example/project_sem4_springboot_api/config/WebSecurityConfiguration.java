@@ -39,6 +39,7 @@ public class WebSecurityConfiguration {
             "/test/api",
             "/api/v1/email",
             "/api/v1/vn-pay/vnpay-payment",
+//            "/api/v1/createHomework",
 //            "/api/v1/createStudentYearHomeWork",
 //            "/api/v1/getHomeWorkByStudentYearInfoID",
            // "/api/v1/teacher/{teacherSchoolYearClassSubjectId}",
