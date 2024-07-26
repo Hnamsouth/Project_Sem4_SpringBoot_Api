@@ -6,13 +6,20 @@ import com.example.project_sem4_springboot_api.dto.TeacherDetailsDto;
 import com.example.project_sem4_springboot_api.dto.TeacherUpdateDto;
 import com.example.project_sem4_springboot_api.entities.*;
 import com.example.project_sem4_springboot_api.entities.enums.EStatus;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
 import com.example.project_sem4_springboot_api.repositories.*;
+import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -23,6 +30,7 @@ public class TeacherServiceImpl {
 
     private final UserDetailRepository userDetailRepository;
     private final TeacherRepository teacherRepository;
+    private final TeacherSchoolYearRepository teacherSchoolYearRepository;
     private final TeacherSchoolYearClassSubjectRepository teacherSchoolYearClassSubjectRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -51,6 +59,20 @@ public class TeacherServiceImpl {
         if(status) return ResponseEntity.ok(teacherRepository.findAllByActive(false).stream().map(Teacher::toResponse).toList());
         return ResponseEntity.ok(teacherRepository.findAll().stream().map(Teacher::toResponse).toList());
     }
+
+    public ResultPaginationDto getAllTeacher(Specification<Teacher> specification, Pageable pageable) {
+        Page<Teacher> teachers = teacherRepository.findAll(specification, pageable);
+        ResultPaginationDto rs = new ResultPaginationDto();
+        Meta meta = new Meta();
+        meta.setPage(pageable.getPageNumber());
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(teachers.getTotalPages());
+        meta.setTotal(teachers.getTotalElements());
+        rs.setMeta(meta);
+        rs.setResult(teachers.getContent());
+        return rs;
+    }
+
     public ResponseEntity<?> updateTeacher(TeacherUpdateDto data){
         try{
             Teacher teacher = teacherRepository.findById(data.getId()).orElseThrow(() -> new NullPointerException("Không tìm thấy Giáo viên với id: " + data.getId()));
@@ -107,7 +129,25 @@ public class TeacherServiceImpl {
         }
         return ResponseEntity.ok(teacherContactDetails);
     }
+    /**
+     *
+     * @return list school year class by teacher
+     * */
+    public ResponseEntity<?> getSchoolYearClassByTeacher(Long schoolYearId){
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
+        if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
+        return ResponseEntity.ok(teacher.getClassesSubjects());
+    }
 
+    /**
+     * @return list school year class by teacher
+     *
+     * */
 
+    public ResponseEntity<?> getSchoolYearSubject(Long schoolYearId){
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
+        if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
+        return ResponseEntity.ok(teacher.getSubjects());
+    }
 
 }

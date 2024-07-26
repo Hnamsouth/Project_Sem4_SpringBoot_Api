@@ -37,8 +37,13 @@ public class WebSecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/test/api",
-            "/api/v1/vn-pay/**",
-            //            "/**"
+            "/api/v1/email",
+            "/api/v1/vn-pay/vnpay-payment",
+//            "/api/v1/createStudentYearHomeWork",
+//            "/api/v1/getHomeWorkByStudentYearInfoID",
+           // "/api/v1/teacher/{teacherSchoolYearClassSubjectId}",
+//            "/api/v1/getHomeWorkDetail"
+//            "/**"
     };
 
     private  final JwtAuthenticationFilter jwtAuthenticationFilter;

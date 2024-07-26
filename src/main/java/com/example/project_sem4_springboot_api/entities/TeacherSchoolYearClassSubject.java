@@ -4,14 +4,14 @@ import com.example.project_sem4_springboot_api.dto.TeacherContactDetail;
 import com.example.project_sem4_springboot_api.entities.enums.TeacherType;
 import com.example.project_sem4_springboot_api.entities.response.SubjectRes;
 import com.example.project_sem4_springboot_api.entities.response.TeacherClassSubject;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Entity
@@ -42,9 +42,15 @@ public class TeacherSchoolYearClassSubject {
 
     // foreign key
 
+    @OneToMany(mappedBy = "teacherSchoolYearClassSubject", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private List<HomeWork> homeWorkList;
+
     @JsonIgnore
     public TeacherContactDetail toContact (){
-        boolean checkType = this.schoolYearClass.getTeacherSchoolYear().equals(this.teacherSchoolYear);
+        boolean checkType =this.schoolYearClass.getTeacherSchoolYear().equals(this.teacherSchoolYear);
         var teacher = this.teacherSchoolYear.getTeacher();
         return TeacherContactDetail.builder()
                 .teacherSchoolYearId(this.teacherSchoolYear.getId())
@@ -70,6 +76,15 @@ public class TeacherSchoolYearClassSubject {
                                 .build()
                 )
                 .build();
+    }
+
+    @JsonIgnore
+    public Map<String, Object> toResTeacher(){
+        return Map.of(
+                "teacherSchoolYearClassSubject", this.id,
+                "schoolYearClass", this.schoolYearClass.toRes(),
+                "schoolYearSubject", this.schoolYearSubject.toRes()
+        );
     }
 
 }

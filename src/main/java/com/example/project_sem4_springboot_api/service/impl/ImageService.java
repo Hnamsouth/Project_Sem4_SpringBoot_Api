@@ -24,7 +24,7 @@ import java.util.UUID;
 public class ImageService {
 
     private String bucketName = "cloudmessages4-2875f.appspot.com";
-    private String fileBaseName = "cloudmessages4-2875f-firebase-adminsdk-tzqok-de6f82a0ef.json";
+    private String fileBaseName = "com/example/project_sem4_springboot_api/utils/cloudmessages4-2875f-firebase-adminsdk-tzqok-de6f82a0ef.json";
 
     private String uploadFile(File file, String fileName) throws IOException {
         BlobId blobId = BlobId.of(bucketName, fileName);

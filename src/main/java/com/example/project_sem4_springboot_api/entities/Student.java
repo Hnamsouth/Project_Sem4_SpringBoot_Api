@@ -30,6 +30,7 @@ public class Student {
     private String lastName;
     private Date birthday;
     private String address;
+    private String avatar;
     private String studentCode;
     private Date createdAt;
 

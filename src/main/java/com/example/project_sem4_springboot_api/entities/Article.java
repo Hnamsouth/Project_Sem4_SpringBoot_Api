@@ -1,5 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.ArticleDto;
+import com.example.project_sem4_springboot_api.entities.request.HomeWorkDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -9,6 +11,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,23 +26,15 @@ public class Article {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     @Column(columnDefinition = "TEXT")
     private String content;
-
-    @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
-
-    private List<Image> images;
-
-
+    private String url;
+    private Date createdAt;
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonManagedReference
     private User user;
-
-
-
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
 
@@ -60,8 +55,24 @@ public class Article {
         res.put("id",this.id);
         res.put("title",this.getTitle());
         res.put("content",this.getContent());
-        res.put("images",this.getImages());
+        res.put("url",this.url);
+        res.put("createdAt",this.createdAt);
         res.put("userInfo",this.getUser().getUserDetail().get(0).getDto(false));
         return res;
     }
+
+
+    @JsonIgnore
+    public ArticleDto convertToDto() {
+        return ArticleDto.builder()
+                .id(this.id)
+                .title(this.title)
+                .content(this.content)
+                .url(this.url)
+                .createdAt(this.createdAt)
+                .build();
+    }
+
+
+
 }

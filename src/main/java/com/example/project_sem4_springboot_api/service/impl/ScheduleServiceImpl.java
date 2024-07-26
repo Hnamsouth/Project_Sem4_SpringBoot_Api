@@ -51,7 +51,7 @@ public class ScheduleServiceImpl {
         );
         var scheduleList = data.getScheduleDetailCreate().stream().map(e->{
             //  ktra tiết học đã tồn tại chưa
-            checkLessonExist(e.getDayOfWeek(),e.getStudyTime(),e.getIndexLesson(),schoolYearClass.getId());
+            checkLessonExist(e.getDayOfWeek(),e.getStudyTime(),e.getIndexLesson(),schoolYearClass.getId(),calendarRelease.getId());
             var t =tcs.stream().filter(c->c.getId().equals(e.getTeacherSchoolYearClassSubjectId())).findAny().orElseThrow();
             return Schedule.builder()
                     .schoolYearSubject(t.getSchoolYearSubject())
@@ -80,6 +80,7 @@ public class ScheduleServiceImpl {
                         .releaseAt(data.getReleaseAt())
                         .schoolYear(schoolYear)
                         .status(false)
+                        .sem(data.getSem())
                         .statusName("Chưa áp dụng")
                         .build()
         );
@@ -92,8 +93,11 @@ public class ScheduleServiceImpl {
      * */
     public ResponseEntity<?> getSchedule(@Nullable Long classId, @Nullable Long teacherSchoolYearId, @Nullable Long gradeId, @Nullable Long schoolYearId){
         if(classId!=null){
-            var schoolYearClass = schoolYearClassRepository.findById(classId).orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
-            return checkListEmptyGetResponse(scheduleRepository.findAllBySchoolYearClass(schoolYearClass).stream().map(Schedule::toScheduleResponse).toList(),
+            var schoolYearClass = schoolYearClassRepository.findById(classId)
+                    .orElseThrow(()->new NullPointerException("Không tìm thấy Lớp với id: "+classId+"!!!"));
+            return checkListEmptyGetResponse(scheduleRepository
+                            .findAllBySchoolYearClassAndCalendarRelease_Status(schoolYearClass,true)
+                            .stream().map(Schedule::toScheduleResponse).toList(),
                     "Thời khóa biểu của classId: "+classId+" Rỗng !!!");
         }
         if(teacherSchoolYearId!=null || gradeId!=null || schoolYearId != null){
@@ -126,16 +130,22 @@ public class ScheduleServiceImpl {
     }
     public ResponseEntity<?> updateSchedule(ScheduleUpdate data){
         var oldData = scheduleRepository.findById(data.getId()).orElseThrow(()->new NullPointerException("Không tìm thấy Thời khóa biểu với id: "+data.getId()+" !!!"));
-        TeacherSchoolYear teacher = (TeacherSchoolYear) checkData(data.getTeacherSchoolYearId(),1);
-        SchoolYearClass classs = (SchoolYearClass) checkData(data.getSchoolYearClassId(),2);
-        SchoolYearSubject subject = (SchoolYearSubject) checkData(data.getSchoolYearSubjectId(),3);
+        var tcs = teacherSchoolYearClassSubjectRepository.findById(data.getTeacherSchoolYearClassSubjectId()).orElseThrow(
+                ()->new ArgumentNotValidException("Không tìm thấy Phân công giảng dạy","",""));
         //  ktra tiết học đã tồn tại chưa
-        if(oldData.getIndexLesson()!=data.getIndexLesson() || oldData.getStudyTime()!=data.getStudyTime() || oldData.getDayOfWeek()!=data.getDayOfWeek()){
-            checkLessonExist(data.getDayOfWeek(),data.getStudyTime(),data.getIndexLesson(),data.getSchoolYearClassId());
+        if(
+            oldData.getIndexLesson()!=data.getIndexLesson() ||
+            oldData.getStudyTime()!=data.getStudyTime() ||
+            oldData.getDayOfWeek()!=data.getDayOfWeek()
+        ){
+            checkLessonExist(
+                    data.getDayOfWeek(),data.getStudyTime(),
+                    data.getIndexLesson(),tcs.getSchoolYearClass().getId(),
+                    oldData.getCalendarRelease().getId());
         }
-        oldData.setTeacherSchoolYear(teacher);
-        oldData.setSchoolYearClass(classs);
-        oldData.setSchoolYearSubject(subject);
+        oldData.setTeacherSchoolYear(tcs.getTeacherSchoolYear());
+        oldData.setSchoolYearClass(tcs.getSchoolYearClass());
+        oldData.setSchoolYearSubject(tcs.getSchoolYearSubject());
         oldData.setDayOfWeek(data.getDayOfWeek());
         oldData.setStudyTime(data.getStudyTime());
         oldData.setIndexLesson(data.getIndexLesson());
@@ -180,6 +190,7 @@ public class ScheduleServiceImpl {
     }
     public ResponseEntity<?> deleteCalendarRelease(Long id){
         var deleteData = calendarReleaseRepository.findById(id).orElseThrow(()->new NullPointerException("Không tìm thấy Đợt áp dụng TKB với id: "+id+" !!!"));
+        scheduleRepository.deleteAllByCalendarRelease_Id(id);
         calendarReleaseRepository.delete(deleteData);
         return ResponseEntity.ok("Xóa Thành công !!!");
     }
@@ -224,8 +235,8 @@ public class ScheduleServiceImpl {
         if(releaseAt.before(schoolYear.getStartSem1()) || releaseAt.after(schoolYear.getEnd()))
             throw new ArgumentNotValidException("Ngày Áp dụng phải sau ngày bắt đầu học kỳ 1 và trước ngày kết thúc học kỳ 2 !!!","releaseAt",releaseAt.toString());
     }
-    private void checkLessonExist(DayOfWeek dow, StudyTime st, int indexLesson,Long schoolYearCLassId)throws DataExistedException{
-        if(scheduleRepository.existsByDayOfWeekAndStudyTimeAndIndexLessonAndSchoolYearClass_Id(dow,st,indexLesson,schoolYearCLassId))
+    private void checkLessonExist(DayOfWeek dow, StudyTime st, int indexLesson,Long schoolYearCLassId,Long calendarRel)throws DataExistedException{
+        if(scheduleRepository.existsByDayOfWeekAndStudyTimeAndIndexLessonAndSchoolYearClass_IdAndCalendarRelease_Id(dow,st,indexLesson,schoolYearCLassId,calendarRel))
             throw new DataExistedException("Tiết học "+indexLesson+" buổi "+st+" thứ "+dow.toString()+" của lớp "+schoolYearCLassId+" đã tồn tại !!!");
     }
 }

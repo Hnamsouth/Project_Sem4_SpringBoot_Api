@@ -381,7 +381,7 @@ public class DataInitializer {
                         .gender(i>10)
                         .birthday(faker.date().birthday())
                         .citizen_id(faker.address().countryCode())
-                        .avatar(faker.avatar().image())
+                        .avatar("https://i.pravatar.cc/300")
                         .user(user)
                         .build();
                 userDetailRepository.save(userDetail);
@@ -566,6 +566,7 @@ public class DataInitializer {
                             .lastName(student.lastName())
                             .birthday(faker.date().birthday())
                             .address(faker.address().fullAddress())
+                            .avatar("https://i.pravatar.cc/"+(J>(initStudent/2)?300:299))
                             .studentCode("HS"+classes.get(i-1).getClassCode()+J)
                             .parents(List.of(userParents.get(parentUser)))
                             .build();
@@ -578,9 +579,6 @@ public class DataInitializer {
                             .schoolYearClass(classes.get(i-1))
                             .createdAt(newDate)
                             .build());
-
-
-
                     studentNum++;
                 }
             }

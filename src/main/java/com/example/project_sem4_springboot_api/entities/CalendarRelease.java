@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.entities.enums.ESem;
 import com.example.project_sem4_springboot_api.entities.response.CalendarReleaseResponse;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +24,9 @@ public class CalendarRelease {
     private String title;
     private Date releaseAt;
 
+    @Enumerated(value = jakarta.persistence.EnumType.STRING)
+    private ESem sem;
+
     private boolean status;
     private String statusName;
 
@@ -40,6 +44,7 @@ public class CalendarRelease {
     @JsonIgnore
     public CalendarReleaseResponse toResponse(){
         return CalendarReleaseResponse.builder().id(id).title(title).releaseAt(releaseAt).schoolYear(schoolYear)
+                .sem(sem)
                 .schedules(schedules.stream().map(Schedule::toScheduleResponse).toList()).build();
     }
 

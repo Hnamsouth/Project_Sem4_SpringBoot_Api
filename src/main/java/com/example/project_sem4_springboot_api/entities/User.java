@@ -53,7 +53,7 @@ public class User {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     @JsonBackReference
-    private List<UserNotification> notifications;
+    private List<UserNotification> userNotifications;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @EqualsAndHashCode.Exclude
@@ -66,6 +66,12 @@ public class User {
     @ToString.Exclude
     @JsonBackReference
     private Teacher teacher ;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    @JsonBackReference
+    private Employee employee;
 
     @JsonBackReference
     @ManyToMany(mappedBy = "parents",fetch = FetchType.EAGER)

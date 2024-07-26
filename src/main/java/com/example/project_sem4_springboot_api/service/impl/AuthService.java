@@ -5,17 +5,17 @@ import com.example.project_sem4_springboot_api.constants.StatusData;
 import com.example.project_sem4_springboot_api.entities.Role;
 import com.example.project_sem4_springboot_api.entities.Status;
 import com.example.project_sem4_springboot_api.entities.User;
+import com.example.project_sem4_springboot_api.entities.UserDeviceToken;
 import com.example.project_sem4_springboot_api.entities.enums.TokenRequest;
 import com.example.project_sem4_springboot_api.entities.request.LoginRequest;
 import com.example.project_sem4_springboot_api.entities.request.RegisterRequest;
+import com.example.project_sem4_springboot_api.entities.request.TestUploadFile;
+import com.example.project_sem4_springboot_api.entities.request.UserDeviceTokenReq;
 import com.example.project_sem4_springboot_api.entities.response.AuthResponse;
 import com.example.project_sem4_springboot_api.entities.response.LoginResponse;
 import com.example.project_sem4_springboot_api.exception.AuthException;
 import com.example.project_sem4_springboot_api.exception.DataExistedException;
-import com.example.project_sem4_springboot_api.repositories.RoleRepository;
-import com.example.project_sem4_springboot_api.repositories.StatusRepository;
-import com.example.project_sem4_springboot_api.repositories.UserDetailRepository;
-import com.example.project_sem4_springboot_api.repositories.UserRepository;
+import com.example.project_sem4_springboot_api.repositories.*;
 import com.example.project_sem4_springboot_api.security.service.UserDetailsImpl;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +29,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -39,13 +44,14 @@ public class AuthService {
     static public final String REGISTER = "REGISTER";
     static public final String REFRESH_TOKEN = "REFRESH_TOKEN";
 
-    private final UserRepository userRepository;
     private final UserDetailRepository userDetailRepository;
     public final  PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepo;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
     private final StatusRepository statusRepository;
+    private final UserRepository userRepository;
+    private final UserDeviceTokenRepository userDeviceTokenRepository;
 
     public ResponseEntity<?> register (RegisterRequest request)  {
         if(userRepository.existsByUsername(request.getUsername())) throw new DataExistedException("Username is already taken !!!");
@@ -69,6 +75,9 @@ public class AuthService {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
+            var userDTk = user.getUserDeviceTokens().stream()
+                    .filter(u->u.getDeviceToken().equals(request.getDeviceToken())).findFirst();
+
             return returnUserInfo(user,UserDetailsImpl.build(user),LOGIN_TOKEN);
         }catch (Exception e){
             throw new UsernameNotFoundException("invalid username or password");
@@ -128,5 +137,11 @@ public class AuthService {
         var jwtToken = jwtService.generateToken(UserDetailsImpl.build(user));
 
         return ResponseEntity.ok().body(jwtToken);
+    }
+
+    public static Long getUserId(){
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl currentUser = (UserDetailsImpl) auth.getPrincipal();
+        return currentUser.getId();
     }
 }

@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface SchoolYearClassRepository extends JpaRepository<SchoolYearClass, Long> {
 
-    List<SchoolYearClass> findByIdIn(List<Long> ids);
+    List<SchoolYearClass> findAllByIdIn(List<Long> ids);
     SchoolYearClass findByTeacherSchoolYear_Id(Long ids);
 
     List<SchoolYearClass> findAllByIdOrClassNameOrClassCodeOrTeacherSchoolYear_IdOrSchoolYear_IdOrGrade_IdOrRoom_Id(
@@ -20,7 +20,7 @@ public interface SchoolYearClassRepository extends JpaRepository<SchoolYearClass
     List<SchoolYearClass> findAllBySchoolYear_IdAndGrade_Id(Long schoolYear_id, Long grade_id);
     List<SchoolYearClass> findAllByTeacherSchoolYear_IdAndSchoolYear_Id(Long teacherSchoolYear_id, Long schoolYear_id);
     List<SchoolYearClass> findAllBySchoolYear_Id(Long schoolYear_id);
-    List<SchoolYearClass> findAllByGrade_Id(Long grade_id);
+    List<SchoolYearClass> findAllByGrade_IdIn(List<Long> grade_id);
 
     List<SchoolYearClass> findAllByTeacherSchoolYear_Id(Long id);
 

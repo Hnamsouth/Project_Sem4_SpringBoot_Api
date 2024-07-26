@@ -9,12 +9,16 @@ import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceBody;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateOrUpdate;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
+import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
 import com.example.project_sem4_springboot_api.repositories.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +38,7 @@ public class StudentServiceImpl  {
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
+    private final StudentScoreSubjectRepository studentScoreSubjectRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final AttendanceRepository attendanceRepository;
     private final FeePeriodRepository feePeriodRepository;
@@ -57,8 +62,17 @@ public class StudentServiceImpl  {
         // add student_year_info
         StudentYearInfo studentYearInfo = StudentYearInfo.builder()
                 .students(newStudent).schoolYearClass(schoolYearClass).createdAt(newDate).build();
-        studentYearInfoRepository.save(studentYearInfo);
-
+        var stdYIF = studentYearInfoRepository.save(studentYearInfo);
+        // add student_score_subject
+        List<StudentScoreSubject> stdScore = new ArrayList<>();
+        schoolYearClass.getTeacherSchoolYearClassSubjects().forEach(t->
+                stdScore.add(StudentScoreSubject.builder()
+                        .studentYearInfo(stdYIF)
+                        .schoolYearSubject(t.getSchoolYearSubject())
+                        .teacherSchoolYear(t.getTeacherSchoolYear())
+                        .createdAt(newDate)
+                        .build()));
+        studentScoreSubjectRepository.saveAll(stdScore);
         return ResponseEntity.ok(newStudent);
     }
 
@@ -100,6 +114,20 @@ public class StudentServiceImpl  {
             }).toList();
         }
         return ResponseEntity.ok(rs);
+    }
+
+    public ResultPaginationDto getAllStudent(Specification<Student> specification, Pageable pageable){
+        Page<Student> studentPage = studentRepository.findAll(specification, pageable);
+        ResultPaginationDto rs = new ResultPaginationDto();
+        Meta meta = new Meta();
+        meta.setPage(pageable.getPageNumber() + 1);
+        meta.setPageSize(pageable.getPageSize());
+        meta.setPages(studentPage.getTotalPages());
+        meta.setTotal(studentPage.getTotalElements());
+
+        rs.setMeta(meta);
+        rs.setResult(studentPage.getContent());
+        return rs;
     }
 
     public ResponseEntity<?> updateStudentInfo(Student data) {
@@ -161,70 +189,6 @@ public class StudentServiceImpl  {
         return ResponseEntity.ok(attendance.stream().map(Attendance::toRes).toList());
     }
 
-    public ResponseEntity<?> createStudentTransaction(Long feePeriodId){
-
-    var feePeriod = feePeriodRepository.findById(feePeriodId).orElseThrow(()->new NullPointerException("Không tìm thấy khoản thu với Id: " + feePeriodId));
-    var scope = feePeriod.getFeePeriodScopes().get(0).getScope();
-    List<StudentTransaction> studentTransactionList = new ArrayList<>();
-    switch (scope.getCode()){
-        case GRADE -> {
-            // tạo transaction cho từng học sinh trong khối
-            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_Grade_IdInAndSchoolYearClass_SchoolYear_Id(
-                    feePeriod.getFeePeriodScopes().stream().map(FeePeriodScope::getObjectId).toList(), feePeriod.getSchoolyear().getId());
-        }
-        case CLASS -> {
-            // tạo transaction cho từng học sinh trong lớp
-            // lấy tất cả hs trong các lớp
-            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_IdIn(
-                    feePeriod.getFeePeriodScopes().stream().map(FeePeriodScope::getObjectId).toList()
-            );
-            // tạo transaction cho từng học sinh
-            var stdTransData = studentList.stream().map(s->StudentTransaction.builder()
-                    .status(EStatus.STUDENT_TRANS_UNPAID.getName())
-                    .statusCode(EStatus.STUDENT_TRANS_UNPAID)
-                    .feePeriod(feePeriod)
-                    .studentYearInfo(s)
-                    .build()).toList();
-            var listStuTrans = studentTransactionRepository.saveAll(stdTransData);
-            // tạo transaction detail cho từng khoản thu
-            List<TransactionDetail> StdTransDetails = new ArrayList<>();
-
-            var stdTrans =  listStuTrans.stream().map(st->{
-                // nếu dùng giá trị  là kiểu dữ liệu nguyên thủy thì phải dùng AtomicReference vì giá trị bên trong không thể thay đổi
-                // nên không thể thay đổi giá trị của biến total
-                // phải cấp phát bộ nhớ mới cho biến total bằng cách dùng AtomicReference
-                AtomicReference<Double> total = new AtomicReference<>(0.0);
-                feePeriod.getSchoolYearFeePeriods().forEach(s->{
-                    // lấy giá tiền của khoản thu theo khối của hs hoặc lấy giá tiền mặc định
-                    var price = s.getSchoolyearfee().getFeePrices().stream()
-                            .filter(f->f.getGradeId() !=null && f.getGradeId().equals(st.getStudentYearInfo().getSchoolYearClass().getGrade().getId()))
-                            .findAny()
-                            .orElseGet(()->s.getSchoolyearfee().getFeePrices().get(0)
-                            );
-                    StdTransDetails.add(TransactionDetail.builder()
-                            .title(s.getSchoolyearfee().getTitle())
-                            .price(price.getPrice())
-                            .amount(s.getAmount())
-                            .studentTransaction(st)
-                            .build());
-                    total.updateAndGet(v -> (v + price.getPrice() * s.getAmount()));
-                });
-                st.setTotal(total.get());
-                return st;
-            }).toList();
-            assert(stdTrans.size() == listStuTrans.size());
-            studentTransactionRepository.saveAll(stdTrans);
-            transactionDetailRepository.saveAll(StdTransDetails);
-        }
-        case SCHOOL -> {
-            // tạo transaction cho tất cả học sinh
-            var studentList = studentYearInfoRepository.findAllBySchoolYearClass_SchoolYear_Id(
-                    feePeriod.getSchoolyear().getId());
-        }
-    }
-    var resCheck = studentTransactionRepository.findAllByFeePeriod_Id(feePeriodId);
-    return ResponseEntity.ok(resCheck);
-}
     public ResponseEntity<?> getStudentTransaction(Long feePeriodId,Long studentId){
         if(feePeriodId!=null){
             var stdTrans = studentTransactionRepository.findByFeePeriod_IdAndStudentYearInfo_Id(feePeriodId,studentId);

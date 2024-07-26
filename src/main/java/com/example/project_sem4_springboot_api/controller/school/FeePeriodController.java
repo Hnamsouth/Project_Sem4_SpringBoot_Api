@@ -17,8 +17,11 @@ public class FeePeriodController {
     private final FeePeriodServiceImpl feePeriodService;
 
     @GetMapping("/getBy")
-    public ResponseEntity<?> getFeePeriodBy(@RequestParam @NotNull Long schoolYearId){
-        return feePeriodService.getFeePeriodBy(schoolYearId);
+    public ResponseEntity<?> getFeePeriodBy(
+            @RequestParam(required = false) Long schoolYearId,
+            @RequestParam(required = false)  Long FeePeriodId
+    ){
+        return feePeriodService.getFeePeriodBy(schoolYearId,FeePeriodId);
     }
 
     @PostMapping("/create")

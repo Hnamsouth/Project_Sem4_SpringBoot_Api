@@ -158,6 +158,13 @@ public class SchoolController {
     ){
         return schoolService.getTeacherSchoolYearClassSubject(schoolYearId);
     }
+    @GetMapping("/teacher-school-year-class-subject-by-teacher")
+    public ResponseEntity<?> get_TeacherSchoolYearClassSubjectByTeacher(
+            @Nullable @RequestParam Long schoolYearId
+    ){
+        return schoolService.getTeacherSchoolYearClassSubjectByTeacher(schoolYearId);
+    }
+
 
     /**
      * Get school-year-subject-grade : phân phối chương trình học

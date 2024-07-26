@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface TeacherSchoolYearRepository extends JpaRepository<TeacherSchoolYear,Long> {
     boolean existsByTeacher_IdAndSchoolYear_Id(Long teacher_id, Long schoolYear_id);
