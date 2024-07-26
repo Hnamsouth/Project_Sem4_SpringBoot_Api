@@ -113,6 +113,7 @@ public class FCMService {
                         .setBody(req.getBody())
                         .setDirection(WebpushNotification.Direction.LEFT_TO_RIGHT)
                         .setImage(IMG_URL)
+                        .setIcon(IMG_URL)
                         .setRequireInteraction(true)
                         .addAllActions(List.of(
                                 new WebpushNotification.Action(
@@ -122,7 +123,7 @@ public class FCMService {
                                 )
                         ))
                         .build())
-                .setFcmOptions(WebpushFcmOptions.withLink("http://localhost:3000/"))
+                .setFcmOptions(WebpushFcmOptions.withLink("http://localhost:3000"+UserNotificationActionType.STUDENT_ATTENDANCE.getRouterPath()))
                 .build();
     }
 
