@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.CommentDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -9,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Entity
@@ -33,14 +35,14 @@ public class Comment {
     private Date createdAt;
 
     @JsonIgnore
-    public Map<String,Object> toRes(){
-        return Map.of(
-                "id",this.id,
-                "content",this.id,
-                "article",this.article.getId(),
-                "userId",this.user.getId(),
-                "createdAt",this.createdAt
-        );
+    public CommentDto toRes(){
+        return CommentDto.builder()
+                .id(this.id)
+                .articleId(this.article.getId())
+                .userId(this.user.getId())
+                .content(this.content)
+                .createdAt(this.createdAt.toString())
+                .build();
     }
 
 

@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Entity
 @Data
@@ -37,12 +38,10 @@ public class Article {
     private User user;
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
-
     private List<Like> likes;
 
     @OneToMany(mappedBy = "article", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonBackReference
-
     private List<Comment> comments;
 
     public Article(Long id) {
@@ -53,8 +52,8 @@ public class Article {
     public Map<String,Object>  toRes(){
         Map<String,Object> res = new HashMap<>();
         res.put("id",this.id);
-        res.put("title",this.getTitle());
-        res.put("content",this.getContent());
+        res.put("title",this.title);
+        res.put("content",this.content);
         res.put("url",this.url);
         res.put("createdAt",this.createdAt);
         res.put("likeList",this.likes.stream().map(Like::toRes).toList());
@@ -65,14 +64,18 @@ public class Article {
 
     @JsonIgnore
     public ArticleDto convertToDto() {
+        System.out.println("likeList: " + this.likes.size()+"\t commentList: " + this.comments.size());
+
+        var likeList = this.likes.stream().map(Like::toRes).toList();
+        var commentList = this.comments.stream().map(Comment::toRes).toList();
         return ArticleDto.builder()
                 .id(this.id)
                 .title(this.title)
                 .content(this.content)
                 .url(this.url)
                 .createdAt(this.createdAt)
-                .likeList(this.likes)
-                .commentList(this.comments)
+                .likeList(likeList)
+                .commentList(commentList)
                 .build();
     }
 

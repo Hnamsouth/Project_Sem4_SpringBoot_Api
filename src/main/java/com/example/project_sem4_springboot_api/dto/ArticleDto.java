@@ -8,6 +8,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 @Data
 @Builder
 public class ArticleDto {
@@ -17,7 +19,7 @@ public class ArticleDto {
     private String url;
     private List<String> articleImageUrls;
     private Date createdAt;
-    private List<Like> likeList;
-    private List<Comment> commentList;
+    private List<LikeDto> likeList;
+    private List<CommentDto> commentList;
 
 }

@@ -1,5 +1,6 @@
 package com.example.project_sem4_springboot_api.entities;
 
+import com.example.project_sem4_springboot_api.dto.LikeDto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -37,14 +38,14 @@ public class Like {
     private Date createdAt;
 
     @JsonIgnore
-    public Map<String,Object> toRes(){
-        return Map.of(
-                "id",this.id,
-                "article",this.article.getId(),
-                "userId",this.user.getId(),
-                "status",this.status,
-                "createdAt",this.createdAt
-        );
+    public LikeDto toRes(){
+        return LikeDto.builder()
+                .id(this.id)
+                .articleId(this.article.getId())
+                .userId(this.user.getId())
+                .status(this.status)
+                .createdAt(this.createdAt)
+                .build();
     }
 
 
