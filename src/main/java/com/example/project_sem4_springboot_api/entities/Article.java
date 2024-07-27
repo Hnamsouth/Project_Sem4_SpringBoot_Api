@@ -70,6 +70,8 @@ public class Article {
                 .content(this.content)
                 .url(this.url)
                 .createdAt(this.createdAt)
+                .likeList(this.likes)
+                .commentList(this.comments)
                 .build();
     }
 
