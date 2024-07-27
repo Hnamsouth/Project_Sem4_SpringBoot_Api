@@ -57,7 +57,8 @@ public class Article {
         res.put("content",this.getContent());
         res.put("url",this.url);
         res.put("createdAt",this.createdAt);
-        res.put("userInfo",this.getUser().getUserDetail().get(0).getDto(false));
+        res.put("likeList",this.likes.stream().map(Like::toRes).toList());
+        res.put("commentList",this.comments.stream().map(Comment::toRes).toList());
         return res;
     }
 

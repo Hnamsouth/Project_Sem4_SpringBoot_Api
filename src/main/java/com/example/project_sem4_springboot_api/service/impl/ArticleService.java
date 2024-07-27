@@ -65,15 +65,17 @@ public class ArticleService {
     }
 
 
-    public List<ArticleDto> getAllArticles() {
+    public ResponseEntity<?> getAllArticles() {
         List<Article> articles = articleRepository.findAll();
         List<String> tags = new ArrayList<>(articles.stream().map(Article::getUrl).toList());
         var listImagesUrl = cloudinaryService.getImageGroupByTags(tags);
-        return articles.stream().map(s->{
-            var ar = s.convertToDto();
-            ar.setArticleImageUrls(listImagesUrl.get(s.getUrl()));
+        var rs= articles.stream().map(s->{
+            var ar = s.toRes();
+            ar.put("articleImageUrls",listImagesUrl.get(s.getUrl()));
             return ar;
         }).toList();
+
+        return ResponseEntity.ok(rs);
     }
 
 }

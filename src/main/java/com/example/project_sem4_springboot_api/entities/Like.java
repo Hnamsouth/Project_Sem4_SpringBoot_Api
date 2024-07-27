@@ -1,6 +1,7 @@
 package com.example.project_sem4_springboot_api.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,13 +10,14 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "likes")
+@Table(name = "likes",uniqueConstraints ={@UniqueConstraint(columnNames = {"article_id", "user_id"})})
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +36,16 @@ public class Like {
 
     private Date createdAt;
 
-
+    @JsonIgnore
+    public Map<String,Object> toRes(){
+        return Map.of(
+                "id",this.id,
+                "article",this.article.getId(),
+                "userId",this.user.getId(),
+                "status",this.status,
+                "createdAt",this.createdAt
+        );
+    }
 
 
 }
