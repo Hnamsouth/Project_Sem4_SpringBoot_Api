@@ -33,4 +33,8 @@ public class Like {
     private boolean status;
 
     private Date createdAt;
+
+
+
+
 }
