@@ -54,9 +54,16 @@ public class TeacherController {
         return teacherService.getContactTeacher(schoolYearClassId);
     }
     @GetMapping("/getClasses")
-    public ResponseEntity<?> getTeacherSchoolYearClass(@RequestParam Long schoolYearId){
+    public ResponseEntity<?> getTeacherSchoolYearClassSubjects(@RequestParam Long schoolYearId){
         return teacherService.getSchoolYearClassByTeacher(schoolYearId);
     }
+    @GetMapping("/get-homeroom-classes")
+    public ResponseEntity<?> getTeacherSchoolYearClass(@RequestParam Long schoolYearId){
+        return teacherService.getTeacherSchoolYearClass(schoolYearId);
+    }
+
+
+
     @GetMapping("/getSubjects")
     public ResponseEntity<?> getTeacherSchoolYearSubject(@RequestParam Long schoolYearId){
         return teacherService.getSchoolYearSubject(schoolYearId);

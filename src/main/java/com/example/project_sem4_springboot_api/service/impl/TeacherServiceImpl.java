@@ -139,6 +139,12 @@ public class TeacherServiceImpl {
         return ResponseEntity.ok(teacher.getClassesSubjects());
     }
 
+    public ResponseEntity<?> getTeacherSchoolYearClass(Long schoolYearId){
+        var teacher = teacherSchoolYearRepository.findByTeacher_User_IdAndSchoolYear_Id(AuthService.getUserId(),schoolYearId);
+        if(teacher == null) throw new NullPointerException("Không tìm thấy giáo viên dạy trong năm học này!!!");
+        return ResponseEntity.ok(teacher.getSchoolYearClass().stream().map(SchoolYearClass::toRes).toList());
+    }
+
     /**
      * @return list school year class by teacher
      *

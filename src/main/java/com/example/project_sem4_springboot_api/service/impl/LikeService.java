@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Date;
@@ -22,9 +23,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class LikeService {
 
-    @Autowired
     private final LikeRepository likeRepository;
-
     private final UserRepository userRepository;
     private final ArticleRepository articleRepository;
 
@@ -36,6 +35,7 @@ public class LikeService {
         return likeRepository.findById(id);
     }
 
+    @Transactional
     public ResponseEntity<?> createAndDeleteLike(Long articleId) {
         var user = userRepository.findById(AuthService.getUserId()).orElseThrow();
 
@@ -43,15 +43,14 @@ public class LikeService {
                 new RuntimeException("Article not found"));
         var isLiked = likeRepository.findByArticle_IdAndUser_Id( article.getId(),user.getId());
         if (isLiked !=null) {
-            System.out.println(isLiked.getId());
-            likeRepository.deleteById(isLiked.getId());
-            return ResponseEntity.status(HttpStatus.OK).body("Unlike");
+            likeRepository.delete(isLiked);
+            return ResponseEntity.ok("Unlike");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 likeRepository.save(Like.builder().article(article).user(user).createdAt(new Date()).build())
         );
     }
-
+    @Transactional
     public void deleteLike(Long id) {
         likeRepository.deleteById(id);
     }

@@ -20,8 +20,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
     private final ArticleRepository articleRepository;
     private final UserRepository userRepository;
 
@@ -39,9 +38,6 @@ public class CommentService {
                 new RuntimeException("User not found"));
         Article article = articleRepository.findById(articleId).orElseThrow(() ->
                 new RuntimeException("Article not found"));
-
-
-
         Comment comment = new Comment();
         comment.setArticle(article);
         comment.setContent(content);

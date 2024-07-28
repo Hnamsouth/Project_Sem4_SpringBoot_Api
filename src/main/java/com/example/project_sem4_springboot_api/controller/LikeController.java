@@ -21,8 +21,7 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class LikeController {
 
-    @Autowired
-    private LikeService likeService;
+    private final LikeService likeService;
 
     @GetMapping
     public List<Like> getAllLikes() {
