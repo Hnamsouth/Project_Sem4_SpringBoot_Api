@@ -37,12 +37,14 @@ public class LikeService {
     }
 
     public ResponseEntity<?> createAndDeleteLike(Long articleId) {
-        User user = userRepository.findById(AuthService.getUserId()).orElseThrow();
+        var user = userRepository.findById(AuthService.getUserId()).orElseThrow();
+
         Article article = articleRepository.findById(articleId).orElseThrow(() ->
                 new RuntimeException("Article not found"));
-        var isLiked = likeRepository.findByUserIdAndArticleId(user.getId(), article.getId());
-        if (isLiked.isPresent()) {
-            likeRepository.deleteById(isLiked.get().getId());
+        var isLiked = likeRepository.findByArticle_IdAndUser_Id( article.getId(),user.getId());
+        if (isLiked !=null) {
+            System.out.println(isLiked.getId());
+            likeRepository.deleteById(isLiked.getId());
             return ResponseEntity.status(HttpStatus.OK).body("Unlike");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(
