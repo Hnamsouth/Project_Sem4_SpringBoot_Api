@@ -33,8 +33,8 @@ public class CommentService {
         return commentRepository.findById(id);
     }
 
-    public Comment createComment(String content, Long createdId,Long articleId )throws IOException, ExecutionException, InterruptedException {
-        User user = userRepository.findById(createdId).orElseThrow(() ->
+    public Comment createComment(String content,Long articleId )throws IOException, ExecutionException, InterruptedException {
+        User user = userRepository.findById(AuthService.getUserId()).orElseThrow(() ->
                 new RuntimeException("User not found"));
         Article article = articleRepository.findById(articleId).orElseThrow(() ->
                 new RuntimeException("Article not found"));
@@ -44,7 +44,6 @@ public class CommentService {
         comment.setUser(user);
         comment.setCreatedAt(new Date());
         return commentRepository.save(comment);
-
     }
 
     public void deleteComment(Long id) {

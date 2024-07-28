@@ -41,7 +41,7 @@ public class Like {
         return LikeDto.builder()
                 .id(this.id)
                 .articleId(this.article.getId())
-                .userId(this.user.getId())
+                .user(this.user)
                 .status(this.status)
                 .createdAt(this.createdAt)
                 .build();

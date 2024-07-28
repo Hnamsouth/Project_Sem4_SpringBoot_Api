@@ -39,7 +39,7 @@ public class Comment {
         return CommentDto.builder()
                 .id(this.id)
                 .articleId(this.article.getId())
-                .userId(this.user.getId())
+                .user(this.user)
                 .content(this.content)
                 .createdAt(this.createdAt.toString())
                 .build();

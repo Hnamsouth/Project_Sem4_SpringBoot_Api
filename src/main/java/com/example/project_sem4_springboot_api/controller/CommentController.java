@@ -35,9 +35,9 @@ public class CommentController {
     }
 
     @PostMapping
-    public ResponseEntity<Comment> createComment(@RequestParam String content, @RequestParam Long createId,@RequestParam Long articleId)throws ParseException, IOException, ExecutionException, InterruptedException {
+    public ResponseEntity<Comment> createComment(@RequestParam String content,@RequestParam Long articleId)throws ParseException, IOException, ExecutionException, InterruptedException {
 
-        Comment comment = commentService.createComment(content, createId,articleId);
+        Comment comment = commentService.createComment(content,articleId);
         return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
