@@ -8,6 +8,8 @@ import com.example.project_sem4_springboot_api.repositories.LikeRepository;
 import com.example.project_sem4_springboot_api.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -34,20 +36,18 @@ public class LikeService {
         return likeRepository.findById(id);
     }
 
-    public Like createLike(Long articleId , Long userId)throws IOException, ExecutionException, InterruptedException {
-        User user = userRepository.findById(userId).orElseThrow(() ->
-                new RuntimeException("User not found"));
+    public ResponseEntity<?> createAndDeleteLike(Long articleId) {
+        User user = userRepository.findById(AuthService.getUserId()).orElseThrow();
         Article article = articleRepository.findById(articleId).orElseThrow(() ->
                 new RuntimeException("Article not found"));
-
-
-        Like like = new Like();
-
-        like.setArticle(article);
-        like.setUser(user);
-        like.setCreatedAt(new Date());
-
-        return likeRepository.save(like);
+        var isLiked = likeRepository.findByUserIdAndArticleId(user.getId(), article.getId());
+        if (isLiked.isPresent()) {
+            likeRepository.deleteById(isLiked.get().getId());
+            return ResponseEntity.status(HttpStatus.OK).body("Unlike");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                likeRepository.save(Like.builder().article(article).user(user).createdAt(new Date()).build())
+        );
     }
 
     public void deleteLike(Long id) {

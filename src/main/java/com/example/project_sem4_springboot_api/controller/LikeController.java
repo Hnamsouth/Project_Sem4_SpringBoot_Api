@@ -36,16 +36,8 @@ public class LikeController {
     }
 
     @PostMapping
-    public ResponseEntity<Like> createLike(
-            @RequestParam Long articleId,
-            @RequestParam Long userId)
-            throws ParseException, IOException, ExecutionException, InterruptedException {
-
-
-        {
-            Like savedLike = likeService.createLike(articleId, userId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedLike);
-        }
+    public ResponseEntity<?> createAndDeleteLike( @RequestParam Long articleId) {
+            return likeService.createAndDeleteLike(articleId);
     }
 
     @DeleteMapping("/{id}")
