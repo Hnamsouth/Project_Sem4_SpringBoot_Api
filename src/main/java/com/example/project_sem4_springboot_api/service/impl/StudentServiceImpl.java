@@ -9,6 +9,7 @@ import com.example.project_sem4_springboot_api.entities.enums.PaymentMethod;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceBody;
 import com.example.project_sem4_springboot_api.entities.request.AttendanceCreateOrUpdate;
 import com.example.project_sem4_springboot_api.entities.request.TakeLeaveRequest;
+import com.example.project_sem4_springboot_api.entities.request.UserNotifyRes;
 import com.example.project_sem4_springboot_api.entities.response.ResultPaginationDto;
 import com.example.project_sem4_springboot_api.entities.response.TakeLeaveRes;
 import com.example.project_sem4_springboot_api.exception.ArgumentNotValidException;
@@ -35,13 +36,14 @@ public class StudentServiceImpl  {
     private final String STUDENT_STATUS_CREATE= EStatus.STUDENT_DANG_HOC.name();
     private final StudentRepository studentRepository;
     private final UserRepository userRepository;
+    private final UserNotificationRepository userNotificationRepository;
     private final StudentStatusRepository studentStatusRepository;
     private final StatusRepository statusRepository;
     private final StudentYearInfoRepository studentYearInfoRepository;
     private final StudentScoreSubjectRepository studentScoreSubjectRepository;
     private final SchoolYearClassRepository schoolYearClassRepository;
     private final AttendanceRepository attendanceRepository;
-    private final FeePeriodRepository feePeriodRepository;
+    private final FCMService fcmService;
     private final StudentTransactionRepository studentTransactionRepository;
     private final TransactionDetailRepository transactionDetailRepository;
     private final TakeLeaveRepository takeLeaveRepository;
@@ -230,34 +232,26 @@ public class StudentServiceImpl  {
                 .studentYearInfo(student)
                 .parent(parent)
                 .build();
-        var res = takeLeaveRepository.save(takeLeave);
+        var teacherInfo = student.getSchoolYearClass().getTeacherSchoolYear().getTeacher().getUser();
+        var studentinfo = student.getStudents();
+        var title = studentinfo.getFirstName()+" "+studentinfo.getLastName()+" Xin nghỉ học";
+        var body = data.getNote()+"\t"+ data.getStartDate()+"\t"+data.getEndDate();
+        userNotificationRepository.save(UserNotification.builder()
+                .title(title)
+                .content(body)
+                .user(teacherInfo)
+                .createdAt(currentDate)
+                .build());
+        // send notify to parent
+        if(!teacherInfo.getUserDeviceTokens().isEmpty()){
+            fcmService.sendAllNotification(UserNotifyRes.builder()
+                    .title(title)
+                    .body(body)
+                    .tokens(teacherInfo.getUserDeviceTokens().stream().map(UserDeviceToken::getDeviceToken).toList())
+                    .build());
+        }
 
-//        var days= Period.between(data.getStartDate(),data.getEndDate()).getDays();
-//        if(days > 0){
-//            List<Attendance> attendanceList = new LinkedList<>();
-//            for(int i=0;i<=days;i++) {
-//                var attendance = Attendance.builder()
-//                        .studentYearInfo(student)
-//                        .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
-//                        .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
-//                        .notificationStatus(EStatus.DA_THONG_BAO.getName())
-//                        .note(data.getNote())
-//                        .createdAt(localDateToDate(data.getStartDate().plusDays(i)))
-//                        .build();
-//                attendanceList.add(attendance);
-//            }
-//            var ListAttendance = attendanceRepository.saveAll(attendanceList);
-//        }
-//        var attendance = Attendance.builder()
-//                .studentYearInfo(student)
-//                .attendanceStatus(AttendanceStatus.NGHI_CO_PHEP)
-//                .attendanceStatusName(AttendanceStatus.NGHI_CO_PHEP.getName())
-//                .notificationStatus(EStatus.DA_THONG_BAO.getName())
-//                .note(data.getNote())
-//                .createdAt(localDateToDate(data.getStartDate()))
-//                .build();
-//        var Attendance = attendanceRepository.save(attendance);
-        // gửi thông báo cho giáo viên chủ nhiệm
+        var res = takeLeaveRepository.save(takeLeave);
 
         return ResponseEntity.ok(res);
     }
