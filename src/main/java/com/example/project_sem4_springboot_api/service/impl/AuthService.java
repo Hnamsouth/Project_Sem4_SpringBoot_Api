@@ -77,7 +77,13 @@ public class AuthService {
             var user = userRepository.findByUsername(request.getUsername()).orElseThrow();
             var userDTk = user.getUserDeviceTokens().stream()
                     .filter(u->u.getDeviceToken().equals(request.getDeviceToken())).findFirst();
-
+            if(userDTk.isEmpty()){
+                userDeviceTokenRepository.save(
+                        UserDeviceToken.builder()
+                        .deviceToken(request.getDeviceToken())
+                        .user(user).build()
+                );
+            }
             return returnUserInfo(user,UserDetailsImpl.build(user),LOGIN_TOKEN);
         }catch (Exception e){
             throw new UsernameNotFoundException("invalid username or password");
