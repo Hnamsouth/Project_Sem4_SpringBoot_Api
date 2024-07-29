@@ -112,8 +112,6 @@ public class FCMService {
                         .setTitle(req.getTitle())
                         .setBody(req.getBody())
                         .setDirection(WebpushNotification.Direction.LEFT_TO_RIGHT)
-                        .setImage(IMG_URL)
-                        .setIcon(IMG_URL)
                         .setRequireInteraction(true)
                         .addAllActions(List.of(
                                 new WebpushNotification.Action(
