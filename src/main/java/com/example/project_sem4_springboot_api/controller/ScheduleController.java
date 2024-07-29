@@ -60,7 +60,7 @@ public class ScheduleController {
         throw new ArgumentNotValidException("Id Tkb không được để trống!!!","Id","null");
     }
 
-    @PutMapping("/apply-calendar-release")
+    @PostMapping("/apply-calendar-release")
     public ResponseEntity<?> apply_CalendarRelease (@RequestParam Long calendarId){
         return scheduleService.updateCalendarRelease(calendarId);
     }
